@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AppLayout from '@/components/layouts/AppLayout';
 import StockSearchBar from '@/components/stocks/StockSearchBar';
@@ -7,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getStockHistoricalData, getStockDetails, getPrediction } from '@/services/stockService';
 import { useNavigate } from 'react-router-dom';
 import StockChart from '@/components/charts/StockChart';
-import { ChartLineUp, TrendingUp, TrendingDown, BarChart3, LineChart } from 'lucide-react';
+import { LineChart, TrendingUp, TrendingDown, BarChart3, BarChart } from 'lucide-react';
 
 const Analysis: React.FC = () => {
   const [symbol, setSymbol] = useState<string>('');
@@ -81,7 +80,7 @@ const Analysis: React.FC = () => {
         </div>
       ) : !symbol ? (
         <div className="finova-card p-8 text-center">
-          <ChartLineUp className="w-12 h-12 mx-auto text-finova-primary/70" />
+          <LineChart className="w-12 h-12 mx-auto text-finova-primary/70" />
           <p className="mt-4 text-white text-lg">Enter a stock symbol to analyze</p>
           <p className="mt-2 text-white/60">
             Get technical analysis, predictions, and insights
