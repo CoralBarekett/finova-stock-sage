@@ -1,5 +1,6 @@
 
-// Mock data for stock API calls
+// Stock service with real API integration
+import { toast } from "sonner";
 
 export interface StockData {
   symbol: string;
@@ -17,7 +18,71 @@ export interface HistoricalData {
   price: number;
 }
 
-// Mock popular stocks data
+const LIVE_STOCKS_API_KEY = 'cpna92pr01qtggbavitgcpna92pr01qtggbaviu0';
+const HISTORY_STOCKS_API_KEY = '9BVIQ3O8J627J1RT';
+const LIVE_STOCKS_BASE_URL = 'https://finnhub.io/api/v1';
+const HISTORY_STOCKS_BASE_URL = 'https://www.alphavantage.co/query';
+
+// Stock symbol to company name mapping
+const companyNames: Record<string, string> = {
+  'AAPL': 'Apple Inc.',
+  'TSLA': 'Tesla, Inc.',
+  'MSFT': 'Microsoft Corporation',
+  'AMZN': 'Amazon.com, Inc.',
+  'GOOGL': 'Alphabet Inc.',
+  'META': 'Meta Platforms, Inc.',
+  'NFLX': 'Netflix, Inc.',
+  'NVDA': 'NVIDIA Corporation',
+  'AMD': 'Advanced Micro Devices, Inc.',
+  'INTC': 'Intel Corporation',
+  'IBM': 'International Business Machines',
+  'CSCO': 'Cisco Systems, Inc.',
+  'ORCL': 'Oracle Corporation',
+  'CRM': 'Salesforce, Inc.',
+  'PYPL': 'PayPal Holdings, Inc.',
+  'ADBE': 'Adobe Inc.',
+  'TWTR': 'Twitter, Inc.',
+  'SNAP': 'Snap Inc.',
+  'DIS': 'The Walt Disney Company',
+  'V': 'Visa Inc.',
+};
+
+// Helper functions for API calls
+const handleApiError = (error: any, message: string) => {
+  console.error(`${message}:`, error);
+  toast.error(`Failed to fetch stock data. Please try again.`);
+  return null;
+};
+
+// Get real-time stock quote from Finnhub
+const getStockQuote = async (symbol: string): Promise<any> => {
+  try {
+    const response = await fetch(`${LIVE_STOCKS_BASE_URL}/quote?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    handleApiError(error, `Error fetching quote for ${symbol}`);
+    return null;
+  }
+};
+
+// Get company profile from Finnhub
+const getCompanyProfile = async (symbol: string): Promise<any> => {
+  try {
+    const response = await fetch(`${LIVE_STOCKS_BASE_URL}/stock/profile2?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    handleApiError(error, `Error fetching profile for ${symbol}`);
+    return null;
+  }
+};
+
+// Mock popular stocks data (still needed as a fallback)
 const popularStocks: StockData[] = [
   {
     symbol: 'AAPL',
@@ -81,7 +146,45 @@ const popularStocks: StockData[] = [
   },
 ];
 
-// Generate mock historical data
+// Get historical data from Alpha Vantage
+export const getStockHistoricalData = async (
+  symbol: string,
+  days: number = 30
+): Promise<HistoricalData[]> => {
+  try {
+    const response = await fetch(
+      `${HISTORY_STOCKS_BASE_URL}?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${HISTORY_STOCKS_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Handle API limit reached or errors
+    if (data['Error Message'] || data['Information'] || !data['Time Series (Daily)']) {
+      console.warn('API limitation or error:', data);
+      // Fall back to mock data
+      return generateHistoricalData(popularStocks.find(s => s.symbol === symbol)?.price || 100, days);
+    }
+    
+    const timeSeries = data['Time Series (Daily)'];
+    const dates = Object.keys(timeSeries).sort().slice(0, days);
+    
+    return dates.map(date => ({
+      date,
+      price: parseFloat(timeSeries[date]['4. close']),
+    }));
+  } catch (error) {
+    console.error('Error fetching historical data:', error);
+    // Fall back to mock data
+    const stock = popularStocks.find(s => s.symbol.toLowerCase() === symbol.toLowerCase());
+    return generateHistoricalData(stock?.price || 100, days);
+  }
+};
+
+// Generate mock historical data (used as fallback)
 const generateHistoricalData = (basePrice: number, days: number): HistoricalData[] => {
   const data: HistoricalData[] = [];
   const today = new Date();
@@ -105,54 +208,151 @@ const generateHistoricalData = (basePrice: number, days: number): HistoricalData
   return data;
 };
 
-// Mock stock API functions
+// Get popular stocks with real data from Finnhub
 export const getPopularStocks = async (): Promise<StockData[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return popularStocks;
+  const symbols = ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'GOOGL', 'META'];
+  const result: StockData[] = [];
+  
+  try {
+    // We'll use Promise.all to fetch data for all symbols in parallel
+    await Promise.all(
+      symbols.map(async (symbol) => {
+        const quote = await getStockQuote(symbol);
+        
+        if (quote) {
+          result.push({
+            symbol,
+            name: companyNames[symbol] || symbol,
+            price: quote.c || 0,
+            change: quote.d || 0,
+            changePercent: quote.dp || 0,
+            volume: quote.v || 0,
+            marketCap: 0, // Not available in basic quote
+            peRatio: 0,   // Not available in basic quote
+          });
+        }
+      })
+    );
+    
+    // If we failed to get any real data, use mock data
+    if (result.length === 0) {
+      toast.error("Could not fetch live stock data. Using sample data instead.");
+      return popularStocks;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error fetching popular stocks:", error);
+    toast.error("Could not fetch live stock data. Using sample data instead.");
+    return popularStocks;
+  }
 };
 
+// Search for stocks
 export const searchStocks = async (query: string): Promise<StockData[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  const lowercaseQuery = query.toLowerCase();
-  return popularStocks.filter(
-    stock => 
-      stock.symbol.toLowerCase().includes(lowercaseQuery) || 
-      stock.name.toLowerCase().includes(lowercaseQuery)
-  );
-};
-
-export const getStockDetails = async (symbol: string): Promise<StockData | null> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 700));
-  
-  const stock = popularStocks.find(
-    s => s.symbol.toLowerCase() === symbol.toLowerCase()
-  );
-  
-  return stock || null;
-};
-
-export const getStockHistoricalData = async (
-  symbol: string,
-  days: number = 30
-): Promise<HistoricalData[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 900));
-  
-  const stock = popularStocks.find(
-    s => s.symbol.toLowerCase() === symbol.toLowerCase()
-  );
-  
-  if (!stock) {
+  if (!query || query.trim() === '') {
     return [];
   }
   
-  return generateHistoricalData(stock.price, days);
+  try {
+    const response = await fetch(
+      `${LIVE_STOCKS_BASE_URL}/search?q=${query}&token=${LIVE_STOCKS_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.result || !Array.isArray(data.result)) {
+      console.warn('No search results or unexpected format:', data);
+      // Fall back to mock search
+      const lowercaseQuery = query.toLowerCase();
+      return popularStocks.filter(
+        stock => 
+          stock.symbol.toLowerCase().includes(lowercaseQuery) || 
+          stock.name.toLowerCase().includes(lowercaseQuery)
+      );
+    }
+    
+    // Convert the search results to our StockData format
+    // We need to fetch quotes for the search results
+    const topResults = data.result.slice(0, 10);
+    const searchResults: StockData[] = [];
+    
+    await Promise.all(
+      topResults.map(async (item: any) => {
+        if (item.symbol && item.type === 'Common Stock') {
+          const quote = await getStockQuote(item.symbol);
+          if (quote) {
+            searchResults.push({
+              symbol: item.symbol,
+              name: item.description || item.symbol,
+              price: quote.c || 0,
+              change: quote.d || 0,
+              changePercent: quote.dp || 0,
+              volume: quote.v || 0,
+              marketCap: 0,
+              peRatio: 0,
+            });
+          }
+        }
+      })
+    );
+    
+    return searchResults;
+  } catch (error) {
+    console.error("Error searching stocks:", error);
+    toast.error("Error searching for stocks. Using sample results.");
+    
+    // Fall back to mock search
+    const lowercaseQuery = query.toLowerCase();
+    return popularStocks.filter(
+      stock => 
+        stock.symbol.toLowerCase().includes(lowercaseQuery) || 
+        stock.name.toLowerCase().includes(lowercaseQuery)
+    );
+  }
 };
 
+// Get details for a specific stock
+export const getStockDetails = async (symbol: string): Promise<StockData | null> => {
+  try {
+    const quote = await getStockQuote(symbol);
+    const profile = await getCompanyProfile(symbol);
+    
+    if (!quote) {
+      throw new Error(`Could not fetch quote for ${symbol}`);
+    }
+    
+    return {
+      symbol: symbol,
+      name: profile?.name || companyNames[symbol] || symbol,
+      price: quote.c || 0,
+      change: quote.d || 0,
+      changePercent: quote.dp || 0,
+      volume: quote.v || 0,
+      marketCap: profile?.marketCapitalization || 0,
+      peRatio: 0, // Not available in basic API
+    };
+  } catch (error) {
+    console.error(`Error fetching stock details for ${symbol}:`, error);
+    
+    // Fall back to mock data
+    const stock = popularStocks.find(
+      s => s.symbol.toLowerCase() === symbol.toLowerCase()
+    );
+    
+    if (!stock) {
+      return null;
+    }
+    
+    return stock;
+  }
+};
+
+// Get AI prediction for a stock - this remains mock data for now
 export const getPrediction = async (symbol: string): Promise<{
   bullish: boolean;
   confidence: number;
@@ -161,7 +361,7 @@ export const getPrediction = async (symbol: string): Promise<{
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1200));
   
-  // Simulate a prediction
+  // Generate a mock prediction
   const bullish = Math.random() > 0.4; // 60% chance of bullish prediction
   const confidence = 65 + Math.floor(Math.random() * 20); // Between 65-85%
   
