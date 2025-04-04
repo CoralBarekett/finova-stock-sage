@@ -152,6 +152,7 @@ export const getStockHistoricalData = async (
   days: number = 30
 ): Promise<HistoricalData[]> => {
   try {
+    console.log(`Fetching historical data for ${symbol} for ${days} days`);
     const response = await fetch(
       `${HISTORY_STOCKS_BASE_URL}?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${HISTORY_STOCKS_API_KEY}`
     );
@@ -161,6 +162,7 @@ export const getStockHistoricalData = async (
     }
     
     const data = await response.json();
+    console.log('API Response:', data);
     
     // Handle API limit reached or errors
     if (data['Error Message'] || data['Information'] || !data['Time Series (Daily)']) {
@@ -172,10 +174,13 @@ export const getStockHistoricalData = async (
     const timeSeries = data['Time Series (Daily)'];
     const dates = Object.keys(timeSeries).sort().slice(0, days);
     
-    return dates.map(date => ({
+    const historicalData = dates.map(date => ({
       date,
       price: parseFloat(timeSeries[date]['4. close']),
     }));
+    
+    console.log('Processed historical data:', historicalData);
+    return historicalData;
   } catch (error) {
     console.error('Error fetching historical data:', error);
     // Fall back to mock data

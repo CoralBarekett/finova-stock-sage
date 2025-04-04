@@ -1,12 +1,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
+import { queryGemini } from '@/services/geminiService';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  isLoading?: boolean;
 }
 
 const FinovaBot: React.FC = () => {
@@ -19,6 +22,7 @@ const FinovaBot: React.FC = () => {
     },
   ]);
   const [input, setInput] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,7 +34,7 @@ const FinovaBot: React.FC = () => {
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isProcessing) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -39,42 +43,45 @@ const FinovaBot: React.FC = () => {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Add a loading message
+    const loadingMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: "Thinking...",
+      sender: 'bot',
+      timestamp: new Date(),
+      isLoading: true,
+    };
+
+    setMessages((prev) => [...prev, userMessage, loadingMessage]);
     setInput('');
+    setIsProcessing(true);
 
-    // Simulate bot thinking
-    setTimeout(() => {
-      const botResponse = getBotResponse(input);
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: botResponse,
-        sender: 'bot',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
-  };
-
-  const getBotResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes('tesla') || lowerQuery.includes('tsla')) {
-      return "Tesla (TSLA) is currently trading at $267.49, down 1.23% today. The company has been showing strong resilience despite market volatility.";
-    } 
-    else if (lowerQuery.includes('apple') || lowerQuery.includes('aapl')) {
-      return "Apple (AAPL) is trading at $182.63, up 0.87% today. Analysts are bullish on the stock following their latest product announcements.";
-    }
-    else if (lowerQuery.includes('amazon') || lowerQuery.includes('amzn')) {
-      return "Amazon (AMZN) is currently at $178.15, up 1.42% today. The e-commerce giant continues to show strong performance in both retail and cloud services.";
-    }
-    else if (lowerQuery.includes('invest') || lowerQuery.includes('buy')) {
-      return "Based on current market analysis, technology and renewable energy sectors are showing promising growth potential. However, I recommend diversifying your portfolio and considering your risk tolerance before making investment decisions.";
-    }
-    else if (lowerQuery.includes('predict') || lowerQuery.includes('forecast')) {
-      return "My prediction models indicate a potential upward trend in tech stocks over the next quarter, with an estimated 3-5% growth. However, market conditions can change rapidly, so regular portfolio assessment is advised.";
-    }
-    else {
-      return "I'm still learning about specific financial insights. In the future, I'll be able to provide more detailed analysis on various stocks and market trends. Is there anything else I can help you with?";
+    try {
+      // Call Gemini API
+      const response = await queryGemini(input);
+      
+      // Replace loading message with actual response
+      setMessages((prev) => 
+        prev.filter(msg => !msg.isLoading).concat({
+          id: (Date.now() + 2).toString(),
+          text: response.text,
+          sender: 'bot',
+          timestamp: new Date(),
+        })
+      );
+      
+      if (response.error) {
+        toast.error("There was an issue with the AI service. Using fallback response.");
+        console.error("Gemini API error:", response.error);
+      }
+    } catch (error) {
+      console.error('Error getting response:', error);
+      toast.error("Failed to get a response. Please try again.");
+      
+      // Remove loading message on error
+      setMessages((prev) => prev.filter(msg => !msg.isLoading));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -107,7 +114,15 @@ const FinovaBot: React.FC = () => {
                   : 'bg-white/10 text-white'
               }`}
             >
-              <p>{message.text}</p>
+              {message.isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+              ) : (
+                <p>{message.text}</p>
+              )}
               <p className="text-xs opacity-70 mt-1">
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -126,12 +141,13 @@ const FinovaBot: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             rows={1}
+            disabled={isProcessing}
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || isProcessing}
             className={`ml-2 p-2 rounded-full ${
-              input.trim() ? 'bg-finova-primary hover:bg-finova-accent' : 'bg-white/10'
+              input.trim() && !isProcessing ? 'bg-finova-primary hover:bg-finova-accent' : 'bg-white/10'
             } transition-colors`}
           >
             <Send className="h-5 w-5 text-white" />

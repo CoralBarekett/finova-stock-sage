@@ -20,7 +20,10 @@ export default {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border))',
+				border: {
+					DEFAULT: 'hsl(var(--border))',
+					light: 'rgba(0, 0, 0, 0.1)'
+				},
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
@@ -114,6 +117,7 @@ export default {
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'finova-gradient': 'linear-gradient(to right, #1A1F2C, #2D3748)',
+				'finova-light-gradient': 'linear-gradient(to right, #f8fafc, #e5e7eb)',
 			},
 		}
 	},
