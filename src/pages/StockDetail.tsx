@@ -44,6 +44,7 @@ const StockDetail: React.FC = () => {
         
         // Generate price predictions
         const predictions = await predictStockPrices(symbol, historical);
+        console.log("Generated predictions:", predictions);
         setPredictedData(predictions);
         
         // Get prediction text

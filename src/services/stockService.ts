@@ -1,4 +1,3 @@
-
 // Stock service with real API integration
 import { toast } from "sonner";
 
@@ -183,13 +182,13 @@ export const getStockHistoricalData = async (
     return historicalData;
   } catch (error) {
     console.error('Error fetching historical data:', error);
-    // Fall back to mock data
+    // Fall back to mock data with more current dates
     const stock = popularStocks.find(s => s.symbol.toLowerCase() === symbol.toLowerCase());
     return generateHistoricalData(stock?.price || 100, days);
   }
 };
 
-// Generate mock historical data (used as fallback)
+// Generate mock historical data (used as fallback with current dates)
 const generateHistoricalData = (basePrice: number, days: number): HistoricalData[] => {
   const data: HistoricalData[] = [];
   const today = new Date();
@@ -198,11 +197,24 @@ const generateHistoricalData = (basePrice: number, days: number): HistoricalData
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     
-    // Add some random fluctuation to create realistic looking chart
-    const randomFactor = 0.98 + Math.random() * 0.04; // Random between 0.98 and 1.02
-    const trendFactor = 1 + (days - i) * 0.001; // Slight upward trend over time
+    // Add some realistic price movement patterns with trends
+    let trendFactor = 1.0;
     
-    const price = basePrice * randomFactor * trendFactor;
+    // Create a more realistic trend pattern
+    if (i < days / 2) {
+      // First half of the data shows one trend
+      trendFactor = 1 + (days - i) * 0.0008; // Slight upward trend
+    } else {
+      // Second half shows another trend
+      trendFactor = 1 + (i - days / 2) * 0.0005; // Different trend
+    }
+    
+    // Add some randomness to daily changes
+    const dailyChange = (Math.random() - 0.5) * 0.02; // Random between -1% and +1%
+    const volatilityFactor = 1 + dailyChange;
+    
+    // Calculate price with trend and volatility
+    const price = basePrice * trendFactor * volatilityFactor;
     
     data.push({
       date: date.toISOString().split('T')[0],

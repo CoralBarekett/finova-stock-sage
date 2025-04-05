@@ -26,15 +26,39 @@ const StockChart: React.FC<StockChartProps> = ({
   // Check if we have valid data
   const hasValidData = data && data.length > 0;
   
-  // Combine historical and predicted data if available
-  const combinedData = hasValidData ? [...data] : [];
+  // Create a processed data array that includes both historical and prediction data
+  const processedData = hasValidData ? [...data] : [];
+  
+  // Create a separate array just for predictions
+  let processedPredictions: any[] = [];
   
   if (predictedData && predictedData.length > 0) {
-    combinedData.push(...predictedData);
+    // Create prediction data points
+    processedPredictions = predictedData.map(item => ({
+      date: item.date,
+      predictedPrice: item.price,
+      formattedDate: new Date(item.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })
+    }));
+    
+    // Add the last historical data point to connect the lines
+    if (data.length > 0) {
+      const lastDataPoint = data[data.length - 1];
+      processedPredictions.unshift({
+        date: lastDataPoint.date,
+        predictedPrice: lastDataPoint.price,
+        formattedDate: new Date(lastDataPoint.date).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        })
+      });
+    }
   }
 
-  // Format dates for better display
-  const formattedData = combinedData.map(item => {
+  // Format dates for better display for historical data
+  const formattedData = processedData.map(item => {
     // Ensure date is properly formatted for display
     const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
       month: 'short',
@@ -47,11 +71,14 @@ const StockChart: React.FC<StockChartProps> = ({
     };
   });
 
+  // Combine all data for the chart
+  const combinedData = [...formattedData, ...processedPredictions.slice(1)];
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={formattedData}
+          data={combinedData}
           margin={{
             top: 5,
             right: 30,
@@ -79,7 +106,11 @@ const StockChart: React.FC<StockChartProps> = ({
               borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
               color: isDark ? '#fff' : '#000'
             }} 
-            formatter={(value: any) => [`$${value}`, 'Price']}
+            formatter={(value: any, name: string) => {
+              const formattedValue = `$${value}`;
+              const displayName = name === 'predictedPrice' ? 'Predicted Price' : 'Price';
+              return [formattedValue, displayName];
+            }}
           />
           {/* Historical data line */}
           <Line
@@ -92,7 +123,7 @@ const StockChart: React.FC<StockChartProps> = ({
             isAnimationActive={true}
             animationDuration={1000}
           />
-          {/* Predicted data line (if available) */}
+          {/* Predicted data line */}
           {predictedData && predictedData.length > 0 && (
             <Line
               type="monotone"
@@ -102,6 +133,8 @@ const StockChart: React.FC<StockChartProps> = ({
               strokeDasharray="5 5" // Dashed line for predictions
               dot={false}
               activeDot={{ r: 6, fill: "#10B981", stroke: isDark ? 'white' : 'black', strokeWidth: 2 }}
+              isAnimationActive={true}
+              animationDuration={1000}
             />
           )}
         </LineChart>
