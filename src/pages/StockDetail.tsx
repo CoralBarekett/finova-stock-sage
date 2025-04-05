@@ -1,15 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/layouts/AppLayout';
 import StockChart from '@/components/charts/StockChart';
+import PredictionInfo from '@/components/stocks/PredictionInfo';
 import { getStockDetails, getStockHistoricalData, getPrediction, StockData, HistoricalData } from '@/services/stockService';
+import { predictStockPrices } from '@/services/predictionService';
 import { ArrowUp, ArrowDown, Clock, TrendingUp, TrendingDown, Activity, DollarSign, AlertCircle } from 'lucide-react';
 
 const StockDetail: React.FC = () => {
   const { symbol } = useParams<{ symbol: string }>();
   const [stock, setStock] = useState<StockData | null>(null);
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  const [predictedData, setPredictedData] = useState<HistoricalData[] | null>(null);
   const [prediction, setPrediction] = useState<{
     bullish: boolean;
     confidence: number;
@@ -25,6 +27,7 @@ const StockDetail: React.FC = () => {
       
       setLoading(true);
       try {
+        // Get stock details
         const stockData = await getStockDetails(symbol);
         if (!stockData) {
           navigate('/not-found');
@@ -36,9 +39,14 @@ const StockDetail: React.FC = () => {
         // Get historical data based on time range
         const days = timeRange === '1w' ? 7 : timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : 365;
         const historical = await getStockHistoricalData(symbol, days);
+        console.log("Fetched historical data:", historical);
         setHistoricalData(historical);
         
-        // Get prediction
+        // Generate price predictions
+        const predictions = await predictStockPrices(symbol, historical);
+        setPredictedData(predictions);
+        
+        // Get prediction text
         const predictionData = await getPrediction(symbol);
         setPrediction(predictionData);
       } catch (error) {
@@ -119,40 +127,38 @@ const StockDetail: React.FC = () => {
                 </div>
               </div>
               
-              <StockChart 
-                data={historicalData} 
-                color={isPositive ? '#4ADE80' : '#F87171'} 
-              />
+              {historicalData.length > 0 ? (
+                <StockChart 
+                  data={historicalData} 
+                  predictedData={predictedData || undefined}
+                  color={isPositive ? '#4ADE80' : '#F87171'} 
+                />
+              ) : (
+                <div className="h-64 flex items-center justify-center">
+                  <p className="text-white/70">No chart data available</p>
+                </div>
+              )}
+              
+              {predictedData && predictedData.length > 0 && (
+                <div className="mt-3 flex justify-end">
+                  <div className="flex items-center">
+                    <span className="h-1 w-8 bg-primary mr-2"></span>
+                    <span className="text-white/70 text-sm mr-4">Historical</span>
+                    <span className="h-1 w-8 bg-green-500 mr-2" style={{borderTop: '1px dashed #10B981'}}></span>
+                    <span className="text-white/70 text-sm">Predicted</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="lg:col-span-1">
             <div className="finova-card p-6 mb-6">
               <h2 className="text-xl font-bold text-white mb-4">AI Prediction</h2>
-              {prediction && (
-                <>
-                  <div className="flex items-center mb-4">
-                    <div 
-                      className={`p-3 rounded-full ${
-                        prediction.bullish ? 'bg-green-500/20' : 'bg-red-500/20'
-                      }`}
-                    >
-                      {prediction.bullish ? 
-                        <TrendingUp className="w-6 h-6 text-green-400" /> : 
-                        <TrendingDown className="w-6 h-6 text-red-400" />
-                      }
-                    </div>
-                    <div className="ml-3">
-                      <div className="text-lg font-medium text-white">
-                        {prediction.bullish ? 'Bullish' : 'Bearish'} Prediction
-                      </div>
-                      <div className="text-white/70 text-sm">
-                        {prediction.confidence}% confidence
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-white/90">{prediction.prediction}</p>
-                </>
+              {predictedData && predictedData.length > 0 ? (
+                <PredictionInfo predictions={predictedData} symbol={symbol || ''} />
+              ) : (
+                <div className="text-white/70">No prediction data available.</div>
               )}
             </div>
 
