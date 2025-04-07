@@ -69,11 +69,45 @@
     @apply bg-white border border-gray-300 text-gray-800;
   }
 
+  .finova-button {
+    @apply bg-finova-primary hover:bg-finova-accent text-white transition-colors;
+  }
+
+  .light .finova-button {
+    @apply bg-finova-primary hover:bg-finova-accent text-white;
+  }
+
   body {
     @apply bg-finova-gradient text-white;
   }
 
   .light body {
     @apply bg-finova-light-gradient text-gray-800;
+  }
+  
+  /* Fix for chart gradients and animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .bg-finova-gradient {
+    background: linear-gradient(145deg, #1A1F2C 0%, #2D2F40 100%);
+  }
+
+  .bg-finova-light-gradient {
+    background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+
+  .finova-gradient-text {
+    background: linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #8B5CF6;
   }
 }

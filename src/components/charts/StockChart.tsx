@@ -74,16 +74,33 @@ const StockChart: React.FC<StockChartProps> = ({
   // Combine all data for the chart
   const combinedData = [...formattedData, ...processedPredictions.slice(1)];
 
+  // Calculate domain for y-axis to properly fit the data
+  const calculateYDomain = () => {
+    if (!hasValidData) return ['auto', 'auto'];
+    
+    const allPrices = [...formattedData.map(d => d.price)];
+    if (processedPredictions.length > 0) {
+      allPrices.push(...processedPredictions.map(d => d.predictedPrice));
+    }
+    
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    
+    // Add 5% padding to the top and bottom
+    const padding = (maxPrice - minPrice) * 0.05;
+    return [Math.max(0, minPrice - padding), maxPrice + padding];
+  };
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={combinedData}
           margin={{
-            top: 5,
+            top: 10,
             right: 30,
             left: 20,
-            bottom: 5,
+            bottom: 10,
           }}
         >
           <CartesianGrid 
@@ -94,23 +111,35 @@ const StockChart: React.FC<StockChartProps> = ({
             dataKey="formattedDate" 
             stroke={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)"}
             tick={{ fill: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+            tickLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
+            axisLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
+            tickMargin={8}
+            minTickGap={10}
           />
           <YAxis 
             stroke={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)"}
             tick={{ fill: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
-            domain={['auto', 'auto']}
+            tickLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
+            axisLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
+            domain={calculateYDomain()}
+            tickFormatter={(value) => `$${value}`}
+            width={60}
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: isDark ? 'rgba(26, 31, 44, 0.8)' : 'rgba(255, 255, 255, 0.9)', 
+              backgroundColor: isDark ? 'rgba(26, 31, 44, 0.95)' : 'rgba(255, 255, 255, 0.95)', 
               borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
-              color: isDark ? '#fff' : '#000'
+              color: isDark ? '#fff' : '#000',
+              borderRadius: '4px',
+              padding: '8px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
             }} 
             formatter={(value: any, name: string) => {
-              const formattedValue = `$${value}`;
+              const formattedValue = `$${parseFloat(value).toFixed(2)}`;
               const displayName = name === 'predictedPrice' ? 'Predicted Price' : 'Price';
               return [formattedValue, displayName];
             }}
+            labelFormatter={(label) => `Date: ${label}`}
           />
           {/* Historical data line */}
           <Line
@@ -118,10 +147,24 @@ const StockChart: React.FC<StockChartProps> = ({
             dataKey="price"
             stroke={color}
             strokeWidth={2}
-            dot={false}
+            dot={(props) => {
+              // Only show dots for specific intervals to avoid overcrowding
+              const index = props.index || 0;
+              return index % 4 === 0 || index === 0 || index === (combinedData.length - 1) ? (
+                <circle 
+                  cx={props.cx} 
+                  cy={props.cy} 
+                  r={3} 
+                  fill={color} 
+                  stroke={isDark ? 'white' : 'black'}
+                  strokeWidth={1}
+                />
+              ) : null;
+            }}
             activeDot={{ r: 6, fill: color, stroke: isDark ? 'white' : 'black', strokeWidth: 2 }}
             isAnimationActive={true}
             animationDuration={1000}
+            connectNulls={true}
           />
           {/* Predicted data line */}
           {predictedData && predictedData.length > 0 && (
@@ -135,6 +178,7 @@ const StockChart: React.FC<StockChartProps> = ({
               activeDot={{ r: 6, fill: "#10B981", stroke: isDark ? 'white' : 'black', strokeWidth: 2 }}
               isAnimationActive={true}
               animationDuration={1000}
+              connectNulls={true}
             />
           )}
         </LineChart>
