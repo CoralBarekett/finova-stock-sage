@@ -26,9 +26,13 @@ const Dashboard: React.FC = () => {
         );
         setTrendingStock(trending);
 
-        // Get historical data for trending stock
-        const historical = await getStockHistoricalData(trending.symbol, 30);
-        setHistoricalData(historical);
+        if (trending) {
+          // Get historical data for trending stock
+          console.log("Fetching historical data for trending stock:", trending.symbol);
+          const historical = await getStockHistoricalData(trending.symbol, 30);
+          console.log("Received historical data:", historical);
+          setHistoricalData(historical);
+        }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -110,14 +114,24 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 
-                <StockChart data={historicalData} />
+                {historicalData.length > 0 ? (
+                  <StockChart 
+                    data={historicalData} 
+                    color={trendingStock.change >= 0 ? '#4ADE80' : '#F87171'}
+                  />
+                ) : (
+                  <div className="h-64 flex items-center justify-center">
+                    <p className="text-white/70">Loading chart data...</p>
+                  </div>
+                )}
                 
                 <div className="mt-4 flex justify-end">
                   <button 
-                    className="finova-button px-4 py-2 rounded-lg text-sm flex items-center"
+                    className="finova-button px-4 py-2 rounded-lg bg-finova-primary hover:bg-finova-accent transition-colors text-white text-sm flex items-center"
                     onClick={() => handleStockClick(trendingStock.symbol)}
                   >
                     View Details
+                    <ArrowUpRight className="ml-1 w-4 h-4" />
                   </button>
                 </div>
               </div>
