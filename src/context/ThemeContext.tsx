@@ -5,7 +5,6 @@ type Theme = 'dark' | 'light';
 
 interface ThemeContextType {
   theme: Theme;
-  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -23,18 +22,29 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Get initial theme from localStorage or default to dark
-  const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('finova-theme');
-    return (savedTheme as Theme) || 'dark';
-  });
-
-  // Update theme state and localStorage
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('finova-theme', newTheme);
+  // Determine theme based on time of day
+  const getThemeBasedOnTime = (): Theme => {
+    const currentHour = new Date().getHours();
+    // Light mode from 6 AM to 6 PM (6-18), dark mode otherwise
+    return currentHour >= 6 && currentHour < 18 ? 'light' : 'dark';
   };
+
+  const [theme, setTheme] = useState<Theme>(getThemeBasedOnTime);
+
+  // Update theme every minute to check for time changes
+  useEffect(() => {
+    const updateThemeBasedOnTime = () => {
+      setTheme(getThemeBasedOnTime());
+    };
+
+    // Update theme on initial load
+    updateThemeBasedOnTime();
+
+    // Set interval to check time every minute
+    const interval = setInterval(updateThemeBasedOnTime, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Apply theme class to body when theme changes
   useEffect(() => {
@@ -49,7 +59,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );
