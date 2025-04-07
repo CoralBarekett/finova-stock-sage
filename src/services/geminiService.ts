@@ -1,15 +1,20 @@
-
-import { toast } from "sonner";
-
-const GEMINI_API_KEY = 'AIzaSyCxARdY8769pf-Bm-07lW9APeT6zMTemug';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-
 export interface GeminiResponse {
   text: string;
   error?: string;
 }
 
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
+
 export async function queryGemini(prompt: string): Promise<GeminiResponse> {
+  if (!GEMINI_API_KEY) {
+    console.error('Gemini API key is missing.');
+    return {
+      text: "API key is missing.",
+      error: "Missing API key"
+    };
+  }
+
   try {
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
@@ -46,14 +51,10 @@ export async function queryGemini(prompt: string): Promise<GeminiResponse> {
       };
     }
 
-    // Extract the response text from the Gemini API response
-    if (data.candidates && 
-        data.candidates[0] && 
-        data.candidates[0].content && 
-        data.candidates[0].content.parts && 
-        data.candidates[0].content.parts[0] && 
-        data.candidates[0].content.parts[0].text) {
-      return { text: data.candidates[0].content.parts[0].text };
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (reply) {
+      return { text: reply };
     } else {
       console.error('Unexpected Gemini API response structure:', data);
       return { 
