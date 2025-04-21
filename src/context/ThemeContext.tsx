@@ -5,6 +5,7 @@ type Theme = 'dark' | 'light';
 
 interface ThemeContextType {
   theme: Theme;
+  setTheme: (theme: Theme) => void; // for settings panel
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -21,32 +22,41 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Determines theme by localStorage or system time.
+ * If theme has been set (by Settings), respects that.
+ * Otherwise: Light from 6AM–6PM, dark otherwise.
+ */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Determine theme based on time of day
   const getThemeBasedOnTime = (): Theme => {
     const currentHour = new Date().getHours();
-    // Light mode from 6 AM to 6 PM (6-18), dark mode otherwise
     return currentHour >= 6 && currentHour < 18 ? 'light' : 'dark';
   };
 
-  const [theme, setTheme] = useState<Theme>(getThemeBasedOnTime);
+  const getStoredTheme = (): Theme | null => {
+    const t = localStorage.getItem('theme');
+    if (t === 'light' || t === 'dark') return t;
+    return null;
+  };
 
-  // Update theme every minute to check for time changes
+  const [theme, setThemeState] = useState<Theme>(getStoredTheme() || getThemeBasedOnTime);
+
+  // React to manual theme change
+  const setTheme = (t: Theme) => {
+    setThemeState(t);
+    localStorage.setItem('theme', t);
+  };
+
+  // React to time if user hasn't set theme
   useEffect(() => {
-    const updateThemeBasedOnTime = () => {
-      setTheme(getThemeBasedOnTime());
-    };
-
-    // Update theme on initial load
-    updateThemeBasedOnTime();
-
-    // Set interval to check time every minute
-    const interval = setInterval(updateThemeBasedOnTime, 60000);
-    
-    return () => clearInterval(interval);
+    if (!getStoredTheme()) {
+      setThemeState(getThemeBasedOnTime());
+      const interval = setInterval(() => setThemeState(getThemeBasedOnTime()), 60000);
+      return () => clearInterval(interval);
+    }
   }, []);
 
-  // Apply theme class to body when theme changes
+  // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -59,7 +69,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

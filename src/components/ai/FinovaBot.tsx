@@ -12,6 +12,14 @@ interface Message {
   isLoading?: boolean;
 }
 
+const EXAMPLES = [
+  "What's the current price of Tesla stock?",
+  "Should I invest in Apple right now?",
+  "Can you predict Amazon's stock for next week?",
+  "How is the market performing today?",
+  "What are the best tech stocks to invest in?"
+];
+
 const FinovaBot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -33,12 +41,13 @@ const FinovaBot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isProcessing) return;
+  const handleSend = async (customInput?: string) => {
+    const actualInput = typeof customInput === "string" ? customInput : input;
+    if (!actualInput.trim() || isProcessing) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: input,
+      text: actualInput,
       sender: 'user',
       timestamp: new Date(),
     };
@@ -57,11 +66,8 @@ const FinovaBot: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      // Call Gemini API
-      const response = await queryGemini(input);
-      
-      // Replace loading message with actual response
-      setMessages((prev) => 
+      const response = await queryGemini(actualInput);
+      setMessages((prev) =>
         prev.filter(msg => !msg.isLoading).concat({
           id: (Date.now() + 2).toString(),
           text: response.text,
@@ -69,7 +75,6 @@ const FinovaBot: React.FC = () => {
           timestamp: new Date(),
         })
       );
-      
       if (response.error) {
         toast.error("There was an issue with the AI service. Using fallback response.");
         console.error("Gemini API error:", response.error);
@@ -77,8 +82,6 @@ const FinovaBot: React.FC = () => {
     } catch (error) {
       console.error('Error getting response:', error);
       toast.error("Failed to get a response. Please try again.");
-      
-      // Remove loading message on error
       setMessages((prev) => prev.filter(msg => !msg.isLoading));
     } finally {
       setIsProcessing(false);
@@ -92,20 +95,22 @@ const FinovaBot: React.FC = () => {
     }
   };
 
+  const handleExampleClick = (example: string) => {
+    setInput(example);
+    setTimeout(() => handleSend(example), 150); // let it "show" in input briefly
+  };
+
   return (
     <div className="finova-card flex flex-col h-[calc(100vh-180px)]">
       <div className="p-4 border-b border-white/10">
         <h2 className="text-xl font-bold text-white">FinovaBot</h2>
         <p className="text-white/70 text-sm">Your AI Financial Assistant</p>
       </div>
-      
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${
-              message.sender === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
               className={`max-w-[80%] p-3 rounded-lg ${
@@ -131,27 +136,44 @@ const FinovaBot: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      
+      {/* Example prompts below chat input */}
       <div className="p-4 border-t border-white/10">
-        <div className="flex items-center">
-          <textarea
-            className="finova-input flex-1 resize-none rounded-lg"
-            placeholder="Ask FinovaBot about stocks, market trends, or investment advice..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            rows={1}
-            disabled={isProcessing}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isProcessing}
-            className={`ml-2 p-2 rounded-full ${
-              input.trim() && !isProcessing ? 'bg-finova-primary hover:bg-finova-accent' : 'bg-white/10'
-            } transition-colors`}
-          >
-            <Send className="h-5 w-5 text-white" />
-          </button>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center">
+            <textarea
+              className="finova-input flex-1 resize-none rounded-lg"
+              placeholder="Ask FinovaBot about stocks, market trends, or investment advice..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              rows={1}
+              disabled={isProcessing}
+            />
+            <button
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isProcessing}
+              className={`ml-2 p-2 rounded-full ${
+                input.trim() && !isProcessing ? 'bg-finova-primary hover:bg-finova-accent' : 'bg-white/10'
+              } transition-colors`}
+              aria-label="Send message"
+            >
+              <Send className="h-5 w-5 text-white" />
+            </button>
+          </div>
+          {/* Example question buttons */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {EXAMPLES.map((ex) => (
+              <button
+                type="button"
+                className="px-3 py-1 rounded-full bg-gray-100 hover:bg-finova-primary/10 text-gray-900 text-xs font-medium shadow transition dark:bg-white/10 dark:text-white"
+                key={ex}
+                onClick={() => handleExampleClick(ex)}
+                disabled={isProcessing}
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
