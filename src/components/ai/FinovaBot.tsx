@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { queryGemini } from '@/services/geminiService';
@@ -97,7 +96,7 @@ const FinovaBot: React.FC = () => {
 
   const handleExampleClick = (example: string) => {
     setInput(example);
-    setTimeout(() => handleSend(example), 150); // let it "show" in input briefly
+    setTimeout(() => handleSend(example), 150);
   };
 
   return (
@@ -136,7 +135,7 @@ const FinovaBot: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      {/* Example prompts below chat input */}
+      
       <div className="p-4 border-t border-white/10">
         <div className="flex flex-col gap-3">
           <div className="flex items-center">
@@ -160,12 +159,11 @@ const FinovaBot: React.FC = () => {
               <Send className="h-5 w-5 text-white" />
             </button>
           </div>
-          {/* Example question buttons */}
           <div className="flex flex-wrap gap-2 mt-2">
             {EXAMPLES.map((ex) => (
               <button
                 type="button"
-                className="px-3 py-1 rounded-full bg-gray-100 hover:bg-finova-primary/10 text-gray-900 text-xs font-medium shadow transition dark:bg-white/10 dark:text-white"
+                className="px-3 py-1 rounded-full bg-sidebar-accent hover:bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium shadow transition"
                 key={ex}
                 onClick={() => handleExampleClick(ex)}
                 disabled={isProcessing}

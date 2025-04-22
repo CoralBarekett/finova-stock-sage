@@ -14,8 +14,8 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   
   return (
-    <div className="w-16 md:w-64 h-screen bg-white/5 backdrop-blur-md border-r border-white/10 flex flex-col">
-      <div className="p-4 border-b border-white/10 flex items-center justify-center md:justify-start">
+    <div className="w-16 md:w-64 h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
+      <div className="p-4 border-b border-sidebar-border flex items-center justify-center md:justify-start">
         <span className="hidden md:block text-2xl font-bold finova-gradient-text">Finova</span>
         <span className="block md:hidden text-2xl font-bold finova-gradient-text">F</span>
       </div>
@@ -55,7 +55,7 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
       
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-sidebar-border">
         <SidebarItem 
           to="/settings" 
           icon={<Settings className="w-5 h-5" />} 
@@ -81,8 +81,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, label, active }) =>
         to={to}
         className={`flex items-center px-4 py-3 rounded-md transition-all
           ${active 
-            ? 'bg-white/10 text-white' 
-            : 'text-white/80 hover:text-white hover:bg-white/10'
+            ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+            : 'text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent'
           }`
         }
       >
