@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Mail, Key, Facebook, Google } from "lucide-react";
+import { Mail, Key, Facebook, Chrome } from "lucide-react";
 
 const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -74,7 +74,7 @@ const LoginForm: React.FC = () => {
       <button type="submit" className="finova-button w-full rounded-md py-2 font-bold">Sign In</button>
       <div className="flex flex-col gap-2 mt-2">
         <button type="button" className="flex items-center justify-center gap-2 border py-2 rounded-md bg-white text-gray-700 hover:bg-gray-100 transition">
-          <Google className="w-4 h-4 text-blue-500" /> Continue with Google
+          <Chrome className="w-4 h-4 text-blue-500" /> Continue with Google
         </button>
         <button type="button" className="flex items-center justify-center gap-2 border py-2 rounded-md bg-white text-gray-700 hover:bg-gray-100 transition">
           <Facebook className="w-4 h-4 text-blue-600" /> Continue with Facebook
