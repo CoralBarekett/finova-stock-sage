@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -34,6 +33,7 @@ export default {
 					accent: '#6E59A5',
 					dark: '#1A1F2C',
 					light: '#E5DEFF',
+					'card-dark': '#1E2235', // Added the missing color definition
 				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
