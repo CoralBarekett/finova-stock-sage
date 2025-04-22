@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, Clock, Bell, BellOff, LogIn, User, Key, Eye } from "lucide-react";
+import { Sun, Moon, Clock, Bell, User, LogIn } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link } from "react-router-dom";
 
@@ -13,15 +13,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
     return saved ? JSON.parse(saved) : { news: true, alerts: true, updates: true };
-  });
-
-  // Profile state
-  const [profile, setProfile] = useState({
-    name: "Jane Doe",
-    email: "jane@finova.com",
-    accountType: "Pro",
-    newPassword: "",
-    showPw: false,
   });
 
   const handleNotificationChange = (type: string, value: boolean) => {
@@ -76,7 +67,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             <div>
               <h3 className="text-xl font-bold mb-2">Theme Preferences</h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                Choose your preferred theme mode. Auto mode switches based on time of day (6 AM - 7 PM).
+                Choose your preferred theme mode
               </p>
               <ToggleGroup 
                 type="single" 
@@ -84,22 +75,19 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                 onValueChange={(value) => value && setMode(value as "light" | "dark" | "auto")}
                 className="flex justify-center gap-2"
               >
-                <ToggleGroupItem value="light" aria-label="Light Mode">
-                  <Sun className="w-4 h-4 mr-1" />
+                <ToggleGroupItem value="light" aria-label="Light Mode" className="flex items-center gap-2">
+                  <Sun className="w-4 h-4" />
                   Light
                 </ToggleGroupItem>
-                <ToggleGroupItem value="dark" aria-label="Dark Mode">
-                  <Moon className="w-4 h-4 mr-1" />
+                <ToggleGroupItem value="dark" aria-label="Dark Mode" className="flex items-center gap-2">
+                  <Moon className="w-4 h-4" />
                   Dark
                 </ToggleGroupItem>
-                <ToggleGroupItem value="auto" aria-label="Auto Mode">
-                  <Clock className="w-4 h-4 mr-1" />
+                <ToggleGroupItem value="auto" aria-label="Auto Mode" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
                   Auto
                 </ToggleGroupItem>
               </ToggleGroup>
-              <p className="mt-4 text-xs text-muted-foreground text-center">
-                Current time-based recommendation: {new Date().getHours() >= 6 && new Date().getHours() < 19 ? "Light" : "Dark"}
-              </p>
             </div>
           )}
           
@@ -107,66 +95,30 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             <div>
               <h3 className="text-xl font-bold mb-2">Notification Settings</h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                Customize which notifications you want to receive.
+                Customize which notifications you want to receive
               </p>
               
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border border-border rounded-md">
-                  <div className="flex items-center">
-                    <Bell className="w-4 h-4 text-primary mr-3" />
-                    <span>Market News</span>
+                {Object.entries(notifications).map(([key, value]) => (
+                  <div key={key} className="flex items-center justify-between p-3 border border-border rounded-md">
+                    <div className="flex items-center">
+                      <Bell className="w-4 h-4 text-primary mr-3" />
+                      <span className="capitalize">{key}</span>
+                    </div>
+                    <button
+                      className={`w-12 h-6 rounded-full relative transition-colors ${
+                        value ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                      }`}
+                      onClick={() => handleNotificationChange(key, !value)}
+                    >
+                      <span 
+                        className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                          value ? 'translate-x-6' : 'translate-x-0.5'
+                        }`} 
+                      />
+                    </button>
                   </div>
-                  <button
-                    className={`w-12 h-6 rounded-full relative transition-colors ${
-                      notifications.news ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                    onClick={() => handleNotificationChange('news', !notifications.news)}
-                  >
-                    <span 
-                      className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-                        notifications.news ? 'translate-x-6' : 'translate-x-0.5'
-                      }`} 
-                    />
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 border border-border rounded-md">
-                  <div className="flex items-center">
-                    <Bell className="w-4 h-4 text-primary mr-3" />
-                    <span>Price Alerts</span>
-                  </div>
-                  <button
-                    className={`w-12 h-6 rounded-full relative transition-colors ${
-                      notifications.alerts ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                    onClick={() => handleNotificationChange('alerts', !notifications.alerts)}
-                  >
-                    <span 
-                      className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-                        notifications.alerts ? 'translate-x-6' : 'translate-x-0.5'
-                      }`} 
-                    />
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 border border-border rounded-md">
-                  <div className="flex items-center">
-                    <Bell className="w-4 h-4 text-primary mr-3" />
-                    <span>App Updates</span>
-                  </div>
-                  <button
-                    className={`w-12 h-6 rounded-full relative transition-colors ${
-                      notifications.updates ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                    onClick={() => handleNotificationChange('updates', !notifications.updates)}
-                  >
-                    <span 
-                      className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-                        notifications.updates ? 'translate-x-6' : 'translate-x-0.5'
-                      }`} 
-                    />
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
           )}
@@ -174,8 +126,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           {tab === "account" && (
             <div>
               <h3 className="text-xl font-bold mb-4">Account</h3>
-              
-              {/* Demo login links */}
               <div className="space-y-4">
                 <Link 
                   to="/login" 
@@ -194,12 +144,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                   <User className="w-4 h-4" />
                   Register
                 </Link>
-                
-                <div className="pt-4 border-t border-border mt-4">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    This is a demo app. No actual authentication is implemented.
-                  </p>
-                </div>
               </div>
             </div>
           )}
