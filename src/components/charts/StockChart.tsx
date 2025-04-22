@@ -22,7 +22,15 @@ const StockChart: React.FC<StockChartProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
+  
+  // Chart style variables for better contrast
+  const gridColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.15)";
+  const axisColor = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.7)";
+  const axisTickColor = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.7)";
+  const tooltipBg = isDark ? 'rgba(26, 31, 44, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+  const tooltipBorderColor = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+  const tooltipTextColor = isDark ? '#fff' : '#000';
+  
   // Check if we have valid data
   const hasValidData = data && data.length > 0;
   
@@ -105,31 +113,31 @@ const StockChart: React.FC<StockChartProps> = ({
         >
           <CartesianGrid 
             strokeDasharray="3 3" 
-            stroke={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} 
+            stroke={gridColor} 
           />
           <XAxis 
             dataKey="formattedDate" 
-            stroke={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)"}
-            tick={{ fill: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
-            tickLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
-            axisLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
+            stroke={axisColor}
+            tick={{ fill: axisTickColor }}
+            tickLine={{ stroke: axisColor }}
+            axisLine={{ stroke: axisColor }}
             tickMargin={8}
             minTickGap={10}
           />
           <YAxis 
-            stroke={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)"}
-            tick={{ fill: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
-            tickLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
-            axisLine={{ stroke: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }}
+            stroke={axisColor}
+            tick={{ fill: axisTickColor }}
+            tickLine={{ stroke: axisColor }}
+            axisLine={{ stroke: axisColor }}
             domain={calculateYDomain()}
             tickFormatter={(value) => `$${value}`}
             width={60}
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: isDark ? 'rgba(26, 31, 44, 0.95)' : 'rgba(255, 255, 255, 0.95)', 
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
-              color: isDark ? '#fff' : '#000',
+              backgroundColor: tooltipBg, 
+              borderColor: tooltipBorderColor,
+              color: tooltipTextColor,
               borderRadius: '4px',
               padding: '8px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'

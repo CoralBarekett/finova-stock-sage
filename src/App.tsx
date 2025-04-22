@@ -13,6 +13,9 @@ import Search from "./pages/Search";
 import StockDetail from "./pages/StockDetail";
 import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
+import LoginForm from "./components/auth/LoginForm";
+import RegisterForm from "./components/auth/RegisterForm";
+import AppLayout from "./components/layouts/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,8 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/stocks/:symbol" element={<StockDetail />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
+            <Route path="/login" element={<AppLayout><LoginForm /></AppLayout>} />
+            <Route path="/register" element={<AppLayout><RegisterForm /></AppLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

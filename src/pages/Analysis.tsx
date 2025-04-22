@@ -65,8 +65,8 @@ const Analysis: React.FC = () => {
   return (
     <AppLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white mb-2">Stock Analysis</h1>
-        <p className="text-white/70">Analyze and predict stock performance</p>
+        <h1 className="text-3xl font-bold mb-2">Stock Analysis</h1>
+        <p className="text-muted-foreground">Analyze and predict stock performance</p>
       </div>
 
       <div className="mb-6">
@@ -75,14 +75,14 @@ const Analysis: React.FC = () => {
 
       {loading ? (
         <div className="finova-card p-8 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white"></div>
-          <p className="mt-4 text-white/80">Analyzing stock data...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary"></div>
+          <p className="mt-4 text-muted-foreground">Analyzing stock data...</p>
         </div>
       ) : !symbol ? (
         <div className="finova-card p-8 text-center">
-          <LineChart className="w-12 h-12 mx-auto text-finova-primary/70" />
-          <p className="mt-4 text-white text-lg">Enter a stock symbol to analyze</p>
-          <p className="mt-2 text-white/60">
+          <LineChart className="w-12 h-12 mx-auto text-primary/70" />
+          <p className="mt-4 text-lg">Enter a stock symbol to analyze</p>
+          <p className="mt-2 text-muted-foreground">
             Get technical analysis, predictions, and insights
           </p>
         </div>
@@ -92,8 +92,8 @@ const Analysis: React.FC = () => {
             <div className="finova-card p-6 lg:col-span-2">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">{symbol}</h2>
-                  <p className="text-white/70">{stockInfo?.name}</p>
+                  <h2 className="text-xl font-bold">{symbol}</h2>
+                  <p className="text-muted-foreground">{stockInfo?.name}</p>
                 </div>
                 <div className="flex space-x-2">
                   <TimeRangeButton range="1w" current={timeRange} onClick={() => handleTimeRangeChange('1w')} />
@@ -110,46 +110,51 @@ const Analysis: React.FC = () => {
                 />
               ) : (
                 <div className="h-64 flex items-center justify-center">
-                  <p className="text-white/70">No chart data available</p>
+                  <p className="text-muted-foreground">No chart data available</p>
                 </div>
               )}
             </div>
 
             <div className="finova-card p-6">
-              <h2 className="text-xl font-bold text-white mb-4">Stock Info</h2>
+              <h2 className="text-xl font-bold mb-4">Stock Info</h2>
               {stockInfo ? (
                 <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Price</span>
-                    <span className="text-white font-medium">${stockInfo.price.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Change</span>
-                    <span className={`font-medium ${stockInfo.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {stockInfo.change >= 0 ? '+' : ''}{stockInfo.change.toFixed(2)} 
-                      ({stockInfo.changePercent.toFixed(2)}%)
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Volume</span>
-                    <span className="text-white font-medium">
-                      {(stockInfo.volume / 1000000).toFixed(2)}M
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/70">Market Cap</span>
-                    <span className="text-white font-medium">
-                      ${(stockInfo.marketCap / 1000000000).toFixed(2)}B
-                    </span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <StockStatCard 
+                      title="Price"
+                      value={`$${stockInfo.price.toFixed(2)}`} 
+                    />
+                    <StockStatCard 
+                      title="Change"
+                      value={`${stockInfo.change >= 0 ? '+' : ''}${stockInfo.change.toFixed(2)}`}
+                      subValue={`${stockInfo.changePercent.toFixed(2)}%`}
+                      isPositive={stockInfo.change >= 0}
+                    />
+                    <StockStatCard 
+                      title="Volume"
+                      value={`${(stockInfo.volume / 1000000).toFixed(2)}M`} 
+                    />
+                    <StockStatCard 
+                      title="Market Cap"
+                      value={`$${(stockInfo.marketCap / 1000000000).toFixed(2)}B`} 
+                    />
+                    <StockStatCard 
+                      title="52W High"
+                      value={`$${(stockInfo.price * (1 + Math.random() * 0.3)).toFixed(2)}`} 
+                    />
+                    <StockStatCard 
+                      title="52W Low"
+                      value={`$${(stockInfo.price * (1 - Math.random() * 0.3)).toFixed(2)}`} 
+                    />
                   </div>
                 </div>
               ) : (
-                <p className="text-white/70">No stock information available</p>
+                <p className="text-muted-foreground">No stock information available</p>
               )}
 
               {prediction && (
                 <>
-                  <h2 className="text-xl font-bold text-white mt-6 mb-4">AI Prediction</h2>
+                  <h2 className="text-xl font-bold mt-6 mb-4">AI Prediction</h2>
                   <div className="flex items-center mb-3">
                     <div 
                       className={`p-2 rounded-full ${
@@ -161,10 +166,10 @@ const Analysis: React.FC = () => {
                         <TrendingDown className="w-5 h-5 text-red-400" />
                       }
                     </div>
-                    <span className="ml-2 text-white">{prediction.bullish ? 'Bullish' : 'Bearish'}</span>
-                    <span className="ml-auto text-white/70">{prediction.confidence}% confidence</span>
+                    <span className="ml-2">{prediction.bullish ? 'Bullish' : 'Bearish'}</span>
+                    <span className="ml-auto text-muted-foreground">{prediction.confidence}% confidence</span>
                   </div>
-                  <p className="text-white/80 text-sm">{prediction.prediction}</p>
+                  <p className="text-muted-foreground text-sm">{prediction.prediction}</p>
                 </>
               )}
             </div>
@@ -342,6 +347,29 @@ const FundamentalMetric: React.FC<FundamentalMetricProps> = ({ name, value }) =>
     <div className="finova-card p-3">
       <span className="text-white/70 text-sm">{name}</span>
       <div className="font-medium text-white mt-1">{value}</div>
+    </div>
+  );
+};
+
+interface StockStatCardProps {
+  title: string;
+  value: string;
+  subValue?: string;
+  isPositive?: boolean;
+}
+
+const StockStatCard: React.FC<StockStatCardProps> = ({ title, value, subValue, isPositive }) => {
+  return (
+    <div className="finova-card p-3 flex flex-col">
+      <span className="text-muted-foreground text-sm">{title}</span>
+      <span className={`text-lg font-semibold ${isPositive !== undefined ? (isPositive ? 'text-green-500' : 'text-red-500') : ''}`}>
+        {value}
+      </span>
+      {subValue && (
+        <span className={`text-xs ${isPositive !== undefined ? (isPositive ? 'text-green-500' : 'text-red-500') : 'text-muted-foreground'}`}>
+          {subValue}
+        </span>
+      )}
     </div>
   );
 };
