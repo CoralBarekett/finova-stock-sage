@@ -12,8 +12,8 @@ const AIAssistant: React.FC = () => {
     <AppLayout>
       <div className="animate-fade-in">
         <div className="mb-6">
-          <h1 className={`text-3xl font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>FinovaBot</h1>
-          <p className={`${theme === 'light' ? 'text-gray-600' : 'text-white/70'} mt-1`}>Your AI-powered financial assistant</p>
+          <h1 className="text-3xl font-bold">FinovaBot</h1>
+          <p className="text-muted-foreground mt-1">Your AI-powered financial assistant</p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -23,36 +23,24 @@ const AIAssistant: React.FC = () => {
           
           <div className="lg:col-span-1">
             <div className="finova-card p-6 mb-6">
-              <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'} mb-4`}>How to use FinovaBot</h2>
+              <h2 className="text-xl font-bold mb-4">How to use FinovaBot</h2>
               
               <div className="space-y-4">
                 <AssistantTip
-                  icon={<MessageSquare className="w-5 h-5 text-finova-primary" />}
+                  icon={<MessageSquare className="w-5 h-5 text-primary" />}
                   title="Ask Questions"
                   description="Ask about stock prices, market trends, or investment advice."
                 />
                 <AssistantTip
-                  icon={<BookOpen className="w-5 h-5 text-finova-primary" />}
+                  icon={<BookOpen className="w-5 h-5 text-primary" />}
                   title="Learn Market Terms"
                   description="Ask for explanations of financial concepts and investment strategies."
                 />
                 <AssistantTip
-                  icon={<Lightbulb className="w-5 h-5 text-finova-primary" />}
+                  icon={<Lightbulb className="w-5 h-5 text-primary" />}
                   title="Get Insights"
                   description="Request predictions and analysis based on historical data."
                 />
-              </div>
-            </div>
-            
-            <div className="finova-card p-6">
-              <h2 className={`text-xl font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'} mb-4`}>Example Questions</h2>
-              
-              <div className="space-y-3">
-                <ExampleQuestion question="What's the current price of Tesla stock?" />
-                <ExampleQuestion question="Should I invest in Apple right now?" />
-                <ExampleQuestion question="Can you predict Amazon's stock for next week?" />
-                <ExampleQuestion question="How is the market performing today?" />
-                <ExampleQuestion question="What are the best tech stocks to invest in?" />
               </div>
             </div>
           </div>
@@ -69,35 +57,13 @@ interface AssistantTipProps {
 }
 
 const AssistantTip: React.FC<AssistantTipProps> = ({ icon, title, description }) => {
-  const { theme } = useTheme();
-  
   return (
     <div className="flex">
       <div className="mt-1">{icon}</div>
       <div className="ml-3">
-        <h3 className={theme === 'light' ? 'text-gray-800 font-medium' : 'text-white font-medium'}>{title}</h3>
-        <p className={theme === 'light' ? 'text-gray-600 text-sm' : 'text-white/70 text-sm'}>{description}</p>
+        <h3 className="text-foreground font-medium">{title}</h3>
+        <p className="text-muted-foreground text-sm">{description}</p>
       </div>
-    </div>
-  );
-};
-
-interface ExampleQuestionProps {
-  question: string;
-}
-
-const ExampleQuestion: React.FC<ExampleQuestionProps> = ({ question }) => {
-  const { theme } = useTheme();
-  
-  return (
-    <div 
-      className={`p-3 ${
-        theme === 'light' 
-          ? 'bg-gray-100 hover:bg-gray-200' 
-          : 'bg-white/5 hover:bg-white/10'
-      } rounded-lg cursor-pointer transition-colors`}
-    >
-      <p className={theme === 'light' ? 'text-gray-800' : 'text-white/90'}>{question}</p>
     </div>
   );
 };

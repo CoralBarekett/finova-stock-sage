@@ -1,13 +1,21 @@
+
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, Clock, LogIn, User, Key, Eye } from "lucide-react";
+import { Sun, Moon, Clock, Bell, BellOff, LogIn, User, Key, Eye } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Link } from "react-router-dom";
 
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const [tab, setTab] = useState<"theme" | "profile">("theme");
+  const [tab, setTab] = useState<"theme" | "notifications" | "account">("theme");
   const { mode, setMode } = useTheme();
 
-  // Mock profile state
+  // Notifications state with localStorage persistence
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem('finovaNotifications');
+    return saved ? JSON.parse(saved) : { news: true, alerts: true, updates: true };
+  });
+
+  // Profile state
   const [profile, setProfile] = useState({
     name: "Jane Doe",
     email: "jane@finova.com",
@@ -15,6 +23,12 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
     newPassword: "",
     showPw: false,
   });
+
+  const handleNotificationChange = (type: string, value: boolean) => {
+    const newNotifications = { ...notifications, [type]: value };
+    setNotifications(newNotifications);
+    localStorage.setItem('finovaNotifications', JSON.stringify(newNotifications));
+  };
 
   if (!open) return null;
 
@@ -33,11 +47,19 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           </button>
           <button
             className={`flex-1 p-3 font-medium ${
-              tab === "profile" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+              tab === "notifications" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
             }`}
-            onClick={() => setTab("profile")}
+            onClick={() => setTab("notifications")}
           >
-            Profile
+            Notifications
+          </button>
+          <button
+            className={`flex-1 p-3 font-medium ${
+              tab === "account" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+            }`}
+            onClick={() => setTab("account")}
+          >
+            Account
           </button>
           <button 
             className="p-2 text-xl absolute top-2 right-4 hover:text-primary/70" 
@@ -81,53 +103,102 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             </div>
           )}
           
-          {tab === "profile" && (
+          {tab === "notifications" && (
             <div>
-              <h3 className="text-xl font-bold mb-2">Profile</h3>
-              <p className="text-gray-600 dark:text-white/70 mb-3">Review or update your details.</p>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Name</label>
-                  <input
-                    className="finova-input rounded-md w-full"
-                    value={profile.name}
-                    onChange={e => setProfile({ ...profile, name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Email</label>
-                  <input
-                    className="finova-input rounded-md w-full"
-                    value={profile.email}
-                    onChange={e => setProfile({ ...profile, email: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Account</label>
-                  <input
-                    className="finova-input rounded-md w-full"
-                    value={profile.accountType}
-                    disabled
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Change Password</label>
+              <h3 className="text-xl font-bold mb-2">Notification Settings</h3>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Customize which notifications you want to receive.
+              </p>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 border border-border rounded-md">
                   <div className="flex items-center">
-                    <input
-                      className="finova-input rounded-md flex-1"
-                      type={profile.showPw ? "text" : "password"}
-                      value={profile.newPassword}
-                      onChange={e => setProfile({ ...profile, newPassword: e.target.value })}
-                    />
-                    <button type="button" className="ml-2 text-xs text-gray-500 hover:underline" onClick={() => setProfile(p => ({ ...p, showPw: !p.showPw }))}>
-                      {profile.showPw ? <Eye className="w-4 h-4" /> : "Show"}
-                    </button>
+                    <Bell className="w-4 h-4 text-primary mr-3" />
+                    <span>Market News</span>
                   </div>
-                </div>
-                <div className="pt-2">
-                  <button className="finova-button py-2 w-full rounded-md" onClick={() => alert('Profile saved (mock)!')}>
-                    Save Changes
+                  <button
+                    className={`w-12 h-6 rounded-full relative transition-colors ${
+                      notifications.news ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                    onClick={() => handleNotificationChange('news', !notifications.news)}
+                  >
+                    <span 
+                      className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                        notifications.news ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} 
+                    />
                   </button>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 border border-border rounded-md">
+                  <div className="flex items-center">
+                    <Bell className="w-4 h-4 text-primary mr-3" />
+                    <span>Price Alerts</span>
+                  </div>
+                  <button
+                    className={`w-12 h-6 rounded-full relative transition-colors ${
+                      notifications.alerts ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                    onClick={() => handleNotificationChange('alerts', !notifications.alerts)}
+                  >
+                    <span 
+                      className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                        notifications.alerts ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} 
+                    />
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 border border-border rounded-md">
+                  <div className="flex items-center">
+                    <Bell className="w-4 h-4 text-primary mr-3" />
+                    <span>App Updates</span>
+                  </div>
+                  <button
+                    className={`w-12 h-6 rounded-full relative transition-colors ${
+                      notifications.updates ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                    onClick={() => handleNotificationChange('updates', !notifications.updates)}
+                  >
+                    <span 
+                      className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                        notifications.updates ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} 
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {tab === "account" && (
+            <div>
+              <h3 className="text-xl font-bold mb-4">Account</h3>
+              
+              {/* Demo login links */}
+              <div className="space-y-4">
+                <Link 
+                  to="/login" 
+                  className="finova-button w-full flex items-center justify-center gap-2 py-2"
+                  onClick={onClose}
+                >
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+                
+                <Link
+                  to="/register"
+                  className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors"
+                  onClick={onClose}
+                >
+                  <User className="w-4 h-4" />
+                  Register
+                </Link>
+                
+                <div className="pt-4 border-t border-border mt-4">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    This is a demo app. No actual authentication is implemented.
+                  </p>
                 </div>
               </div>
             </div>

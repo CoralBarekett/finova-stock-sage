@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { queryGemini } from '@/services/geminiService';
@@ -101,9 +102,9 @@ const FinovaBot: React.FC = () => {
 
   return (
     <div className="finova-card flex flex-col h-[calc(100vh-180px)]">
-      <div className="p-4 border-b border-white/10">
-        <h2 className="text-xl font-bold text-white">FinovaBot</h2>
-        <p className="text-white/70 text-sm">Your AI Financial Assistant</p>
+      <div className="p-4 border-b border-border">
+        <h2 className="text-xl font-bold">FinovaBot</h2>
+        <p className="text-muted-foreground text-sm">Your AI Financial Assistant</p>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
@@ -114,15 +115,15 @@ const FinovaBot: React.FC = () => {
             <div
               className={`max-w-[80%] p-3 rounded-lg ${
                 message.sender === 'user'
-                  ? 'bg-finova-primary text-white'
-                  : 'bg-white/10 text-white'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-accent text-accent-foreground'
               }`}
             >
               {message.isLoading ? (
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               ) : (
                 <p>{message.text}</p>
@@ -136,7 +137,7 @@ const FinovaBot: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-border">
         <div className="flex flex-col gap-3">
           <div className="flex items-center">
             <textarea
@@ -152,18 +153,18 @@ const FinovaBot: React.FC = () => {
               onClick={() => handleSend()}
               disabled={!input.trim() || isProcessing}
               className={`ml-2 p-2 rounded-full ${
-                input.trim() && !isProcessing ? 'bg-finova-primary hover:bg-finova-accent' : 'bg-white/10'
+                input.trim() && !isProcessing ? 'bg-primary hover:bg-primary/80' : 'bg-muted'
               } transition-colors`}
               aria-label="Send message"
             >
-              <Send className="h-5 w-5 text-white" />
+              <Send className="h-5 w-5 text-primary-foreground" />
             </button>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
             {EXAMPLES.map((ex) => (
               <button
                 type="button"
-                className="px-3 py-1 rounded-full bg-sidebar-accent hover:bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium shadow transition"
+                className="px-3 py-1 rounded-full bg-sidebar-accent hover:bg-sidebar-accent/80 text-sidebar-accent-foreground text-xs font-medium shadow transition"
                 key={ex}
                 onClick={() => handleExampleClick(ex)}
                 disabled={isProcessing}
