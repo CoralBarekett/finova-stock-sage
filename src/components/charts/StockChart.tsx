@@ -130,7 +130,7 @@ const StockChart: React.FC<StockChartProps> = ({
             tickLine={{ stroke: axisColor }}
             axisLine={{ stroke: axisColor }}
             domain={calculateYDomain()}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `$${Number(value).toFixed(3)}`}
             width={60}
           />
           <Tooltip 
@@ -143,7 +143,7 @@ const StockChart: React.FC<StockChartProps> = ({
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
             }} 
             formatter={(value: any, name: string) => {
-              const formattedValue = `$${parseFloat(value).toFixed(2)}`;
+              const formattedValue = `$${Number(value).toFixed(3)}`;
               const displayName = name === 'predictedPrice' ? 'Predicted Price' : 'Price';
               return [formattedValue, displayName];
             }}
