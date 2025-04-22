@@ -15,6 +15,7 @@ import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
+import Settings from "./components/settings/Settings";
 import AppLayout from "./components/layouts/AppLayout";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/settings" element={<AppLayout><Settings open={true} onClose={() => {}} /></AppLayout>} />
             <Route path="/stocks" element={<Stocks />} />
             <Route path="/analysis" element={<Analysis />} />
             <Route path="/search" element={<Search />} />
