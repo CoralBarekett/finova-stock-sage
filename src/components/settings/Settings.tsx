@@ -1,15 +1,11 @@
-
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { LogIn, User, Key, Eye } from "lucide-react";
+import { Sun, Moon, Clock, LogIn, User, Key, Eye } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-/**
- * Simple settings modal with tabs for Theme switching and Profile info.
- * (Mock Profile: hardcoded values.)
- */
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [tab, setTab] = useState<"theme" | "profile">("theme");
-  const { theme, setTheme } = useTheme();
+  const { mode, setMode } = useTheme();
 
   // Mock profile state
   const [profile, setProfile] = useState({
@@ -24,46 +20,67 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-finova-card-dark rounded-xl shadow-xl max-w-md w-full p-0">
+      <div className="bg-background w-full max-w-md rounded-xl shadow-xl">
         {/* Tabs */}
-        <div className="flex border-b">
+        <div className="flex border-b border-border">
           <button
-            className={`flex-1 p-3 font-semibold ${tab === "theme" ? "border-b-2 border-finova-primary text-finova-primary" : "text-gray-700"} dark:text-white`}
+            className={`flex-1 p-3 font-medium ${
+              tab === "theme" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+            }`}
             onClick={() => setTab("theme")}
           >
             Theme
           </button>
           <button
-            className={`flex-1 p-3 font-semibold ${tab === "profile" ? "border-b-2 border-finova-primary text-finova-primary" : "text-gray-700"} dark:text-white`}
+            className={`flex-1 p-3 font-medium ${
+              tab === "profile" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+            }`}
             onClick={() => setTab("profile")}
           >
             Profile
           </button>
-          <button className="p-2 text-xl absolute top-2 right-4" onClick={onClose} aria-label="Close">×</button>
+          <button 
+            className="p-2 text-xl absolute top-2 right-4 hover:text-primary/70" 
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
+
         {/* Content */}
         <div className="p-6">
           {tab === "theme" && (
             <div>
-              <h3 className="text-xl font-bold mb-2">Theme</h3>
-              <p className="mb-4 text-sm text-gray-600 dark:text-white/70">
-                Choose your preferred theme. By default, the site adapts to the time of day.
+              <h3 className="text-xl font-bold mb-2">Theme Preferences</h3>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Choose your preferred theme mode. Auto mode switches based on time of day (6 AM - 7 PM).
               </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setTheme("light")}
-                  className={`px-4 py-2 rounded-lg border transition ${theme === "light" ? "bg-finova-primary text-white border-finova-primary" : "bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/20"}`}
-                >Light</button>
-                <button
-                  onClick={() => setTheme("dark")}
-                  className={`px-4 py-2 rounded-lg border transition ${theme === "dark" ? "bg-finova-primary text-white border-finova-primary" : "bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/20"}`}
-                >Dark</button>
-              </div>
-              <div className="mt-4 text-xs text-gray-400 dark:text-white/40">
-                (After manual selection, time-based switching is paused.)
-              </div>
+              <ToggleGroup 
+                type="single" 
+                value={mode}
+                onValueChange={(value) => value && setMode(value as "light" | "dark" | "auto")}
+                className="flex justify-center gap-2"
+              >
+                <ToggleGroupItem value="light" aria-label="Light Mode">
+                  <Sun className="w-4 h-4 mr-1" />
+                  Light
+                </ToggleGroupItem>
+                <ToggleGroupItem value="dark" aria-label="Dark Mode">
+                  <Moon className="w-4 h-4 mr-1" />
+                  Dark
+                </ToggleGroupItem>
+                <ToggleGroupItem value="auto" aria-label="Auto Mode">
+                  <Clock className="w-4 h-4 mr-1" />
+                  Auto
+                </ToggleGroupItem>
+              </ToggleGroup>
+              <p className="mt-4 text-xs text-muted-foreground text-center">
+                Current time-based recommendation: {new Date().getHours() >= 6 && new Date().getHours() < 19 ? "Light" : "Dark"}
+              </p>
             </div>
           )}
+          
           {tab === "profile" && (
             <div>
               <h3 className="text-xl font-bold mb-2">Profile</h3>

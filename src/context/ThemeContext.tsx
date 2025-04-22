@@ -2,10 +2,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Theme = 'dark' | 'light';
+type ThemeMode = 'dark' | 'light' | 'auto';
 
 interface ThemeContextType {
   theme: Theme;
-  setTheme: (theme: Theme) => void; // for settings panel
+  mode: ThemeMode;
+  setMode: (mode: ThemeMode) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -22,43 +24,51 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-/**
- * Determines theme by localStorage or system time.
- * If theme has been set (by Settings), respects that.
- * Otherwise: Light from 6AM–6PM, dark otherwise.
- */
+const isDayTime = (): boolean => {
+  const hour = new Date().getHours();
+  return hour >= 6 && hour < 19; // Day time is 6 AM to 7 PM
+};
+
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const getThemeBasedOnTime = (): Theme => {
-    const currentHour = new Date().getHours();
-    return currentHour >= 6 && currentHour < 18 ? 'light' : 'dark';
+  const [mode, setMode] = useState<ThemeMode>(() => {
+    const saved = localStorage.getItem('themeMode');
+    return (saved as ThemeMode) || 'auto';
+  });
+
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedMode = localStorage.getItem('themeMode');
+    if (savedMode === 'light' || savedMode === 'dark') return savedMode;
+    return isDayTime() ? 'light' : 'dark';
+  });
+
+  // Handle mode changes
+  const handleModeChange = (newMode: ThemeMode) => {
+    setMode(newMode);
+    localStorage.setItem('themeMode', newMode);
+    
+    if (newMode === 'auto') {
+      setTheme(isDayTime() ? 'light' : 'dark');
+    } else {
+      setTheme(newMode);
+    }
   };
 
-  const getStoredTheme = (): Theme | null => {
-    const t = localStorage.getItem('theme');
-    if (t === 'light' || t === 'dark') return t;
-    return null;
-  };
-
-  const [theme, setThemeState] = useState<Theme>(getStoredTheme() || getThemeBasedOnTime);
-
-  // React to manual theme change
-  const setTheme = (t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem('theme', t);
-  };
-
-  // React to time if user hasn't set theme
+  // Update theme based on time when in auto mode
   useEffect(() => {
-    if (!getStoredTheme()) {
-      setThemeState(getThemeBasedOnTime());
-      const interval = setInterval(() => setThemeState(getThemeBasedOnTime()), 60000);
+    if (mode === 'auto') {
+      const updateTheme = () => setTheme(isDayTime() ? 'light' : 'dark');
+      updateTheme(); // Initial check
+      
+      const interval = setInterval(updateTheme, 60000); // Check every minute
       return () => clearInterval(interval);
     }
-  }, []);
+  }, [mode]);
 
   // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+    
     if (theme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
@@ -69,7 +79,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, mode, setMode: handleModeChange }}>
       {children}
     </ThemeContext.Provider>
   );

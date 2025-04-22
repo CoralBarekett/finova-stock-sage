@@ -17,7 +17,7 @@
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
     --muted: 220 14.3% 95.9%;
-    --muted-foreground: 218 13.9% 39.1%;
+    --muted-foreground: 220.9 39.3% 11%;
     --accent: 220 14.3% 95.9%;
     --accent-foreground: 220.9 39.3% 11%;
     --destructive: 0 84.2% 60.2%;
@@ -29,7 +29,6 @@
   }
  
   .dark {
-    /* Dark mode variables */
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
     --card: 224 71.4% 4.1%;
@@ -50,70 +49,38 @@
     --input: 215 27.9% 16.9%;
     --ring: 263.4 70% 50.4%;
   }
-  * {
-    @apply border-border;
-  }
-  html, body {
-    @apply min-h-screen bg-background text-foreground font-heebo;
-  }
-  body {
-    @apply transition-colors;
-  }
 }
 
-/* Components/utility classes improvements for light */
 @layer components {
   .finova-card {
-    @apply bg-white/90 border border-gray-200 rounded-xl backdrop-blur-md transition-all shadow-md;
-  }
-
-  .dark .finova-card {
-    @apply bg-white/5 border border-white/10 shadow-none;
+    @apply bg-card text-card-foreground border border-border rounded-xl shadow-sm transition-all;
   }
 
   .finova-input {
-    @apply bg-white border border-gray-300 text-gray-900 p-2 focus:outline-none focus:border-finova-primary/70 transition-colors;
-  }
-  .dark .finova-input {
-    @apply bg-white/10 text-white border border-white/20;
+    @apply bg-background border border-input text-foreground p-2 focus:outline-none focus:ring-2 focus:ring-ring transition-colors rounded-md;
   }
 
   .finova-button {
-    @apply bg-finova-primary hover:bg-finova-accent text-white transition-colors;
-  }
-  .light .finova-button {
-    @apply bg-finova-primary hover:bg-finova-accent text-white shadow-sm;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded-md;
   }
 
-  /* Add card and sections with clear bg/fg for light */
   .card, .finova-section {
-    @apply bg-white border border-gray-100 rounded-lg shadow-sm;
-  }
-  .dark .card, .dark .finova-section {
-    @apply bg-finova-card-dark border border-white/10;
-  }
-  .light .finova-section {
-    @apply bg-white/80;
+    @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
   }
 
   .light body {
-    @apply bg-gradient-to-br from-finova-light to-gray-100 text-gray-900;
+    @apply bg-background text-foreground;
   }
+
   .dark body {
-    @apply bg-finova-gradient text-white;
+    @apply bg-background text-foreground;
   }
 
   .finova-gradient-text {
-    background: linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: #8B5CF6;
+    @apply text-primary font-semibold;
   }
 
   .link-hover {
-    @apply transition-colors;
+    @apply transition-colors hover:text-primary;
   }
-  .light .link-hover { @apply hover:text-finova-primary; }
-  .dark .link-hover { @apply hover:text-finova-primary; }
 }
