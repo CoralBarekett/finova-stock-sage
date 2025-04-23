@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, Clock, Bell, User, LogIn } from "lucide-react";
+import { Sun, Moon, Clock, Bell, User, LogIn, ArrowLeft } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link } from "react-router-dom";
 
@@ -21,6 +21,12 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
     const newNotifications = { ...notifications, [type]: value };
     setNotifications(newNotifications);
     localStorage.setItem('finovaNotifications', JSON.stringify(newNotifications));
+  };
+  
+  const handleClose = () => {
+    // Go back to previous page or dashboard always
+    navigate(-1);
+    if (onClose) onClose();
   };
 
   if (!open) return null;
@@ -55,15 +61,11 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             Account
           </button>
           <button 
-            className="p-2 text-xl absolute top-2 right-4 hover:text-primary/70" 
-            onClick={() => {
-              // Go back to previous page or dashboard always
-              navigate(-1);
-              if (onClose) onClose();
-            }}
-            aria-label="Back"
+            className="absolute top-2 right-2 rounded-full p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center justify-center"
+            onClick={handleClose}
+            aria-label="Close"
           >
-            ×
+            <ArrowLeft className="w-4 h-4" />
           </button>
         </div>
 

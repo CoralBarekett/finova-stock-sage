@@ -37,8 +37,8 @@ const StockCard: React.FC<StockCardProps> = ({
         <div className={cn(
           "flex items-center px-2 py-1 rounded-full text-xs font-medium",
           isPositive
-            ? "bg-green-500/20"
-            : "bg-red-500/20"
+            ? "bg-green-500/20 text-green-700"
+            : "bg-red-500/20 text-red-700"
         )}>
           {isPositive ? <ArrowUp className="w-3 h-3 mr-1" /> : <ArrowDown className="w-3 h-3 mr-1" />}
           {changePercent.toFixed(2)}%
@@ -47,7 +47,7 @@ const StockCard: React.FC<StockCardProps> = ({
       
       <div className="mt-4">
         <div className="text-2xl font-bold">${price.toFixed(2)}</div>
-        <div className="text-sm mt-1" style={{ color: isPositive ? "var(--color-success)" : "var(--color-error)" }}>
+        <div className={`text-sm mt-1 ${isPositive ? "text-green-600" : "text-red-600"}`}>
           {isPositive ? "+" : ""}{change.toFixed(2)} Today
         </div>
       </div>
