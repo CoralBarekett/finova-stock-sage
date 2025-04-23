@@ -24,17 +24,27 @@ const StockCard: React.FC<StockCardProps> = ({
 
   return (
     <div 
-      className="finova-card p-4 cursor-pointer hover:shadow-xl transition-all duration-300"
+      className={cn(
+        "finova-card stock-card p-4 cursor-pointer hover:shadow-xl transition-all duration-300"
+      )}
       onClick={onClick}
+      style={{
+        background: "var(--dashboard-bg)",
+        color: "var(--dashboard-symbol)",
+        border: "1px solid var(--dashboard-border)",
+        boxShadow: "var(--dashboard-card-shadow)",
+      }}
     >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-xl font-bold text-white">{symbol}</h3>
-          <p className="text-white/70 text-sm truncate max-w-[180px]">{name}</p>
+          <h3 className="text-xl font-bold" style={{ color: "var(--dashboard-symbol)" }}>{symbol}</h3>
+          <p className="text-sm truncate max-w-[180px]" style={{ color: "var(--dashboard-name)" }}>{name}</p>
         </div>
         <div className={cn(
           "flex items-center px-2 py-1 rounded-full text-xs font-medium",
-          isPositive ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+          isPositive
+            ? "bg-green-500/20"
+            : "bg-red-500/20"
         )}>
           {isPositive ? <ArrowUp className="w-3 h-3 mr-1" /> : <ArrowDown className="w-3 h-3 mr-1" />}
           {changePercent.toFixed(2)}%
@@ -42,11 +52,8 @@ const StockCard: React.FC<StockCardProps> = ({
       </div>
       
       <div className="mt-4">
-        <div className="text-2xl font-bold text-white">${price.toFixed(2)}</div>
-        <div className={cn(
-          "text-sm mt-1",
-          isPositive ? "text-green-400" : "text-red-400"
-        )}>
+        <div className="text-2xl font-bold" style={{ color: "var(--dashboard-price)" }}>${price.toFixed(2)}</div>
+        <div className="text-sm mt-1" style={{ color: isPositive ? "var(--color-success)" : "var(--color-error)" }}>
           {isPositive ? "+" : ""}{change.toFixed(2)} Today
         </div>
       </div>
