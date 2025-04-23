@@ -28,17 +28,11 @@ const StockCard: React.FC<StockCardProps> = ({
         "finova-card stock-card p-4 cursor-pointer hover:shadow-xl transition-all duration-300"
       )}
       onClick={onClick}
-      style={{
-        background: "var(--dashboard-bg)",
-        color: "var(--dashboard-symbol)",
-        border: "1px solid var(--dashboard-border)",
-        boxShadow: "var(--dashboard-card-shadow)",
-      }}
     >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-xl font-bold" style={{ color: "var(--dashboard-symbol)" }}>{symbol}</h3>
-          <p className="text-sm truncate max-w-[180px]" style={{ color: "var(--dashboard-name)" }}>{name}</p>
+          <h3 className="text-xl font-bold">{symbol}</h3>
+          <p className="text-sm truncate max-w-[180px]">{name}</p>
         </div>
         <div className={cn(
           "flex items-center px-2 py-1 rounded-full text-xs font-medium",
@@ -52,7 +46,7 @@ const StockCard: React.FC<StockCardProps> = ({
       </div>
       
       <div className="mt-4">
-        <div className="text-2xl font-bold" style={{ color: "var(--dashboard-price)" }}>${price.toFixed(2)}</div>
+        <div className="text-2xl font-bold">${price.toFixed(2)}</div>
         <div className="text-sm mt-1" style={{ color: isPositive ? "var(--color-success)" : "var(--color-error)" }}>
           {isPositive ? "+" : ""}{change.toFixed(2)} Today
         </div>
