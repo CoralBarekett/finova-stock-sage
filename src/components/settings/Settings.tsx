@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { useNavigate } from "react-router-dom";
 import { Sun, Moon, Clock, Bell, User, LogIn } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link } from "react-router-dom";
@@ -8,6 +9,7 @@ import { Link } from "react-router-dom";
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [tab, setTab] = useState<"theme" | "notifications" | "account">("theme");
   const { mode, setMode } = useTheme();
+  const navigate = useNavigate();
 
   // Notifications state with localStorage persistence
   const [notifications, setNotifications] = useState(() => {
@@ -25,12 +27,12 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-background w-full max-w-md rounded-xl shadow-xl">
+      <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
         {/* Tabs */}
         <div className="flex border-b border-border">
           <button
             className={`flex-1 p-3 font-medium ${
-              tab === "theme" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+              tab === "theme" ? "border-b-2 border-primary text-primary" : "text-[color:var(--color-menu-text)]"
             }`}
             onClick={() => setTab("theme")}
           >
@@ -38,7 +40,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           </button>
           <button
             className={`flex-1 p-3 font-medium ${
-              tab === "notifications" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+              tab === "notifications" ? "border-b-2 border-primary text-primary" : "text-[color:var(--color-menu-text)]"
             }`}
             onClick={() => setTab("notifications")}
           >
@@ -46,7 +48,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           </button>
           <button
             className={`flex-1 p-3 font-medium ${
-              tab === "account" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+              tab === "account" ? "border-b-2 border-primary text-primary" : "text-[color:var(--color-menu-text)]"
             }`}
             onClick={() => setTab("account")}
           >
@@ -54,8 +56,12 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           </button>
           <button 
             className="p-2 text-xl absolute top-2 right-4 hover:text-primary/70" 
-            onClick={onClose}
-            aria-label="Close"
+            onClick={() => {
+              // Go back to previous page or dashboard always
+              navigate(-1);
+              if (onClose) onClose();
+            }}
+            aria-label="Back"
           >
             ×
           </button>
@@ -65,8 +71,8 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
         <div className="p-6">
           {tab === "theme" && (
             <div>
-              <h3 className="text-xl font-bold mb-2">Theme Preferences</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
+              <h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text)" }}>Theme Preferences</h3>
+              <p className="mb-4 text-sm" style={{ color: "var(--color-muted-foreground, #555)" }}>
                 Choose your preferred theme mode
               </p>
               <ToggleGroup 
@@ -93,8 +99,8 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           
           {tab === "notifications" && (
             <div>
-              <h3 className="text-xl font-bold mb-2">Notification Settings</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
+              <h3 className="text-xl font-bold mb-2" style={{ color: "var(--color-text)" }}>Notification Settings</h3>
+              <p className="mb-4 text-sm" style={{ color: "var(--color-muted-foreground, #555)" }}>
                 Customize which notifications you want to receive
               </p>
               
@@ -103,7 +109,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                   <div key={key} className="flex items-center justify-between p-3 border border-border rounded-md">
                     <div className="flex items-center">
                       <Bell className="w-4 h-4 text-primary mr-3" />
-                      <span className="capitalize">{key}</span>
+                      <span className="capitalize" style={{ color: "var(--color-text)" }}>{key}</span>
                     </div>
                     <button
                       className={`w-12 h-6 rounded-full relative transition-colors ${
@@ -125,7 +131,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           
           {tab === "account" && (
             <div>
-              <h3 className="text-xl font-bold mb-4">Account</h3>
+              <h3 className="text-xl font-bold mb-4" style={{ color: "var(--color-text)" }}>Account</h3>
               <div className="space-y-4">
                 <Link 
                   to="/login" 
