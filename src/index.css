@@ -102,61 +102,90 @@
     @apply hover:text-primary text-sidebar-foreground;
   }
 
-  /* --- DASHBOARD & SIDEBAR --- */
+  /* Ensuring all text in light mode has proper contrast */
+  .light .finova-card h1,
+  .light .finova-card h2,
+  .light .finova-card h3,
+  .light .finova-card h4,
+  .light .finova-card h5,
+  .light .finova-card h6,
+  .light .finova-card p,
+  .light .finova-card div {
+    color: var(--color-card-fg);
+  }
+  
+  /* Specific fixes for the stock cards */
   .light .stock-card {
-    background: var(--dashboard-bg) !important;
-    color: var(--dashboard-symbol) !important;
-    border: 1px solid var(--dashboard-border) !important;
+    background: var(--dashboard-bg);
+    color: var(--dashboard-symbol);
+    border: 1px solid var(--dashboard-border);
     box-shadow: var(--dashboard-card-shadow);
   }
   .light .stock-card h3 {
-    color: var(--dashboard-symbol) !important;
+    color: var(--dashboard-symbol);
   }
-  .light .stock-card p,
-  .light .stock-card .text-white\/70,
-  .light .stock-card .text-white\/80 {
-    color: var(--dashboard-name) !important;
+  .light .stock-card p {
+    color: var(--dashboard-name);
   }
   .light .stock-card .text-2xl,
   .light .stock-card .text-green-400,
   .light .stock-card .text-red-400 {
-    color: var(--dashboard-price) !important;
+    color: var(--dashboard-price);
   }
 
+  /* Sidebar styling fixes */
   .light .side-menu,
   .light .sidebar {
-    background: var(--sidebar-background) !important;
-    color: var(--sidebar-foreground) !important;
+    background: var(--sidebar-background);
   }
   .light .sidebar .side-menu-link,
   .light .sidebar [class*="lucide"] {
-    color: var(--sidebar-foreground) !important;
+    color: var(--sidebar-foreground);
   }
 
-  /* --- CHARTS --- */
+  /* Chart styling fixes */
   .light .stock-chart {
-    background: var(--color-chart-bg) !important;
-    color: var(--color-chart-axis) !important;
+    background: var(--color-chart-bg);
   }
   .light .stock-chart .recharts-cartesian-grid-horizontal,
   .light .stock-chart .recharts-cartesian-grid-vertical {
-    stroke: var(--color-chart-grid) !important;
+    stroke: var(--color-chart-grid);
   }
   .light .stock-chart .recharts-text {
-    fill: var(--color-chart-axis) !important;
+    fill: var(--color-chart-axis);
   }
   .light .stock-chart .recharts-line {
-    stroke: var(--color-chart-line) !important;
+    stroke: var(--color-chart-line);
   }
   .light .stock-chart .recharts-dot {
-    stroke: var(--color-chart-point) !important;
-    fill: var(--color-chart-point) !important;
+    stroke: var(--color-chart-point);
+    fill: var(--color-chart-point);
   }
-  .light .stock-chart .recharts-tooltip-wrapper,
+  .light .stock-chart .recharts-tooltip-wrapper {
+    background: var(--color-chart-tooltip-bg);
+  }
   .light .stock-chart .recharts-tooltip-label {
-    background: var(--color-chart-tooltip-bg) !important;
-    color: var(--color-chart-tooltip-text) !important;
+    color: var(--color-chart-tooltip-text);
+  }
+  
+  /* Improve dialog close button styling */
+  .DialogClose {
+    @apply absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center;
+  }
+  
+  .light .DialogClose {
+    @apply text-gray-700 hover:text-gray-900;
+  }
+  
+  .dark .DialogClose {
+    @apply text-gray-300 hover:text-gray-100;
   }
 }
 
-/* Remove all hard-coded white/gray backgrounds and fonts! */
+/* Remove App.css default styles that may interfere with our theme */
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
