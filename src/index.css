@@ -57,7 +57,7 @@
     --dashboard-price: #181828;
     --dashboard-bg: #f7faff;
     --dashboard-border: #e3e7f2;
-    --dashboard-card-shadow: 0 2px 12px 0 rgba(43, 55, 97, 0.04);
+    --dashboard-card-shadow: 0 4px 16px 0 rgba(43, 55, 97, 0.08);
   }
 
   .dark {
@@ -68,7 +68,7 @@
 /* HIGH CONTRAST COMPONENTS */
 @layer components {
   .finova-card {
-    @apply bg-[color:var(--color-card-bg)] text-[color:var(--color-card-fg)] border border-[color:var(--color-card-border)] rounded-xl shadow-sm transition-all;
+    @apply bg-[color:var(--color-card-bg)] text-[color:var(--color-card-fg)] border border-[color:var(--color-card-border)] rounded-xl shadow-md transition-all;
   }
 
   .finova-input {
@@ -170,7 +170,7 @@
   
   /* Improve dialog close button styling */
   .DialogClose {
-    @apply absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center;
+    @apply absolute top-4 right-4 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center size-8;
   }
   
   .light .DialogClose {
