@@ -20,7 +20,7 @@ const StockSearchBar: React.FC<StockSearchBarProps> = ({ onSearch }) => {
     <form onSubmit={handleSubmit} className="w-full">
       <div className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-          <Search className="h-5 w-5 text-white/50" />
+          <Search className="h-5 w-5 text-muted-foreground" />
         </div>
         <input
           type="text"
@@ -33,9 +33,9 @@ const StockSearchBar: React.FC<StockSearchBarProps> = ({ onSearch }) => {
           type="submit"
           className="absolute inset-y-0 right-0 flex items-center pr-3"
         >
-          <div className="p-1 rounded-md hover:bg-white/10">
+          <div className="p-1 rounded-md hover:bg-muted">
             <span className="sr-only">Search</span>
-            <Search className="h-5 w-5 text-white" />
+            <Search className="h-5 w-5 text-primary" />
           </div>
         </button>
       </div>

@@ -35,16 +35,24 @@ const DEFAULT_OPTIONS: TwitterAPIOptions = {
 };
 
 /**
- * Fetches recent tweets from financial influencers
- * Requires TWITTER_BEARER_TOKEN to be set in Supabase secrets
+ * Fetches recent tweets from financial influencers via Supabase Edge Function.
+ * The Edge Function should use the secret TWITTER_BEARER_TOKEN
+ * stored securely in Supabase (project secrets) to call the Twitter API v2.
+ * 
+ * Backend Edge Function example (to deploy with Supabase CLI as twitter.ts):
+ * 
+ * import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+ * const TWITTER_API_BASE = 'https://api.twitter.com/2';
+ * const TWITTER_BEARER_TOKEN = Deno.env.get('TWITTER_BEARER_TOKEN');
+ * serve(async (req) => { // ... impl as shown in previous examples ... })
  */
 export const fetchRecentTweets = async (
   handles: string[] = FINANCIAL_INFLUENCERS,
   options: TwitterAPIOptions = DEFAULT_OPTIONS
 ): Promise<Tweet[]> => {
   try {
-    // This would be a call to Supabase Edge Function that has access to the TWITTER_BEARER_TOKEN
-    const response = await fetch('/api/twitter/fetch-tweets', {
+    // Now calls the deployed Supabase Edge Function instead of a mock API endpoint!
+    const response = await fetch('/functions/v1/twitter', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +69,6 @@ export const fetchRecentTweets = async (
     }
 
     const data = await response.json();
-    
     return data.tweets;
   } catch (error) {
     console.error("Error fetching tweets:", error);
@@ -69,83 +76,3 @@ export const fetchRecentTweets = async (
     return [];
   }
 };
-
-// For implementing in a Supabase Edge Function (not part of the front-end code):
-/*
-// Edge Function: /api/twitter/fetch-tweets
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-
-const TWITTER_API_BASE = 'https://api.twitter.com/2';
-const TWITTER_BEARER_TOKEN = Deno.env.get('TWITTER_BEARER_TOKEN');
-
-serve(async (req) => {
-  try {
-    const { handles, sinceHours, maxResults } = await req.json();
-    
-    // Calculate the start time based on sinceHours
-    const startTime = new Date();
-    startTime.setHours(startTime.getHours() - sinceHours);
-    const formattedStartTime = startTime.toISOString();
-    
-    const tweets = [];
-    
-    // For each handle, fetch recent tweets
-    for (const handle of handles) {
-      // First get the user ID from handle
-      const userResponse = await fetch(
-        `${TWITTER_API_BASE}/users/by/username/${handle}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${TWITTER_BEARER_TOKEN}`,
-          }
-        }
-      );
-      
-      const userData = await userResponse.json();
-      if (!userData.data?.id) continue;
-      
-      const userId = userData.data.id;
-      
-      // Then fetch tweets for that user
-      const tweetsResponse = await fetch(
-        `${TWITTER_API_BASE}/users/${userId}/tweets?max_results=${maxResults}&start_time=${formattedStartTime}&tweet.fields=created_at&expansions=author_id&user.fields=username`,
-        {
-          headers: {
-            'Authorization': `Bearer ${TWITTER_BEARER_TOKEN}`,
-          }
-        }
-      );
-      
-      const tweetsData = await tweetsResponse.json();
-      
-      if (tweetsData.data) {
-        const formattedTweets = tweetsData.data.map(tweet => ({
-          id: tweet.id,
-          text: tweet.text,
-          authorId: tweet.author_id,
-          username: handle,
-          createdAt: tweet.created_at,
-        }));
-        
-        tweets.push(...formattedTweets);
-      }
-    }
-    
-    return new Response(
-      JSON.stringify({ tweets }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-        status: 200,
-      },
-    );
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-        status: 500,
-      },
-    );
-  }
-})
-*/

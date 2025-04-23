@@ -29,8 +29,8 @@ const StockCard: React.FC<StockCardProps> = ({
     >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-xl font-bold">{symbol}</h3>
-          <p className="text-gray-700 dark:text-white/70 text-sm truncate max-w-[180px]">{name}</p>
+          <h3 className="text-xl font-bold text-foreground">{symbol}</h3>
+          <p className="text-muted-foreground text-sm truncate max-w-[180px]">{name}</p>
         </div>
         <div className={cn(
           "flex items-center px-2 py-1 rounded-full text-xs font-medium",
@@ -40,9 +40,8 @@ const StockCard: React.FC<StockCardProps> = ({
           {changePercent.toFixed(2)}%
         </div>
       </div>
-      
       <div className="mt-4">
-        <div className="text-2xl font-bold text-gray-900 dark:text-white">${price.toFixed(2)}</div>
+        <div className="text-2xl font-bold text-foreground">${price.toFixed(2)}</div>
         <div className={cn(
           "text-sm mt-1",
           isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"

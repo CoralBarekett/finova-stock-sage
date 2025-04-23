@@ -9,7 +9,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   const [tab, setTab] = useState<"theme" | "notifications" | "account">("theme");
   const { mode, setMode } = useTheme();
 
-  // Notifications state with localStorage persistence
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
     return saved ? JSON.parse(saved) : { news: true, alerts: true, updates: true };
@@ -26,14 +25,16 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
-        {/* Close Button - Properly aligned and styled */}
+        {/* Refined Close Button: perfectly centered icon, consistent area, nice hover */}
         <button 
-          className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-full 
-                     text-foreground/70 hover:text-foreground hover:bg-muted transition-all"
+          className="absolute right-4 top-4 w-9 h-9 flex items-center justify-center rounded-full transition 
+            bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700
+            focus:outline-none"
           onClick={onClose}
           aria-label="Close"
+          style={{padding: 0, lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
         >
-          <X size={18} />
+          <X className="w-5 h-5 text-muted-foreground hover:text-foreground transition" />
         </button>
         
         {/* Tabs */}
@@ -93,14 +94,12 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
               </ToggleGroup>
             </div>
           )}
-          
           {tab === "notifications" && (
             <div>
               <h3 className="text-xl font-bold mb-2 text-foreground">Notification Settings</h3>
               <p className="mb-4 text-sm text-muted-foreground">
                 Customize which notifications you want to receive
               </p>
-              
               <div className="space-y-3">
                 {Object.entries(notifications).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between p-3 border border-border rounded-md">
@@ -125,7 +124,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
               </div>
             </div>
           )}
-          
           {tab === "account" && (
             <div>
               <h3 className="text-xl font-bold mb-4 text-foreground">Account</h3>
@@ -138,7 +136,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                   <LogIn className="w-4 h-4" />
                   Login
                 </Link>
-                
                 <Link
                   to="/register"
                   className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors text-foreground"

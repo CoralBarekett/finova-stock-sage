@@ -20,17 +20,13 @@ const Dashboard: React.FC = () => {
         const stocksData = await getPopularStocks();
         setStocks(stocksData);
 
-        // Set trending stock (stock with highest absolute percent change)
         const trending = stocksData.reduce((prev, current) => 
           Math.abs(current.changePercent) > Math.abs(prev.changePercent) ? current : prev
         );
         setTrendingStock(trending);
 
         if (trending) {
-          // Get historical data for trending stock
-          console.log("Fetching historical data for trending stock:", trending.symbol);
           const historical = await getStockHistoricalData(trending.symbol, 30);
-          console.log("Received historical data:", historical);
           setHistoricalData(historical);
         }
       } catch (error) {
@@ -49,23 +45,25 @@ const Dashboard: React.FC = () => {
 
   const calculateMarketTrend = () => {
     if (stocks.length === 0) return { positive: 0, negative: 0 };
-    
     const positive = stocks.filter(stock => stock.change > 0).length;
     const negative = stocks.length - positive;
-    
     return { positive, negative };
   };
 
   const marketTrend = calculateMarketTrend();
   const isMarketPositive = marketTrend.positive >= marketTrend.negative;
 
+  // Helper: utility tailwind string for mode-aware color
+  const light = "light";
+  const dark = "dark";
+
   return (
     <AppLayout>
       <div className="animate-fade-in">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-white/70 mt-1">Market overview and trending stocks</p>
+            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Market overview and trending stocks</p>
           </div>
           <div className="mt-4 md:mt-0 flex items-center">
             <div 
@@ -79,7 +77,7 @@ const Dashboard: React.FC = () => {
               }
               Market: {isMarketPositive ? 'Bullish' : 'Bearish'}
             </div>
-            <div className="ml-2 px-3 py-1.5 bg-white/10 rounded-full text-white/90 text-sm font-medium flex items-center">
+            <div className="ml-2 px-3 py-1.5 bg-white/10 rounded-full text-foreground text-sm font-medium flex items-center">
               <DollarSign className="w-4 h-4 mr-1.5" />
               Trading Day
             </div>
@@ -89,7 +87,7 @@ const Dashboard: React.FC = () => {
         {loading ? (
           <div className="finova-card p-8 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white"></div>
-            <p className="mt-4 text-white/80">Loading market data...</p>
+            <p className="mt-4 text-muted-foreground">Loading market data...</p>
           </div>
         ) : (
           <>
@@ -97,23 +95,22 @@ const Dashboard: React.FC = () => {
               <div className="finova-card p-6 mb-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                   <div>
-                    <h2 className="text-xl font-bold text-white flex items-center">
+                    <h2 className="text-xl font-bold text-foreground flex items-center">
                       Trending Stock 
-                      <ArrowUpRight className="ml-2 w-5 h-5 text-finova-primary" />
+                      <ArrowUpRight className="ml-2 w-5 h-5 text-primary" />
                     </h2>
                     <div className="mt-1 flex items-center">
-                      <span className="text-2xl font-bold mr-2 text-white">{trendingStock.symbol}</span>
-                      <span className="text-white/70">{trendingStock.name}</span>
+                      <span className="text-2xl font-bold mr-2 text-foreground">{trendingStock.symbol}</span>
+                      <span className="text-muted-foreground">{trendingStock.name}</span>
                     </div>
                   </div>
                   <div className="mt-4 md:mt-0">
-                    <div className="text-2xl font-bold text-white">${trendingStock.price.toFixed(2)}</div>
-                    <div className={`text-sm ${trendingStock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className="text-2xl font-bold text-foreground">${trendingStock.price.toFixed(2)}</div>
+                    <div className={`text-sm ${trendingStock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {trendingStock.change >= 0 ? '+' : ''}{trendingStock.change.toFixed(2)} ({trendingStock.changePercent.toFixed(2)}%)
                     </div>
                   </div>
                 </div>
-                
                 {historicalData.length > 0 ? (
                   <StockChart 
                     data={historicalData} 
@@ -121,13 +118,12 @@ const Dashboard: React.FC = () => {
                   />
                 ) : (
                   <div className="h-64 flex items-center justify-center">
-                    <p className="text-white/70">Loading chart data...</p>
+                    <p className="text-muted-foreground">Loading chart data...</p>
                   </div>
                 )}
-                
                 <div className="mt-4 flex justify-end">
                   <button 
-                    className="finova-button px-4 py-2 rounded-lg bg-finova-primary hover:bg-finova-accent transition-colors text-white text-sm flex items-center"
+                    className="finova-button px-4 py-2 rounded-lg bg-primary hover:bg-accent transition-colors text-primary-foreground text-sm flex items-center"
                     onClick={() => handleStockClick(trendingStock.symbol)}
                   >
                     View Details
@@ -136,8 +132,7 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             )}
-            
-            <h2 className="text-xl font-bold text-white mb-4">Popular Stocks</h2>
+            <h2 className="text-xl font-bold text-foreground mb-4">Popular Stocks</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {stocks.map((stock) => (
                 <StockCard
