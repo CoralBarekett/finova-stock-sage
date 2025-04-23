@@ -5,82 +5,68 @@
 
 @layer base {
   :root {
-    /* BASIC COLORS */
-    --color-bg: #ffffff;
-    --color-fg: #181818;
-    --color-text: #181828;
-    --color-muted-foreground: #64676b;
-    --color-menu-text: #222;
-    --color-card-bg: #f3f5fa;
-    --color-card-fg: #181828;
-    --color-card-border: #e4e7ee;
-    --color-primary: #8B5CF6;
-    --color-primary-foreground: #fff;
-    --color-secondary: #EEE9FA;
-    --color-success: #16a34a;
-    --color-error: #F87171;
-
-    /* CHART COLORS */
-    --color-chart-line: #8B5CF6;
-    --color-chart-bg: #fff;
-    --color-chart-point: #8B5CF6;
-    --color-chart-prediction: #10B981;
-    --color-chart-grid: #e3e3e7;
-    --color-chart-axis: #343343;
-    --color-chart-tooltip-bg: #ffffff;
-    --color-chart-tooltip-text: #181828;
+    /* Light mode - improved contrast */
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220.9 39.3% 11%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262.1 83.3% 57.8%;
+    --radius: 0.5rem;
     
-    /* BUTTONS */
-    --color-btn-bg: #8B5CF6;
-    --color-btn-fg: #fff;
-    --color-btn-hover: #6D28D9;
+    /* Improved sidebar colors for light mode */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 224 71.4% 4.1%;
+    --sidebar-primary: 262.1 83.3% 57.8%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 220 14.3% 95.9%;
+    --sidebar-accent-foreground: 220.9 39.3% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 262.1 83.3% 57.8%;
 
-    /* INPUTS */
-    --color-input-bg: #fff;
-    --color-input-fg: #181828;
-    --color-input-border: #dadce0;
-    --color-input-placeholder: #888fa1;
-
-    /* SIDEBAR */
-    --sidebar-background: #fff;
-    --sidebar-foreground: #222;
-    --sidebar-primary: #8B5CF6;
-    --sidebar-primary-foreground: #fff;
-    --sidebar-accent: #EEE9FA;
-    --sidebar-accent-foreground: #181828;
-    --sidebar-border: #e4e7ee;
-    --sidebar-ring: #8B5CF6;
-
-    /* Dashboard Custom */
-    --dashboard-symbol: #181828;
-    --dashboard-name: #44466e;
-    --dashboard-price: #181828;
-    --dashboard-bg: #f7faff;
-    --dashboard-border: #e3e7f2;
-    --dashboard-card-shadow: 0 4px 16px 0 rgba(43, 55, 97, 0.08);
+    /* Chart colors with improved contrast */
+    --chart-grid: 220 13% 91%;
+    --chart-text: 224 71.4% 4.1%;
+    --chart-line: 262.1 83.3% 57.8%;
+    --chart-point: 262.1 83.3% 57.8%;
   }
-
+ 
   .dark {
     /* ... keep existing code (dark mode color variables) */
   }
 }
 
-/* HIGH CONTRAST COMPONENTS */
 @layer components {
   .finova-card {
-    @apply bg-[color:var(--color-card-bg)] text-[color:var(--color-card-fg)] border border-[color:var(--color-card-border)] rounded-xl shadow-md transition-all;
+    @apply bg-card text-card-foreground border border-border rounded-xl shadow-sm transition-all;
   }
 
   .finova-input {
-    @apply bg-[color:var(--color-input-bg)] border border-[color:var(--color-input-border)] text-[color:var(--color-input-fg)] p-2 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)] transition-colors rounded-md placeholder-[color:var(--color-input-placeholder)];
+    @apply bg-background border border-input text-foreground p-2 focus:outline-none focus:ring-2 focus:ring-ring transition-colors rounded-md;
   }
 
   .finova-button {
-    @apply bg-[color:var(--color-btn-bg)] text-[color:var(--color-btn-fg)] hover:bg-[color:var(--color-btn-hover)] transition-colors rounded-md;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded-md;
   }
 
+  /* ... keep existing code (card and finova-section styles) */
+
+  /* Improved light mode styles */
   .light body {
-    @apply bg-[color:var(--color-bg)] text-[color:var(--color-text)];
+    @apply bg-background text-foreground;
   }
 
   .dark body {
@@ -88,7 +74,7 @@
   }
 
   .finova-gradient-text {
-    @apply text-[color:var(--color-primary)] font-semibold;
+    @apply text-primary font-semibold;
   }
 
   .link-hover {
@@ -96,96 +82,23 @@
   }
 
   .light .link-hover { 
-    @apply hover:text-[color:var(--color-primary)] text-[color:var(--color-menu-text)];
+    @apply hover:text-primary text-sidebar-foreground; 
   }
+
   .dark .link-hover { 
-    @apply hover:text-primary text-sidebar-foreground;
+    @apply hover:text-primary text-sidebar-foreground; 
   }
 
-  /* Ensuring all text in light mode has proper contrast */
-  .light .finova-card h1,
-  .light .finova-card h2,
-  .light .finova-card h3,
-  .light .finova-card h4,
-  .light .finova-card h5,
-  .light .finova-card h6,
-  .light .finova-card p,
-  .light .finova-card div {
-    color: var(--color-card-fg);
-  }
-  
-  /* Specific fixes for the stock cards */
+  /* Stock card improvements for light mode */
   .light .stock-card {
-    background: var(--dashboard-bg);
-    color: var(--dashboard-symbol);
-    border: 1px solid var(--dashboard-border);
-    box-shadow: var(--dashboard-card-shadow);
-  }
-  .light .stock-card h3 {
-    color: var(--dashboard-symbol);
-  }
-  .light .stock-card p {
-    color: var(--dashboard-name);
-  }
-  .light .stock-card .text-2xl,
-  .light .stock-card .text-green-400,
-  .light .stock-card .text-red-400 {
-    color: var(--dashboard-price);
+    @apply text-foreground border-border;
   }
 
-  /* Sidebar styling fixes */
-  .light .side-menu,
-  .light .sidebar {
-    background: var(--sidebar-background);
-  }
-  .light .sidebar .side-menu-link,
-  .light .sidebar [class*="lucide"] {
-    color: var(--sidebar-foreground);
-  }
-
-  /* Chart styling fixes */
   .light .stock-chart {
-    background: var(--color-chart-bg);
+    @apply [&_.recharts-cartesian-grid-horizontal]:stroke-[--chart-grid] 
+           [&_.recharts-cartesian-grid-vertical]:stroke-[--chart-grid]
+           [&_.recharts-text]:fill-[--chart-text]
+           [&_.recharts-line]:stroke-[--chart-line]
+           [&_.recharts-dot]:stroke-[--chart-point];
   }
-  .light .stock-chart .recharts-cartesian-grid-horizontal,
-  .light .stock-chart .recharts-cartesian-grid-vertical {
-    stroke: var(--color-chart-grid);
-  }
-  .light .stock-chart .recharts-text {
-    fill: var(--color-chart-axis);
-  }
-  .light .stock-chart .recharts-line {
-    stroke: var(--color-chart-line);
-  }
-  .light .stock-chart .recharts-dot {
-    stroke: var(--color-chart-point);
-    fill: var(--color-chart-point);
-  }
-  .light .stock-chart .recharts-tooltip-wrapper {
-    background: var(--color-chart-tooltip-bg);
-  }
-  .light .stock-chart .recharts-tooltip-label {
-    color: var(--color-chart-tooltip-text);
-  }
-  
-  /* Improve dialog close button styling */
-  .DialogClose {
-    @apply absolute top-4 right-4 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center size-8;
-  }
-  
-  .light .DialogClose {
-    @apply text-gray-700 hover:text-gray-900;
-  }
-  
-  .dark .DialogClose {
-    @apply text-gray-300 hover:text-gray-100;
-  }
-}
-
-/* Remove App.css default styles that may interfere with our theme */
-#root {
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: left;
 }
