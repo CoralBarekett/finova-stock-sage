@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, Clock, Bell, User, LogIn } from "lucide-react";
+import { Sun, Moon, Clock, Bell, User, LogIn, X } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link } from "react-router-dom";
 
@@ -25,7 +25,17 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-background w-full max-w-md rounded-xl shadow-xl">
+      <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
+        {/* Close Button - Properly aligned and styled */}
+        <button 
+          className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-full 
+                     text-foreground/70 hover:text-foreground hover:bg-muted transition-all"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <X size={18} />
+        </button>
+        
         {/* Tabs */}
         <div className="flex border-b border-border">
           <button
@@ -52,20 +62,13 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           >
             Account
           </button>
-          <button 
-            className="p-2 text-xl absolute top-2 right-4 hover:text-primary/70" 
-            onClick={onClose}
-            aria-label="Close"
-          >
-            ×
-          </button>
         </div>
 
         {/* Content */}
         <div className="p-6">
           {tab === "theme" && (
             <div>
-              <h3 className="text-xl font-bold mb-2">Theme Preferences</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground">Theme Preferences</h3>
               <p className="mb-4 text-sm text-muted-foreground">
                 Choose your preferred theme mode
               </p>
@@ -93,7 +96,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           
           {tab === "notifications" && (
             <div>
-              <h3 className="text-xl font-bold mb-2">Notification Settings</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground">Notification Settings</h3>
               <p className="mb-4 text-sm text-muted-foreground">
                 Customize which notifications you want to receive
               </p>
@@ -103,7 +106,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                   <div key={key} className="flex items-center justify-between p-3 border border-border rounded-md">
                     <div className="flex items-center">
                       <Bell className="w-4 h-4 text-primary mr-3" />
-                      <span className="capitalize">{key}</span>
+                      <span className="capitalize text-foreground">{key}</span>
                     </div>
                     <button
                       className={`w-12 h-6 rounded-full relative transition-colors ${
@@ -125,7 +128,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           
           {tab === "account" && (
             <div>
-              <h3 className="text-xl font-bold mb-4">Account</h3>
+              <h3 className="text-xl font-bold mb-4 text-foreground">Account</h3>
               <div className="space-y-4">
                 <Link 
                   to="/login" 
@@ -138,7 +141,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                 
                 <Link
                   to="/register"
-                  className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors"
+                  className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={onClose}
                 >
                   <User className="w-4 h-4" />
