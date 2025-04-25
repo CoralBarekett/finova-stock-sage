@@ -21,7 +21,7 @@ const LIVE_STOCKS_API_KEY = 'cpna92pr01qtggbavitgcpna92pr01qtggbaviu0';
 const HISTORY_STOCKS_API_KEY = '9BVIQ3O8J627J1RT';
 const LIVE_STOCKS_BASE_URL = 'https://finnhub.io/api/v1';
 const HISTORY_STOCKS_BASE_URL = 'https://www.alphavantage.co/query';
-// const BACKEND_API_URL = 'http://localhost:3000';
+const BACKEND_API_URL = 'http://localhost:3000';
 
 // Stock symbol to company name mapping
 const companyNames: Record<string, string> = {
@@ -57,8 +57,8 @@ const handleApiError = (error: any, message: string) => {
 // Get real-time stock quote from Finnhub
 const getStockQuote = async (symbol: string): Promise<any> => {
   try {
-    const response = await fetch(`${LIVE_STOCKS_BASE_URL}/quote?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
-    // const response = await fetch(`${BACKEND_API_URL}/stocks/live?symbol=${symbol}`);
+    // const response = await fetch(`${LIVE_STOCKS_BASE_URL}/quote?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
+    const response = await fetch(`${BACKEND_API_URL}/stocks/live?symbol=${symbol}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -73,8 +73,8 @@ const getStockQuote = async (symbol: string): Promise<any> => {
 // Get company profile from Finnhub
 const getCompanyProfile = async (symbol: string): Promise<any> => {
   try {
-    const response = await fetch(`${LIVE_STOCKS_BASE_URL}/stock/profile2?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
-    // const response = await fetch(`${BACKEND_API_URL}/stocks/profile?symbol=${symbol}`);
+    // const response = await fetch(`${LIVE_STOCKS_BASE_URL}/stock/profile2?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
+    const response = await fetch(`${BACKEND_API_URL}/stocks/profile?symbol=${symbol}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -157,12 +157,12 @@ export const getStockHistoricalData = async (
 ): Promise<HistoricalData[]> => {
   try {
     console.log(`Fetching historical data for ${symbol} for ${days} days`);
-    const response = await fetch(
-      `${HISTORY_STOCKS_BASE_URL}?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${HISTORY_STOCKS_API_KEY}`
-    );
     // const response = await fetch(
-    //   `${BACKEND_API_URL}/stocks/history?&symbol=${symbol}`
+    //   `${HISTORY_STOCKS_BASE_URL}?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${HISTORY_STOCKS_API_KEY}`
     // );
+    const response = await fetch(
+      `${BACKEND_API_URL}/stocks/history?&symbol=${symbol}`
+    );
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
