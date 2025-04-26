@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, X } from "lucide-react";
@@ -25,19 +24,14 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
-        {/* Refined Close Button: perfectly centered icon, consistent area, nice hover */}
         <button 
-          className="absolute right-4 top-4 w-9 h-9 flex items-center justify-center rounded-full transition 
-            bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700
-            focus:outline-none"
           onClick={onClose}
-          aria-label="Close"
-          style={{padding: 0, lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+          className="absolute right-4 top-4 p-2 rounded-full transition-colors hover:text-primary focus:outline-none"
+          aria-label="Close settings"
         >
-          <X className="w-5 h-5 text-muted-foreground hover:text-foreground transition" />
+          <X className="w-5 h-5" />
         </button>
         
-        {/* Tabs */}
         <div className="flex border-b border-border">
           <button
             className={`flex-1 p-3 font-medium ${
@@ -65,7 +59,6 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6">
           {tab === "theme" && (
             <div>
@@ -109,12 +102,12 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                     </div>
                     <button
                       className={`w-12 h-6 rounded-full relative transition-colors ${
-                        value ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                        value ? 'bg-primary' : 'bg-muted'
                       }`}
                       onClick={() => handleNotificationChange(key, !value)}
                     >
                       <span 
-                        className={`block w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                        className={`block w-5 h-5 rounded-full bg-background absolute top-0.5 transition-transform ${
                           value ? 'translate-x-6' : 'translate-x-0.5'
                         }`} 
                       />
