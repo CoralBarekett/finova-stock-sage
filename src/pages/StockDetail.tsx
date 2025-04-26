@@ -1,12 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/layouts/AppLayout';
 import StockChart from '@/components/charts/StockChart';
 import PredictionInfo from '@/components/stocks/PredictionInfo';
+import StockHeader from '@/components/stocks/StockHeader';
+import StockStats from '@/components/stocks/StockStats';
 import { getStockDetails, getStockHistoricalData, getPrediction, StockData, HistoricalData } from '@/services/stockService';
 import { predictStockPrices } from '@/services/predictionService';
-import { ArrowUp, ArrowDown, Clock, TrendingUp, TrendingDown, Activity, DollarSign, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { TimeRange } from '@/components/stocks/TimeRangeSelector';
 
 const StockDetail: React.FC = () => {
   const { symbol } = useParams<{ symbol: string }>();
@@ -18,7 +20,7 @@ const StockDetail: React.FC = () => {
     confidence: number;
     prediction: string;
   } | null>(null);
-  const [timeRange, setTimeRange] = useState<'1w' | '1m' | '3m' | '1y'>('1m');
+  const [timeRange, setTimeRange] = useState<TimeRange>('1m');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -89,8 +91,6 @@ const StockDetail: React.FC = () => {
     );
   }
 
-  const isPositive = stock.change >= 0;
-
   return (
     <AppLayout>
       <div className="animate-fade-in">
@@ -109,31 +109,19 @@ const StockDetail: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
+            <StockHeader 
+              stock={stock}
+              timeRange={timeRange}
+              onTimeRangeChange={setTimeRange}
+              onBack={() => navigate(-1)}
+            />
+
             <div className="finova-card p-6 mb-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                <div>
-                  <div className="text-3xl font-bold text-foreground">${stock.price.toFixed(2)}</div>
-                  <div className={`flex items-center mt-1 ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {isPositive ? 
-                      <ArrowUp className="w-4 h-4 mr-1" /> : 
-                      <ArrowDown className="w-4 h-4 mr-1" />
-                    }
-                    {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
-                  </div>
-                </div>
-                <div className="mt-4 md:mt-0 flex space-x-2">
-                  <TimeRangeButton range="1w" current={timeRange} onClick={() => setTimeRange('1w')} />
-                  <TimeRangeButton range="1m" current={timeRange} onClick={() => setTimeRange('1m')} />
-                  <TimeRangeButton range="3m" current={timeRange} onClick={() => setTimeRange('3m')} />
-                  <TimeRangeButton range="1y" current={timeRange} onClick={() => setTimeRange('1y')} />
-                </div>
-              </div>
-              
               {historicalData.length > 0 ? (
                 <StockChart 
                   data={historicalData} 
                   predictedData={predictedData || undefined}
-                  color={isPositive ? '#4ADE80' : '#F87171'} 
+                  color={stock.change >= 0 ? '#4ADE80' : '#F87171'} 
                 />
               ) : (
                 <div className="h-64 flex items-center justify-center">
@@ -164,77 +152,11 @@ const StockDetail: React.FC = () => {
               )}
             </div>
 
-            <div className="finova-card p-6">
-              <h2 className="text-xl font-bold text-foreground mb-4">Key Statistics</h2>
-              
-              <div className="space-y-4">
-                <StockStat 
-                  icon={<DollarSign className="w-5 h-5 text-finova-primary" />}
-                  label="Market Cap"
-                  value={`$${(stock.marketCap / 1000000000).toFixed(2)}B`}
-                />
-                <StockStat 
-                  icon={<Activity className="w-5 h-5 text-finova-primary" />}
-                  label="Volume"
-                  value={`${(stock.volume / 1000000).toFixed(2)}M`}
-                />
-                <StockStat 
-                  icon={<TrendingUp className="w-5 h-5 text-finova-primary" />}
-                  label="P/E Ratio"
-                  value={stock.peRatio.toFixed(2)}
-                />
-                <StockStat 
-                  icon={<Clock className="w-5 h-5 text-finova-primary" />}
-                  label="Updated"
-                  value="Just now"
-                />
-              </div>
-            </div>
+            <StockStats stock={stock} />
           </div>
         </div>
       </div>
     </AppLayout>
-  );
-};
-
-interface TimeRangeButtonProps {
-  range: '1w' | '1m' | '3m' | '1y';
-  current: string;
-  onClick: () => void;
-}
-
-const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ range, current, onClick }) => {
-  const isActive = current === range;
-  
-  return (
-    <button
-      className={`px-3 py-1 rounded-md text-sm transition-colors ${
-        isActive 
-          ? 'bg-primary text-primary-foreground' 
-          : 'bg-secondary text-foreground hover:bg-secondary/80'
-      }`}
-      onClick={onClick}
-    >
-      {range}
-    </button>
-  );
-};
-
-interface StockStatProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}
-
-const StockStat: React.FC<StockStatProps> = ({ icon, label, value }) => {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center">
-        {icon}
-        <span className="ml-2 text-white/70">{label}</span>
-      </div>
-      <span className="font-medium text-white">{value}</span>
-    </div>
   );
 };
 
