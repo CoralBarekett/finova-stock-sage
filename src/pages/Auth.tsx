@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const { user, loading } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,30 +20,50 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className={`min-h-screen flex items-center justify-center ${
+        theme === 'dark' 
+          ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
+          : 'bg-gradient-to-br from-gray-100 to-white'
+      }`}>
         <div className="animate-pulse">
-          <h1 className="text-3xl font-bold text-white">Loading...</h1>
+          <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            Loading...
+          </h1>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className={`min-h-screen flex flex-col items-center justify-center ${
+      theme === 'dark' 
+        ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
+        : 'bg-gradient-to-br from-gray-100 to-white'
+    }`}>
       <div className="w-full max-w-md px-4">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome to Finova</h1>
-          <p className="text-slate-400">Your Personal Finance Assistant</p>
+          <h1 className={`text-4xl font-bold mb-2 ${
+            theme === 'dark' ? 'text-white' : 'text-gray-900'
+          }`}>
+            Welcome to Finova
+          </h1>
+          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+            Your Personal Finance Assistant
+          </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/10">
+        <div className={`${
+          theme === 'dark' 
+            ? 'bg-gray-800/50 backdrop-blur-lg border-gray-700' 
+            : 'bg-white/80 backdrop-blur-lg border-gray-200'
+        } rounded-2xl p-8 shadow-xl border`}>
           <div className="flex gap-4 mb-8">
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 isLogin 
                   ? 'bg-primary text-white' 
-                  : 'text-slate-400 hover:text-white'
+                  : `${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} hover:text-white`
               }`}
             >
               Login
@@ -51,7 +73,7 @@ const Auth = () => {
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 !isLogin 
                   ? 'bg-primary text-white' 
-                  : 'text-slate-400 hover:text-white'
+                  : `${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} hover:text-white`
               }`}
             >
               Sign Up

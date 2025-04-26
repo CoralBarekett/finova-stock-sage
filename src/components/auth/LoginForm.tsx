@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -49,10 +48,8 @@ const LoginForm: React.FC = () => {
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        // Force immediate navigation to dashboard
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 0);
+        // Immediate navigation after successful login
+        navigate('/dashboard', { replace: true });
       } catch (error) {
         console.error("Login error:", error);
         if (error.response?.status === 404) {
