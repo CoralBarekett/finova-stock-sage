@@ -8,6 +8,11 @@ interface User {
   name: string;
 }
 
+interface AuthResponse {
+  token: string;
+  user: User;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -41,7 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const response = await axios.get('http://localhost:3000/users/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setUser(response.data);
+        // Make sure the response data conforms to User type
+        setUser(response.data as User);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -52,14 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
-    const response = await axios.post('http://localhost:3000/users/SignIn', { email, password });
+    const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignIn', { email, password });
     const { token, user: userData } = response.data;
     localStorage.setItem('finovaToken', token);
     setUser(userData);
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const response = await axios.post('http://localhost:3000/users/SignUp', { name, email, password });
+    const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignUp', { name, email, password });
     const { token, user: userData } = response.data;
     localStorage.setItem('finovaToken', token);
     setUser(userData);
