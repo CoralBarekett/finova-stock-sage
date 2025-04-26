@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/layouts/AppLayout';
@@ -17,7 +18,7 @@ const StockDetail: React.FC = () => {
     confidence: number;
     prediction: string;
   } | null>(null);
-  const [timeRange, setTimeRange<'1w' | '1m' | '3m' | '1y'>('1m');
+  const [timeRange, setTimeRange] = useState<'1w' | '1m' | '3m' | '1y'>('1m');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
