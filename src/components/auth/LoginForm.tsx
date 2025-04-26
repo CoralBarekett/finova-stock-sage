@@ -1,17 +1,20 @@
+
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome } from "lucide-react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-// Define API base URL
-const API_URL = "http://localhost:3000"; // Point to your backend server
 
 const LoginForm: React.FC = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,24 +44,24 @@ const LoginForm: React.FC = () => {
     if (valid) {
       setIsSubmitting(true);
       try {
-        // Use the correct URL with the proper port
-        const response = await axios.post(`${API_URL}/users/SignIn`, {
-          email: form.email,
-          password: form.password
+        await login(form.email, form.password);
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
         });
-        
-        // Handle successful login
-        console.log("Login successful:", response.data);
-        // Redirect or handle successful login (store token, etc.)
+        navigate('/dashboard');
       } catch (error) {
         console.error("Login error:", error);
-        // Handle login errors
-        if (error.response && error.response.status === 404) {
+        if (error.response?.status === 404) {
           setErrors({ email: "User not found" });
-        } else if (error.response && error.response.status === 401) {
+        } else if (error.response?.status === 401) {
           setErrors({ password: "Invalid credentials" });
         } else {
-          // Handle other errors
+          toast({
+            title: "Error",
+            description: "An unexpected error occurred. Please try again.",
+            variant: "destructive",
+          });
         }
       } finally {
         setIsSubmitting(false);

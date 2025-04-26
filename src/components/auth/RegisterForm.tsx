@@ -1,17 +1,20 @@
+
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome, User } from "lucide-react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-// Define API base URL
-const API_URL = "http://localhost:3000"; // Point to your backend server
 
 const RegisterForm: React.FC = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; confirm?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -56,19 +59,23 @@ const RegisterForm: React.FC = () => {
     if (valid) {
       setIsSubmitting(true);
       try {
-        // Use the correct URL with the proper port
-        const response = await axios.post(`${API_URL}/users/SignUp`, {
-          name: form.name,
-          email: form.email,
-          password: form.password
+        await register(form.name, form.email, form.password);
+        toast({
+          title: "Welcome to Finova!",
+          description: "Your account has been created successfully.",
         });
-        
-        // Handle successful registration
-        console.log("Registration successful:", response.data);
-        // Redirect or show success message
+        navigate('/dashboard');
       } catch (error) {
         console.error("Registration error:", error);
-        // Handle errors, such as email already in use
+        if (error.response?.status === 409) {
+          setErrors({ email: "Email already in use" });
+        } else {
+          toast({
+            title: "Error",
+            description: "An unexpected error occurred. Please try again.",
+            variant: "destructive",
+          });
+        }
       } finally {
         setIsSubmitting(false);
       }
