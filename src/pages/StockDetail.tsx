@@ -5,8 +5,8 @@ import StockChart from '@/components/charts/StockChart';
 import PredictionInfo from '@/components/stocks/PredictionInfo';
 import StockHeader from '@/components/stocks/StockHeader';
 import StockStats from '@/components/stocks/StockStats';
-import { getStockDetails, getStockHistoricalData, getPrediction, StockData, HistoricalData } from '@/services/stockService';
-import { predictStockPrices } from '@/services/predictionService';
+import { getStockDetails, getStockHistoricalData, StockData, HistoricalData } from '@/services/stockService';
+import { getPredictionsWithSocialSentiment } from '@/services/stockPredictionService';
 import { AlertCircle } from 'lucide-react';
 import { TimeRange } from '@/components/stocks/TimeRangeSelector';
 
@@ -15,14 +15,11 @@ const StockDetail: React.FC = () => {
   const [stock, setStock] = useState<StockData | null>(null);
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [predictedData, setPredictedData] = useState<HistoricalData[] | null>(null);
-  const [prediction, setPrediction] = useState<{
-    bullish: boolean;
-    confidence: number;
-    prediction: string;
-  } | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>('1m');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const celebrityHandle = "realDonaldTrump"; // default celebrity for prediction
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +27,6 @@ const StockDetail: React.FC = () => {
       
       setLoading(true);
       try {
-        // Get stock details
         const stockData = await getStockDetails(symbol);
         if (!stockData) {
           navigate('/not-found');
@@ -39,22 +35,15 @@ const StockDetail: React.FC = () => {
         
         setStock(stockData);
         
-        // Get historical data based on time range
         const days = timeRange === '1w' ? 7 : timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : 365;
         const historical = await getStockHistoricalData(symbol, days);
-        console.log("Fetched historical data:", historical);
         setHistoricalData(historical);
         
-        // Generate price predictions
-        const predictions = await predictStockPrices(symbol, historical);
-        console.log("Generated predictions:", predictions);
+        const predictions = await getPredictionsWithSocialSentiment(symbol, celebrityHandle, historical);
         setPredictedData(predictions);
-        
-        // Get prediction text
-        const predictionData = await getPrediction(symbol);
-        setPrediction(predictionData);
+
       } catch (error) {
-        console.error("Error fetching stock details:", error);
+        console.error("Error fetching stock details or predictions:", error);
       } finally {
         setLoading(false);
       }
@@ -93,7 +82,7 @@ const StockDetail: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="animate-fade-in">
+      <div>
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">{stock.symbol}</h1>
@@ -126,17 +115,6 @@ const StockDetail: React.FC = () => {
               ) : (
                 <div className="h-64 flex items-center justify-center">
                   <p className="text-white/70">No chart data available</p>
-                </div>
-              )}
-              
-              {predictedData && predictedData.length > 0 && (
-                <div className="mt-3 flex justify-end">
-                  <div className="flex items-center">
-                    <span className="h-1 w-8 bg-primary mr-2"></span>
-                    <span className="text-white/70 text-sm mr-4">Historical</span>
-                    <span className="h-1 w-8 bg-green-500 mr-2" style={{borderTop: '1px dashed #10B981'}}></span>
-                    <span className="text-white/70 text-sm">Predicted</span>
-                  </div>
                 </div>
               )}
             </div>
