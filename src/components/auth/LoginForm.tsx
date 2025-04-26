@@ -49,7 +49,10 @@ const LoginForm: React.FC = () => {
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        navigate('/dashboard', { replace: true }); // Update to use replace for cleaner history
+        // Force immediate navigation to dashboard
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 0);
       } catch (error) {
         console.error("Login error:", error);
         if (error.response?.status === 404) {
