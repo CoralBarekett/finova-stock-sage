@@ -17,7 +17,7 @@ const StockDetail: React.FC = () => {
     confidence: number;
     prediction: string;
   } | null>(null);
-  const [timeRange, setTimeRange] = useState<'1w' | '1m' | '3m' | '1y'>('1m');
+  const [timeRange, setTimeRange<'1w' | '1m' | '3m' | '1y'>('1m');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -95,8 +95,8 @@ const StockDetail: React.FC = () => {
       <div className="animate-fade-in">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">{stock.symbol}</h1>
-            <p className="text-white/70 mt-1">{stock.name}</p>
+            <h1 className="text-3xl font-bold text-foreground">{stock.symbol}</h1>
+            <p className="text-muted-foreground mt-1">{stock.name}</p>
           </div>
           <button
             className="finova-button px-4 py-2 rounded-lg text-sm"
@@ -111,8 +111,8 @@ const StockDetail: React.FC = () => {
             <div className="finova-card p-6 mb-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                 <div>
-                  <div className="text-3xl font-bold text-white">${stock.price.toFixed(2)}</div>
-                  <div className={`flex items-center mt-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                  <div className="text-3xl font-bold text-foreground">${stock.price.toFixed(2)}</div>
+                  <div className={`flex items-center mt-1 ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {isPositive ? 
                       <ArrowUp className="w-4 h-4 mr-1" /> : 
                       <ArrowDown className="w-4 h-4 mr-1" />
@@ -155,7 +155,7 @@ const StockDetail: React.FC = () => {
 
           <div className="lg:col-span-1">
             <div className="finova-card p-6 mb-6">
-              <h2 className="text-xl font-bold text-white mb-4">AI Prediction</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">AI Prediction</h2>
               {predictedData && predictedData.length > 0 ? (
                 <PredictionInfo predictions={predictedData} symbol={symbol || ''} />
               ) : (
@@ -164,7 +164,7 @@ const StockDetail: React.FC = () => {
             </div>
 
             <div className="finova-card p-6">
-              <h2 className="text-xl font-bold text-white mb-4">Key Statistics</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">Key Statistics</h2>
               
               <div className="space-y-4">
                 <StockStat 
@@ -207,10 +207,10 @@ const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ range, current, onCli
   
   return (
     <button
-      className={`px-3 py-1 rounded-md text-sm ${
+      className={`px-3 py-1 rounded-md text-sm transition-colors ${
         isActive 
-          ? 'bg-finova-primary text-white' 
-          : 'bg-white/10 text-white/70 hover:bg-white/20'
+          ? 'bg-primary text-primary-foreground' 
+          : 'bg-secondary text-foreground hover:bg-secondary/80'
       }`}
       onClick={onClick}
     >
