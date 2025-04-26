@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +64,10 @@ const RegisterForm: React.FC = () => {
           title: "Welcome to Finova!",
           description: "Your account has been created successfully.",
         });
-        navigate('/dashboard', { replace: true }); // Update to use replace for cleaner history
+        // Force immediate navigation to dashboard
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 0);
       } catch (error) {
         console.error("Registration error:", error);
         if (error.response?.status === 409) {
