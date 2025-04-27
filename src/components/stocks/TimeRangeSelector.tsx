@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-export type TimeRange = '1w' | '1m' | '3m' | '1y';
+export type TimeRange = '1d' | '1w' | '3m' | '1y';
 
 interface TimeRangeSelectorProps {
   currentRange: TimeRange;
@@ -22,7 +22,7 @@ const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ range, current, onCli
       className={`px-3 py-1 rounded-md text-sm transition-colors ${
         isActive 
           ? 'bg-primary text-primary-foreground' 
-          : 'bg-secondary text-foreground hover:bg-secondary/80'
+          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
       }`}
       onClick={onClick}
     >
@@ -32,7 +32,7 @@ const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ range, current, onCli
 };
 
 const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ currentRange, onRangeChange }) => {
-  const timeRanges: TimeRange[] = ['1w', '1m', '3m', '1y'];
+  const timeRanges: TimeRange[] = ['1d', '1w', '3m', '1y'];
 
   return (
     <div className="flex space-x-2">
