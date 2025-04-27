@@ -1,27 +1,80 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface User {
+interface BackendUser {
+  _id: string;
+  email: string;
+  name: string;
+}
+
+interface FrontendUser {
   id: string;
   email: string;
   name: string;
 }
 
-interface AuthResponse {
-  token: string;
-  user: User;
-}
-
 interface AuthContextType {
-  user: User | null;
-  loading: boolean;
+  user: FrontendUser | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<FrontendUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const token = localStorage.getItem('finovaToken');
+      if (token) {
+        try {
+          const response = await axios.get<BackendUser>('http://localhost:3000/users/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(mapBackendUserToFrontendUser(response.data));
+        } catch (error) {
+          console.error('Failed to fetch user', error);
+          logout();
+        }
+      }
+      setIsLoading(false);
+    };
+    checkUser();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    const response = await axios.post<{ token: string; user: BackendUser }>(
+      'http://localhost:3000/users/SignIn',
+      { email, password }
+    );
+    localStorage.setItem('finovaToken', response.data.token);
+    setUser(mapBackendUserToFrontendUser(response.data.user));
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const response = await axios.post<{ token: string; user: BackendUser }>(
+      'http://localhost:3000/users/SignUp',
+      { name, email, password }
+    );
+    localStorage.setItem('finovaToken', response.data.token);
+    setUser(mapBackendUserToFrontendUser(response.data.user));
+  };
+
+  const logout = () => {
+    localStorage.removeItem('finovaToken');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -31,66 +84,8 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      console.log("Checking authentication status...");
-      const token = localStorage.getItem('finovaToken');
-      if (token) {
-        console.log("Token found, validating...");
-        const response = await axios.get('http://localhost:3000/users/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        // Make sure the response data conforms to User type
-        const userData = response.data as User;
-        console.log("User authenticated:", userData);
-        setUser(userData);
-      } else {
-        console.log("No authentication token found");
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      localStorage.removeItem('finovaToken');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string): Promise<void> => {
-    console.log("Login attempt for:", email);
-    const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignIn', { email, password });
-    const { token, user: userData } = response.data;
-    console.log("Login successful:", userData);
-    localStorage.setItem('finovaToken', token);
-    setUser(userData);
-  };
-
-  const register = async (name: string, email: string, password: string): Promise<void> => {
-    console.log("Registration attempt for:", email);
-    const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignUp', { name, email, password });
-    const { token, user: userData } = response.data;
-    console.log("Registration successful:", userData);
-    localStorage.setItem('finovaToken', token);
-    setUser(userData);
-  };
-
-  const logout = async () => {
-    console.log("Logging out user");
-    localStorage.removeItem('finovaToken');
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+const mapBackendUserToFrontendUser = (backendUser: BackendUser): FrontendUser => ({
+  id: backendUser._id,
+  email: backendUser.email,
+  name: backendUser.name,
+});
