@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface StockStatProps {
   icon: React.ReactNode;
@@ -8,13 +9,15 @@ interface StockStatProps {
 }
 
 const StockStat: React.FC<StockStatProps> = ({ icon, label, value }) => {
+  const { theme } = useTheme();
+  
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
         {icon}
-        <span className="ml-2 text-white/70">{label}</span>
+        <span className={theme === 'light' ? 'ml-2 text-gray-600' : 'ml-2 text-white/70'}>{label}</span>
       </div>
-      <span className="font-medium text-white">{value}</span>
+      <span className={theme === 'light' ? 'font-medium text-gray-900' : 'font-medium text-white'}>{value}</span>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import StockCard from '@/components/stocks/StockCard';
 import StockSearchBar from '@/components/stocks/StockSearchBar';
 import { getPopularStocks, StockData } from '@/services/stockService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTheme } from '@/context/ThemeContext';
 
 const Stocks: React.FC = () => {
   const [stocks, setStocks] = useState<StockData[]>([]);
@@ -13,6 +14,7 @@ const Stocks: React.FC = () => {
   const [activeTab, setActiveTab] = useState('popular');
   const [watchlist, setWatchlist] = useState<StockData[]>([]);
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -53,19 +55,31 @@ const Stocks: React.FC = () => {
   return (
     <AppLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white mb-2">Stocks</h1>
-        <p className="text-white/70">Track and analyze stock performance</p>
+        <h1 className={`text-3xl font-bold mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Stocks</h1>
+        <p className={theme === 'light' ? 'text-gray-600' : 'text-white/70'}>Track and analyze stock performance</p>
       </div>
 
       <StockSearchBar onSearch={handleSearch} />
 
       <div className="mt-6">
         <Tabs defaultValue="popular" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white/10">
-            <TabsTrigger value="popular" className="text-white data-[state=active]:bg-white/20">
+          <TabsList className={theme === 'light' ? 'bg-gray-100' : 'bg-white/10'}>
+            <TabsTrigger 
+              value="popular" 
+              className={theme === 'light' 
+                ? 'text-gray-900 data-[state=active]:bg-white' 
+                : 'text-white data-[state=active]:bg-white/20'
+              }
+            >
               Popular
             </TabsTrigger>
-            <TabsTrigger value="watchlist" className="text-white data-[state=active]:bg-white/20">
+            <TabsTrigger 
+              value="watchlist" 
+              className={theme === 'light' 
+                ? 'text-gray-900 data-[state=active]:bg-white' 
+                : 'text-white data-[state=active]:bg-white/20'
+              }
+            >
               Watchlist
             </TabsTrigger>
           </TabsList>
@@ -100,8 +114,8 @@ const Stocks: React.FC = () => {
           <TabsContent value="watchlist" className="mt-4">
             {watchlist.length === 0 ? (
               <div className="finova-card p-6 text-center">
-                <p className="text-white/70">Your watchlist is empty.</p>
-                <p className="text-white/50 text-sm mt-2">
+                <p className={theme === 'light' ? 'text-gray-600' : 'text-white/70'}>Your watchlist is empty.</p>
+                <p className={theme === 'light' ? 'text-gray-500 text-sm mt-2' : 'text-white/50 text-sm mt-2'}>
                   Add stocks to your watchlist to track them here.
                 </p>
               </div>
