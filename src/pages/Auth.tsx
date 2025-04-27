@@ -13,6 +13,7 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Redirect to dashboard if user is already authenticated
     if (!loading && user) {
       navigate('/dashboard', { replace: true });
     }
