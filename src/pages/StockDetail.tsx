@@ -6,7 +6,7 @@ import PredictionInfo from '@/components/stocks/PredictionInfo';
 import StockHeader from '@/components/stocks/StockHeader';
 import StockStats from '@/components/stocks/StockStats';
 import { getStockDetails, getStockHistoricalData, StockData, HistoricalData } from '@/services/stockService';
-import { getPredictionsWithSocialSentiment } from '@/services/stockPredictionService';
+import { fetchPredictionsFromAPI } from '@/services/stockPredictionService';
 import { AlertCircle } from 'lucide-react';
 import { TimeRange } from '@/components/stocks/TimeRangeSelector';
 
@@ -16,15 +16,14 @@ const StockDetail: React.FC = () => {
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [predictedData, setPredictedData] = useState<HistoricalData[] | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>('1m');
+  const [celebrityHandle, setCelebrityHandle] = useState<string>('realDonaldTrump');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  const celebrityHandle = "realDonaldTrump"; // default celebrity for prediction
 
   useEffect(() => {
     const fetchData = async () => {
       if (!symbol) return;
-      
+
       setLoading(true);
       try {
         const stockData = await getStockDetails(symbol);
@@ -32,14 +31,14 @@ const StockDetail: React.FC = () => {
           navigate('/not-found');
           return;
         }
-        
+
         setStock(stockData);
-        
+
         const days = timeRange === '1w' ? 7 : timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : 365;
         const historical = await getStockHistoricalData(symbol, days);
         setHistoricalData(historical);
-        
-        const predictions = await getPredictionsWithSocialSentiment(symbol, celebrityHandle, historical);
+
+        const predictions = await fetchPredictionsFromAPI(symbol, celebrityHandle, historical);
         setPredictedData(predictions);
 
       } catch (error) {
@@ -48,9 +47,9 @@ const StockDetail: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
-  }, [symbol, timeRange, navigate]);
+  }, [symbol, timeRange, celebrityHandle, navigate]);
 
   if (loading) {
     return (
@@ -69,7 +68,7 @@ const StockDetail: React.FC = () => {
         <div className="finova-card p-8 text-center">
           <AlertCircle className="w-12 h-12 mx-auto text-red-400" />
           <p className="mt-4 text-white text-xl">Stock not found</p>
-          <button 
+          <button
             className="mt-4 finova-button px-4 py-2 rounded-lg"
             onClick={() => navigate('/stocks')}
           >
@@ -96,9 +95,31 @@ const StockDetail: React.FC = () => {
           </button>
         </div>
 
+        {/* Celebrity selection */}
+        <div className="mb-6">
+          <label htmlFor="celebrity-select" className="block text-sm font-semibold text-white mb-2">
+            Choose Influencer:
+          </label>
+          <select
+            id="celebrity-select"
+            value={celebrityHandle}
+            onChange={(e) => setCelebrityHandle(e.target.value)}
+            className="block w-full p-2 rounded-lg border border-gray-300 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="jeromepowell">Jerome Powell</option>
+            <option value="elonmusk">Elon Musk</option>
+            <option value="jensenhuang">Jensen Huang</option>
+            <option value="tim_cook">Tim Cook</option>
+            <option value="sundarpichai">Sunder Pichai</option>
+            <option value="zuck">Mark Zuckerberg</option>
+            <option value="warrenbuffett">Warren Buffett</option>
+            <option value="jimcramer">Jim Crammer</option>
+          </select>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <StockHeader 
+            <StockHeader
               stock={stock}
               timeRange={timeRange}
               onTimeRangeChange={setTimeRange}
@@ -107,10 +128,10 @@ const StockDetail: React.FC = () => {
 
             <div className="finova-card p-6 mb-6">
               {historicalData.length > 0 ? (
-                <StockChart 
-                  data={historicalData} 
+                <StockChart
+                  data={historicalData}
                   predictedData={predictedData || undefined}
-                  color={stock.change >= 0 ? '#4ADE80' : '#F87171'} 
+                  color={stock.change >= 0 ? '#4ADE80' : '#F87171'}
                 />
               ) : (
                 <div className="h-64 flex items-center justify-center">

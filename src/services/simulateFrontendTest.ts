@@ -1,4 +1,4 @@
-import { getPredictionsWithSocialSentiment } from "@/services/stockPredictionService";
+import { fetchPredictionsFromAPI } from "@/services/stockPredictionService";
 import { HistoricalData } from "@/services/stockService";
 
 // Utility to generate mock historical data (60 business days)
@@ -28,7 +28,7 @@ const simulatePrediction = async () => {
   console.log(`\x1b[36m[Simulation Start]\x1b[0m Simulating prediction for symbol: \x1b[33m${symbol}\x1b[0m considering tweets by \x1b[35m@${celebrityHandle}\x1b[0m\n`);
 
   try {
-    const predictions = await getPredictionsWithSocialSentiment(symbol, celebrityHandle, historicalData);
+    const predictions = await fetchPredictionsFromAPI(symbol, celebrityHandle, historicalData);
 
     console.log(`\x1b[32m[Success]\x1b[0m Received ${predictions.length} predictions:\n`);
     console.table(predictions.map(p => ({
