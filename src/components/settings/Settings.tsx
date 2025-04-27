@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, X } from "lucide-react";
@@ -20,19 +19,13 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
     localStorage.setItem('finovaNotifications', JSON.stringify(newNotifications));
   };
 
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-    }
-  };
-
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
         <button 
-          onClick={handleClose}
+          onClick={onClose}
           className="absolute right-4 top-4 p-2 rounded-full transition-colors hover:text-primary focus:outline-none"
           aria-label="Close settings"
         >
@@ -131,7 +124,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                 <Link 
                   to="/login" 
                   className="finova-button w-full flex items-center justify-center gap-2 py-2"
-                  onClick={handleClose}
+                  onClick={onClose}
                 >
                   <LogIn className="w-4 h-4" />
                   Login
@@ -139,7 +132,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                 <Link
                   to="/register"
                   className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors text-foreground"
-                  onClick={handleClose}
+                  onClick={onClose}
                 >
                   <User className="w-4 h-4" />
                   Register
