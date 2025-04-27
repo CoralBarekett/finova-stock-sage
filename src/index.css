@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Light mode - improved contrast and default shadcn foregrounds */
+    /* Light mode */
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
@@ -41,7 +41,7 @@
     --chart-point: 262.1 83.3% 57.8%;
   }
   .dark {
-    /* Dark mode - adjusted to be darker */
+    /* Dark mode*/
     --background: 222.2 84% 4.9%;
     --foreground: 210 20% 98%;
     --card: 222.2 84% 4.9%;
@@ -63,7 +63,7 @@
     --ring: 262.1 83.3% 57.8%;
     --radius: 0.5rem;
 
-    /* Improved sidebar colors for dark mode */
+    /* sidebar colors for dark mode */
     --sidebar-background: 222.2 84% 4.9%;
     --sidebar-foreground: 210 20% 98%;
     --sidebar-primary: 262.1 83.3% 57.8%;
@@ -96,7 +96,7 @@
     @apply rounded-lg border bg-card text-card-foreground shadow-sm;
   }
 
-  /* Improved light mode styles */
+  /* light mode styles */
   .light body { @apply bg-background text-foreground; }
   .dark body { @apply bg-background text-foreground; }
   .finova-gradient-text { @apply text-primary font-semibold; }

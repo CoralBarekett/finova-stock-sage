@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, Clock, Bell, User, LogIn, X } from "lucide-react";
+import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [tab, setTab] = useState<"theme" | "notifications" | "account">("theme");
   const { mode, setMode } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
@@ -19,13 +22,29 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
     localStorage.setItem('finovaNotifications', JSON.stringify(newNotifications));
   };
 
+  const handleClose = () => {
+    // אם זה בראוטר, חזור אחורה
+    if (window.location.pathname === '/settings') {
+      navigate(-1);
+    } else {
+      // אחרת הפעל את פונקציית הסגירה שהועברה כפרופ
+      onClose();
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleClose();
+    navigate('/auth', { replace: true });
+  };
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
         <button 
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute right-4 top-4 p-2 rounded-full transition-colors hover:text-primary focus:outline-none"
           aria-label="Close settings"
         >
@@ -121,22 +140,47 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             <div>
               <h3 className="text-xl font-bold mb-4 text-foreground">Account</h3>
               <div className="space-y-4">
-                <Link 
-                  to="/login" 
-                  className="finova-button w-full flex items-center justify-center gap-2 py-2"
-                  onClick={onClose}
-                >
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors text-foreground"
-                  onClick={onClose}
-                >
-                  <User className="w-4 h-4" />
-                  Register
-                </Link>
+                {user ? (
+                  <>
+                    <div className="p-4 border border-border rounded-md">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
+                          <User className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="font-medium">{user.name}</div>
+                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={handleLogout}
+                      className="finova-button-destructive w-full flex items-center justify-center gap-2 py-2 rounded-md"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      to="/auth"
+                      className="finova-button w-full flex items-center justify-center gap-2 py-2"
+                      onClick={handleClose}
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Login
+                    </Link>
+                    <Link
+                      to="/auth?tab=register"
+                      className="border border-border w-full flex items-center justify-center gap-2 py-2 rounded-md hover:bg-muted transition-colors text-foreground"
+                      onClick={handleClose}
+                    >
+                      <User className="w-4 h-4" />
+                      Register
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           )}
