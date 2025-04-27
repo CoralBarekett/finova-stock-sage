@@ -1,3 +1,4 @@
+
 import { fetchPredictionsFromAPI } from './stockPredictionService';
 import { HistoricalData } from './stockService';
 
