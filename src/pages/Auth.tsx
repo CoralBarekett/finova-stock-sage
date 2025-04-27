@@ -6,7 +6,7 @@ import { useTheme } from '@/context/ThemeContext';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 
-const Auth = () => {
+const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const { user, loading } = useAuth();
   const { theme } = useTheme();
@@ -15,6 +15,7 @@ const Auth = () => {
   useEffect(() => {
     // Redirect to dashboard if user is already authenticated
     if (!loading && user) {
+      console.log("Auth page: User already authenticated, redirecting to dashboard");
       navigate('/dashboard', { replace: true });
     }
   }, [user, loading, navigate]);
@@ -33,6 +34,11 @@ const Auth = () => {
         </div>
       </div>
     );
+  }
+
+  // If user is authenticated, don't render the auth page content
+  if (user) {
+    return null;
   }
 
   return (

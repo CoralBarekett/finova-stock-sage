@@ -41,13 +41,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
+      console.log("Checking authentication status...");
       const token = localStorage.getItem('finovaToken');
       if (token) {
+        console.log("Token found, validating...");
         const response = await axios.get('http://localhost:3000/users/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
+        
         // Make sure the response data conforms to User type
-        setUser(response.data as User);
+        const userData = response.data as User;
+        console.log("User authenticated:", userData);
+        setUser(userData);
+      } else {
+        console.log("No authentication token found");
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -58,20 +65,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
+    console.log("Login attempt for:", email);
     const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignIn', { email, password });
     const { token, user: userData } = response.data;
+    console.log("Login successful:", userData);
     localStorage.setItem('finovaToken', token);
     setUser(userData);
+    return userData; // Return user data to confirm success
   };
 
   const register = async (name: string, email: string, password: string) => {
+    console.log("Registration attempt for:", email);
     const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignUp', { name, email, password });
     const { token, user: userData } = response.data;
+    console.log("Registration successful:", userData);
     localStorage.setItem('finovaToken', token);
     setUser(userData);
+    return userData; // Return user data to confirm success
   };
 
   const logout = async () => {
+    console.log("Logging out user");
     localStorage.removeItem('finovaToken');
     setUser(null);
   };
