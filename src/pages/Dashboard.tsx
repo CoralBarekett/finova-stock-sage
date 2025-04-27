@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppLayout from '@/components/layouts/AppLayout';
 import StockCard from '@/components/stocks/StockCard';
 import StockChart from '@/components/charts/StockChart';
 import { getPopularStocks, getStockHistoricalData, StockData, HistoricalData } from '@/services/stockService';
@@ -58,7 +57,7 @@ const Dashboard: React.FC = () => {
   const dark = "dark";
 
   return (
-    <AppLayout>
+
       <div className="animate-fade-in">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
@@ -149,7 +148,6 @@ const Dashboard: React.FC = () => {
           </>
         )}
       </div>
-    </AppLayout>
   );
 };
 

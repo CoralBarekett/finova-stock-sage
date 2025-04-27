@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import AppLayout from '@/components/layouts/AppLayout';
 import StockSearchBar from '@/components/stocks/StockSearchBar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,7 +15,6 @@ const Analysis: React.FC = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [stockInfo, setStockInfo] = useState<any>(null);
   const [prediction, setPrediction] = useState<any>(null);
-  const navigate = useNavigate();
 
   const handleSearch = async (query: string) => {
     setSymbol(query);
@@ -63,7 +61,7 @@ const Analysis: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Stock Analysis</h1>
         <p className="text-muted-foreground">Analyze and predict stock performance</p>
@@ -287,7 +285,7 @@ const Analysis: React.FC = () => {
           </div>
         </>
       )}
-    </AppLayout>
+    </>
   );
 };
 
