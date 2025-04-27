@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppLayout from '@/components/layouts/AppLayout';
 import StockCard from '@/components/stocks/StockCard';
 import StockSearchBar from '@/components/stocks/StockSearchBar';
 import { getPopularStocks, StockData } from '@/services/stockService';
@@ -53,7 +51,7 @@ const Stocks: React.FC = () => {
   const displayStocks = activeTab === 'popular' ? stocks : watchlist;
 
   return (
-    <AppLayout>
+    <>
       <div className="mb-6">
         <h1 className={`text-3xl font-bold mb-2 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>Stocks</h1>
         <p className={theme === 'light' ? 'text-gray-600' : 'text-white/70'}>Track and analyze stock performance</p>
@@ -137,7 +135,7 @@ const Stocks: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import AppLayout from '@/components/layouts/AppLayout';
 import FinovaBot from '@/components/ai/FinovaBot';
 import { MessageSquare, BookOpen, Lightbulb } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
@@ -9,7 +8,6 @@ const AIAssistant: React.FC = () => {
   const { theme } = useTheme();
   
   return (
-    <AppLayout>
       <div className="animate-fade-in">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">FinovaBot</h1>
@@ -46,7 +44,6 @@ const AIAssistant: React.FC = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 };
 
