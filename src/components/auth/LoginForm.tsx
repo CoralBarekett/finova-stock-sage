@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -89,7 +88,7 @@ const LoginForm: React.FC = () => {
         <div className="flex items-center border rounded-md px-2 bg-white/90">
           <Mail className="w-4 h-4 mr-2 text-finova-primary" />
           <input
-            className="flex-1 bg-transparent outline-none py-2"
+            className="flex-1 bg-transparent outline-none py-2 text-black dark:text-white"
             type="email"
             name="email"
             id="email"
@@ -105,7 +104,7 @@ const LoginForm: React.FC = () => {
         <div className="flex items-center border rounded-md px-2 bg-white/90">
           <Key className="w-4 h-4 mr-2 text-finova-primary" />
           <input
-            className="flex-1 bg-transparent outline-none py-2"
+            className="flex-1 bg-transparent outline-none py-2 text-black dark:text-white"
             type="password"
             name="password"
             id="password"

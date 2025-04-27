@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -98,12 +97,13 @@ const RegisterForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 finova-card space-y-5">
       <h2 className="text-2xl font-bold mb-2 text-center">Sign Up</h2>
       
+      {/* Similar input modifications as LoginForm */}
       <div>
         <label className="block text-sm font-semibold mb-1" htmlFor="name">Name</label>
         <div className="flex items-center border rounded-md px-2 bg-white/90">
           <User className="w-4 h-4 mr-2 text-finova-primary" />
           <input
-            className="flex-1 bg-transparent outline-none py-2"
+            className="flex-1 bg-transparent outline-none py-2 text-black dark:text-white"
             type="text"
             name="name"
             id="name"
@@ -115,12 +115,14 @@ const RegisterForm: React.FC = () => {
         {errors.name && <div className="text-xs text-red-500 mt-1">{errors.name}</div>}
       </div>
       
+      {/* Add similar text-black dark:text-white to other inputs */}
+      
       <div>
         <label className="block text-sm font-semibold mb-1" htmlFor="email">Email</label>
         <div className="flex items-center border rounded-md px-2 bg-white/90">
           <Mail className="w-4 h-4 mr-2 text-finova-primary" />
           <input
-            className="flex-1 bg-transparent outline-none py-2"
+            className="flex-1 bg-transparent outline-none py-2 text-black dark:text-white"
             type="email"
             name="email"
             id="email"
@@ -137,7 +139,7 @@ const RegisterForm: React.FC = () => {
         <div className="flex items-center border rounded-md px-2 bg-white/90">
           <Key className="w-4 h-4 mr-2 text-finova-primary" />
           <input
-            className="flex-1 bg-transparent outline-none py-2"
+            className="flex-1 bg-transparent outline-none py-2 text-black dark:text-white"
             type="password"
             name="password"
             id="password"
@@ -154,7 +156,7 @@ const RegisterForm: React.FC = () => {
         <div className="flex items-center border rounded-md px-2 bg-white/90">
           <Key className="w-4 h-4 mr-2 text-finova-primary" />
           <input
-            className="flex-1 bg-transparent outline-none py-2"
+            className="flex-1 bg-transparent outline-none py-2 text-black dark:text-white"
             type="password"
             name="confirm"
             id="confirm"
