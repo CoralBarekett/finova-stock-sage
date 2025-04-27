@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import AppLayout from '@/components/layouts/AppLayout';
 import StockChart from '@/components/charts/StockChart';
 import PredictionInfo from '@/components/stocks/PredictionInfo';
 import StockHeader from '@/components/stocks/StockHeader';
@@ -53,18 +52,15 @@ const StockDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <AppLayout>
         <div className="finova-card p-8 text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-white/20 border-t-white"></div>
           <p className="mt-4 text-white/80">Loading stock data...</p>
         </div>
-      </AppLayout>
     );
   }
 
   if (!stock) {
     return (
-      <AppLayout>
         <div className="finova-card p-8 text-center">
           <AlertCircle className="w-12 h-12 mx-auto text-red-400" />
           <p className="mt-4 text-white text-xl">Stock not found</p>
@@ -75,12 +71,10 @@ const StockDetail: React.FC = () => {
             Back to Stocks
           </button>
         </div>
-      </AppLayout>
     );
   }
 
   return (
-    <AppLayout>
       <div>
         <div className="flex justify-between items-start mb-6">
           <div>
@@ -155,7 +149,6 @@ const StockDetail: React.FC = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 };
 

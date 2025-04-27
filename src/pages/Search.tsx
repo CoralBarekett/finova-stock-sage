@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import AppLayout from '@/components/layouts/AppLayout';
 import StockCard from '@/components/stocks/StockCard';
 import StockSearchBar from '@/components/stocks/StockSearchBar';
 import { searchStocks, StockData } from '@/services/stockService';
@@ -42,7 +40,7 @@ const Search: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-2">Search Stocks</h1>
         <p className="text-muted-foreground">Find and analyze stocks by name or symbol</p>
@@ -100,7 +98,7 @@ const Search: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 
