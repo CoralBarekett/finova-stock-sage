@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -8,19 +7,19 @@ import RegisterForm from '@/components/auth/RegisterForm';
 
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Redirect to dashboard if user is already authenticated
-    if (!loading && user) {
+    if (!isLoading && user) {
       console.log("Auth page: User already authenticated, redirecting to dashboard");
       navigate('/dashboard', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, isLoading, navigate]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
         theme === 'dark' 

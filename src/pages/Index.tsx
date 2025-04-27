@@ -1,21 +1,20 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!loading) {
+    if (!isLoading) {
       if (user) {
         navigate('/dashboard', { replace: true });
       } else {
         navigate('/auth', { replace: true });
       }
     }
-  }, [navigate, user, loading]);
+  }, [navigate, user, isLoading]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
