@@ -16,82 +16,77 @@ import StockDetail from "./pages/StockDetail";
 import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
 import Settings from "./components/settings/Settings";
-import { useState } from "react";
 import AppLayout from "./components/layouts/AppLayout";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Dashboard />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Settings open={true} onClose={() => setSettingsOpen(false)} />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/stocks" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Stocks />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/analysis" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Analysis />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/search" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Search />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/stocks/:symbol" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <StockDetail />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-assistant" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <AIAssistant />
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Navigate to="/auth" replace />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Dashboard />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Settings open={true} onClose={() => {}} />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/stocks" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Stocks />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/analysis" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Analysis />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/search" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Search />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/stocks/:symbol" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <StockDetail />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/ai-assistant" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AIAssistant />
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
 
 export default App;
