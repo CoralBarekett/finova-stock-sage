@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -19,6 +20,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  loading: boolean; // Added for backward compatibility
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkUser();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     const response = await axios.post<{ token: string; user: BackendUser }>(
       'http://localhost:3000/users/SignIn',
       { email, password }
@@ -55,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(mapBackendUserToFrontendUser(response.data.user));
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string): Promise<void> => {
     const response = await axios.post<{ token: string; user: BackendUser }>(
       'http://localhost:3000/users/SignUp',
       { name, email, password }
@@ -70,7 +72,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      register, 
+      logout, 
+      isLoading, 
+      loading: isLoading // Added for backward compatibility 
+    }}>
       {children}
     </AuthContext.Provider>
   );
