@@ -15,7 +15,7 @@ const StockDetail: React.FC = () => {
   const [stock, setStock] = useState<StockData | null>(null);
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [predictedData, setPredictedData] = useState<HistoricalData[] | null>(null);
-  const [timeRange, setTimeRange] = useState<TimeRange>('1w');
+  const [timeRange, setTimeRange] = useState<TimeRange>('1m');
   const [celebrityHandle, setCelebrityHandle] = useState<string>('realDonaldTrump');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -84,8 +84,8 @@ const StockDetail: React.FC = () => {
       <div>
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{stock.symbol}</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">{stock.name}</p>
+            <h1 className="text-3xl font-bold text-foreground">{stock.symbol}</h1>
+            <p className="text-muted-foreground mt-1">{stock.name}</p>
           </div>
           <button
             className="finova-button px-4 py-2 rounded-lg text-sm"
@@ -95,16 +95,16 @@ const StockDetail: React.FC = () => {
           </button>
         </div>
 
-        {/* Celebrity selection with improved text color */}
+        {/* Celebrity selection */}
         <div className="mb-6">
-          <label htmlFor="celebrity-select" className="block text-sm font-semibold text-gray-700 dark:text-white mb-2">
+          <label htmlFor="celebrity-select" className="block text-sm font-semibold text-white mb-2">
             Choose Influencer:
           </label>
           <select
             id="celebrity-select"
             value={celebrityHandle}
             onChange={(e) => setCelebrityHandle(e.target.value)}
-            className="block w-full p-2 rounded-lg border border-gray-300 bg-white text-gray-900 dark:bg-background dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+            className="block w-full p-2 rounded-lg border border-gray-300 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="jeromepowell">Jerome Powell</option>
             <option value="elonmusk">Elon Musk</option>
@@ -143,7 +143,7 @@ const StockDetail: React.FC = () => {
 
           <div className="lg:col-span-1">
             <div className="finova-card p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">AI Prediction</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">AI Prediction</h2>
               {predictedData && predictedData.length > 0 ? (
                 <PredictionInfo predictions={predictedData} symbol={symbol || ''} />
               ) : (
