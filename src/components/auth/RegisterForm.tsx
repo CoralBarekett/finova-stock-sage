@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Mail, Key, Facebook, Chrome, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +64,7 @@ const RegisterForm: React.FC = () => {
           title: "Welcome to Finova!",
           description: "Your account has been created successfully.",
         });
-        // Immediate navigation after successful registration
+        // Immediate navigation to dashboard after successful registration
         navigate('/dashboard', { replace: true });
       } catch (error) {
         console.error("Registration error:", error);

@@ -10,9 +10,9 @@ const Index: React.FC = () => {
   useEffect(() => {
     if (!loading) {
       if (user) {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       } else {
-        navigate('/auth');
+        navigate('/auth', { replace: true });
       }
     }
   }, [navigate, user, loading]);
