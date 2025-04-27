@@ -4,6 +4,7 @@ import { Mail, Key, Facebook, Chrome } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import { toast as sonnerToast } from "sonner";
 
 const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -45,12 +46,20 @@ const LoginForm: React.FC = () => {
       setIsSubmitting(true);
       try {
         await login(form.email, form.password);
+        
+        // Show success toast
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        // Immediate navigation to dashboard after successful login
-        navigate('/dashboard', { replace: true });
+        
+        // Also show a sonner toast for better visibility
+        sonnerToast.success("Login successful", "Redirecting to dashboard...");
+        
+        // Add a small delay before navigation to ensure auth state is updated
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 100);
       } catch (error) {
         console.error("Login error:", error);
         if (error.response?.status === 404) {

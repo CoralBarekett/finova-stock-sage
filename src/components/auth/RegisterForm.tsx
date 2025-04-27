@@ -4,6 +4,7 @@ import { Mail, Key, Facebook, Chrome, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import { toast as sonnerToast } from "sonner";
 
 const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -60,12 +61,20 @@ const RegisterForm: React.FC = () => {
       setIsSubmitting(true);
       try {
         await register(form.name, form.email, form.password);
+        
+        // Show success toast
         toast({
           title: "Welcome to Finova!",
           description: "Your account has been created successfully.",
         });
-        // Immediate navigation to dashboard after successful registration
-        navigate('/dashboard', { replace: true });
+        
+        // Also show a sonner toast for better visibility
+        sonnerToast.success("Registration successful", "Redirecting to dashboard...");
+        
+        // Add a small delay before navigation to ensure auth state is updated
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 100);
       } catch (error) {
         console.error("Registration error:", error);
         if (error.response?.status === 409) {
