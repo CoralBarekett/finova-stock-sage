@@ -54,7 +54,9 @@ const LoginForm: React.FC = () => {
         });
         
         // Also show a sonner toast for better visibility
-        sonnerToast.success("Login successful", "Redirecting to dashboard...");
+        sonnerToast.success("Login successful", {
+          description: "Redirecting to dashboard..."
+        });
         
         // Add a small delay before navigation to ensure auth state is updated
         setTimeout(() => {

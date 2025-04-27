@@ -69,7 +69,9 @@ const RegisterForm: React.FC = () => {
         });
         
         // Also show a sonner toast for better visibility
-        sonnerToast.success("Registration successful", "Redirecting to dashboard...");
+        sonnerToast.success("Registration successful", {
+          description: "Redirecting to dashboard..."
+        });
         
         // Add a small delay before navigation to ensure auth state is updated
         setTimeout(() => {

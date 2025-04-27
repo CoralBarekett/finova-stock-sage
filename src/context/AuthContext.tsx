@@ -64,24 +64,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     console.log("Login attempt for:", email);
     const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignIn', { email, password });
     const { token, user: userData } = response.data;
     console.log("Login successful:", userData);
     localStorage.setItem('finovaToken', token);
     setUser(userData);
-    return userData; // Return user data to confirm success
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string): Promise<void> => {
     console.log("Registration attempt for:", email);
     const response = await axios.post<AuthResponse>('http://localhost:3000/users/SignUp', { name, email, password });
     const { token, user: userData } = response.data;
     console.log("Registration successful:", userData);
     localStorage.setItem('finovaToken', token);
     setUser(userData);
-    return userData; // Return user data to confirm success
   };
 
   const logout = async () => {
