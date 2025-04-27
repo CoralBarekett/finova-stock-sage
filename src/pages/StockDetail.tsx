@@ -15,7 +15,7 @@ const StockDetail: React.FC = () => {
   const [stock, setStock] = useState<StockData | null>(null);
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [predictedData, setPredictedData] = useState<HistoricalData[] | null>(null);
-  const [timeRange, setTimeRange] = useState<TimeRange>('1d');
+  const [timeRange, setTimeRange] = useState<TimeRange>('1m');
   const [celebrityHandle, setCelebrityHandle] = useState<string>('realDonaldTrump');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const StockDetail: React.FC = () => {
 
         setStock(stockData);
 
-        const days = timeRange === '1d' ? 1 : timeRange === '1w' ? 7 : timeRange === '3m' ? 90 : 365;
+        const days = timeRange === '1w' ? 7 : timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : 365;
         const historical = await getStockHistoricalData(symbol, days);
         setHistoricalData(historical);
 
