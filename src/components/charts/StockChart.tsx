@@ -17,7 +17,7 @@ interface StockChartProps {
 
 const StockChart: React.FC<StockChartProps> = ({ 
   data,
-  color = "#8B5CF6",
+  color = "#8E9196", // Changed to neutral gray as default
   predictedData
 }) => {
   const { theme } = useTheme();
@@ -29,7 +29,7 @@ const StockChart: React.FC<StockChartProps> = ({
   const axisTickColor = isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.7)";
   const tooltipBg = isDark ? 'rgba(26, 31, 44, 0.95)' : 'rgba(255, 255, 255, 0.95)';
   const tooltipBorderColor = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
-  const tooltipTextColor = isDark ? '#fff' : '#000';
+  const tooltipTextColor = isDark ? '#fff' : '#333333';
   
   // Check if we have valid data
   const hasValidData = data && data.length > 0;
@@ -40,7 +40,15 @@ const StockChart: React.FC<StockChartProps> = ({
   // Create a separate array just for predictions
   let processedPredictions: any[] = [];
   
-  if (predictedData && predictedData.length > 0) {
+  // Determine if prediction is bullish or bearish
+  let isPredictionBullish = false;
+  
+  if (predictedData && predictedData.length > 0 && hasValidData) {
+    const lastHistoricalPrice = data[data.length - 1].price;
+    const predictedPrice = predictedData[predictedData.length - 1].price;
+    
+    isPredictionBullish = predictedPrice >= lastHistoricalPrice;
+    
     // Create prediction data points
     processedPredictions = predictedData.map(item => ({
       date: item.date,
@@ -99,6 +107,9 @@ const StockChart: React.FC<StockChartProps> = ({
     return [Math.max(0, minPrice - padding), maxPrice + padding];
   };
 
+  // Define prediction line color based on trend
+  const predictionColor = isPredictionBullish ? "#4ADE80" : "#ea384c"; // Green for up, red for down
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
@@ -130,7 +141,7 @@ const StockChart: React.FC<StockChartProps> = ({
             tickLine={{ stroke: axisColor }}
             axisLine={{ stroke: axisColor }}
             domain={calculateYDomain()}
-            tickFormatter={(value) => `$${Number(value).toFixed(3)}`}
+            tickFormatter={(value) => `$${Number(value).toFixed(2)}`}
             width={60}
           />
           <Tooltip 
@@ -143,8 +154,8 @@ const StockChart: React.FC<StockChartProps> = ({
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
             }} 
             formatter={(value: any, name: string) => {
-              const formattedValue = `$${Number(value).toFixed(3)}`;
-              const displayName = name === 'predictedPrice' ? 'Predicted Price' : 'Price';
+              const formattedValue = `$${Number(value).toFixed(2)}`;
+              const displayName = name === 'predictedPrice' ? 'Predicted Price' : 'Current Price';
               return [formattedValue, displayName];
             }}
             labelFormatter={(label) => `Date: ${label}`}
@@ -158,35 +169,37 @@ const StockChart: React.FC<StockChartProps> = ({
             dot={(props) => {
               // Only show dots for specific intervals to avoid overcrowding
               const index = props.index || 0;
-              return index % 4 === 0 || index === 0 || index === (combinedData.length - 1) ? (
+              return index % 5 === 0 || index === 0 || index === (formattedData.length - 1) ? (
                 <circle 
                   cx={props.cx} 
                   cy={props.cy} 
                   r={3} 
                   fill={color} 
-                  stroke={isDark ? 'white' : 'black'}
+                  stroke={isDark ? 'white' : '#333333'}
                   strokeWidth={1}
                 />
               ) : null;
             }}
-            activeDot={{ r: 6, fill: color, stroke: isDark ? 'white' : 'black', strokeWidth: 2 }}
+            activeDot={{ r: 6, fill: color, stroke: isDark ? 'white' : '#333333', strokeWidth: 2 }}
             isAnimationActive={true}
             animationDuration={1000}
             connectNulls={true}
+            name="Current Price"
           />
           {/* Predicted data line */}
           {predictedData && predictedData.length > 0 && (
             <Line
               type="monotone"
               dataKey="predictedPrice"
-              stroke="#10B981" // Green color for predictions
-              strokeWidth={2}
+              stroke={predictionColor}
+              strokeWidth={2.5}
               strokeDasharray="5 5" // Dashed line for predictions
               dot={false}
-              activeDot={{ r: 6, fill: "#10B981", stroke: isDark ? 'white' : 'black', strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: predictionColor, stroke: isDark ? 'white' : '#333333', strokeWidth: 2 }}
               isAnimationActive={true}
               animationDuration={1000}
               connectNulls={true}
+              name="Predicted Price"
             />
           )}
         </LineChart>
