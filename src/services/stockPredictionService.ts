@@ -24,6 +24,8 @@ export interface PredictionResponse {
     expected_impact: string;
     technical_trend: string;
     sentiment: string;
+    reasoning?: string[];
+    key_factors?: string[];
   };
   technical_signals: {
     trend: string;
@@ -31,8 +33,9 @@ export interface PredictionResponse {
     price_change: number;
     price_change_percent: number;
   };
-  sentiment_analysis: SentimentAnalysis;
+  sentiment_analysis: SentimentAnalysis | string;
   confidence: number;
+  predicted_price?: number; // Added at the root level
   supporting_data: {
     post_count: number;
     influencer_post_count: number;
