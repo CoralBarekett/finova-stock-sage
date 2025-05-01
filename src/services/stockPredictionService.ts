@@ -1,3 +1,4 @@
+
 import { HistoricalData } from './stockService';
 
 const PREDICT_API_URL = "/predict";
@@ -69,6 +70,15 @@ export const fetchPrediction = async (
 
     const predictionResponse = await response.json() as PredictionResponse;
     console.log("Received AI prediction:", predictionResponse);
+    
+    // If prediction response doesn't include a predicted price, calculate it
+    if (!predictionResponse.predicted_price && predictionResponse.technical_signals.latest_price) {
+      predictionResponse.predicted_price = calculatePredictedPrice(
+        predictionResponse.technical_signals.latest_price, 
+        predictionResponse
+      );
+    }
+    
     return predictionResponse;
   } catch (error) {
     console.error('Error fetching AI prediction:', error);
@@ -106,4 +116,43 @@ export const calculatePredictedPrice = (
   const predictedPrice = currentPrice * (1 + adjustedMultiplier);
   
   return Math.round(predictedPrice * 100) / 100; // Round to 2 decimal places
+};
+
+/**
+ * Generates prediction data points for charts
+ */
+export const fetchPredictionsFromAPI = async (
+  symbol: string,
+  celebrityHandle: string,
+  historicalData: HistoricalData[]
+): Promise<HistoricalData[]> => {
+  // This is a mockup function that would normally call the real API
+  const lastPrice = historicalData[historicalData.length - 1]?.price || 0;
+  
+  try {
+    // Call the prediction API
+    const prediction = await fetchPrediction(symbol, "1d");
+    
+    // Use the predicted price from the API response or calculate it
+    const predictedPrice = prediction.predicted_price || 
+      calculatePredictedPrice(lastPrice, prediction);
+    
+    // Create the predicted data point
+    const lastDate = new Date(historicalData[historicalData.length - 1].date);
+    const nextDate = new Date(lastDate);
+    nextDate.setDate(lastDate.getDate() + 1);
+    
+    // Skip weekends
+    while ([0, 6].includes(nextDate.getDay())) {
+      nextDate.setDate(nextDate.getDate() + 1);
+    }
+    
+    return [{
+      date: nextDate.toISOString().split('T')[0],
+      price: predictedPrice
+    }];
+  } catch (error) {
+    console.error("Error in prediction API call:", error);
+    return [];
+  }
 };

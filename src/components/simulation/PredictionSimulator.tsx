@@ -1,31 +1,23 @@
+
 import React, { useState, useEffect } from 'react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  ReferenceLine,
-} from 'recharts';
+import { ArrowUpRight } from 'lucide-react';
 import { HistoricalData, StockData } from '@/services/stockService';
 import {
   getPopularStocks,
   getStockHistoricalData,
 } from '@/services/stockService';
 import { fetchPrediction, calculatePredictedPrice, PredictionResponse } from '@/services/stockPredictionService';
-import { ArrowUpRight } from 'lucide-react';
 import TimeRangeSelector, { TimeRange } from '@/components/stocks/TimeRangeSelector';
 import PredictionInfo from '@/components/stocks/PredictionInfo';
+import StockChart from '@/components/charts/StockChart';
+import { toast } from 'sonner';
 
 const PredictionSimulator: React.FC = () => {
   const [symbols, setSymbols] = useState<StockData[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('AAPL');
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [predictionResponse, setPredictionResponse] = useState<PredictionResponse | null>(null);
-  const [predictedPrice, setPredictedPrice] = useState<number | null>(null);
+  const [predictedData, setPredictedData] = useState<HistoricalData[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [timeRange, setTimeRange] = useState<TimeRange>('1m');
 
@@ -37,6 +29,7 @@ const PredictionSimulator: React.FC = () => {
         if (list.length) setSelectedSymbol(list[0].symbol);
       } catch (err) {
         console.error('Error loading symbols', err);
+        toast.error('Failed to load stock symbols');
       }
     })();
   }, []);
@@ -49,14 +42,18 @@ const PredictionSimulator: React.FC = () => {
 
   const loadHistoricalData = async () => {
     try {
+      setLoading(true);
       const days =
         timeRange === '1w' ? 7 : timeRange === '1m' ? 30 : timeRange === '3m' ? 90 : 365;
       const hist = await getStockHistoricalData(selectedSymbol, days);
       setHistoricalData(hist);
       setPredictionResponse(null);
-      setPredictedPrice(null);
+      setPredictedData(null);
+      setLoading(false);
     } catch (err) {
       console.error('Error loading historical data:', err);
+      toast.error('Failed to load historical data');
+      setLoading(false);
     }
   };
 
@@ -78,45 +75,56 @@ const PredictionSimulator: React.FC = () => {
       const lastPrice = historicalData[historicalData.length - 1]?.price || 0;
       
       // Calculate predicted price based on prediction direction and confidence
-      const calculatedPrice = calculatePredictedPrice(lastPrice, prediction);
-      setPredictedPrice(calculatedPrice);
+      const calculatedPrice = prediction.predicted_price || calculatePredictedPrice(lastPrice, prediction);
+      
+      // Create a predicted data point for the next business day
+      const lastDate = new Date(historicalData[historicalData.length - 1]?.date);
+      const nextDate = new Date(lastDate);
+      nextDate.setDate(lastDate.getDate() + 1);
+      
+      // Skip weekends for prediction date
+      while ([0, 6].includes(nextDate.getDay())) {
+        nextDate.setDate(nextDate.getDate() + 1);
+      }
+      
+      const predictedPoint: HistoricalData = {
+        date: nextDate.toISOString().split('T')[0],
+        price: calculatedPrice
+      };
+      
+      setPredictedData([predictedPoint]);
+      toast.success('Prediction generated successfully');
       
     } catch (err) {
       console.error('Prediction error:', err);
+      toast.error('Failed to generate prediction');
     } finally {
       setLoading(false);
     }
   };
 
-  const prepareChartData = () => {
-    const result: any[] = historicalData.map(d => ({
-      date: d.date,
-      historicalPrice: d.price,
-      predictedPrice: null,
-    }));
-
-    if (predictedPrice !== null && result.length) {
-      const lastDate = new Date(result[result.length - 1].date);
-      const nextDate = new Date(lastDate);
-      nextDate.setDate(lastDate.getDate() + 1);
-      while ([0, 6].includes(nextDate.getDay())) {
-        nextDate.setDate(nextDate.getDate() + 1);
-      }
-      result.push({
-        date: nextDate.toISOString().split('T')[0],
-        historicalPrice: null,
-        predictedPrice,
-      });
-    }
-
-    return result;
+  // Calculate if prediction is bullish or bearish
+  const isBullish = (): boolean => {
+    if (!predictedData || !historicalData.length) return true;
+    const lastHistoricalPrice = historicalData[historicalData.length - 1].price;
+    const predictedPrice = predictedData[0].price;
+    return predictedPrice >= lastHistoricalPrice;
   };
 
-  const chartData = prepareChartData();
-  const lastHist = historicalData[historicalData.length - 1];
-  const diff = lastHist && predictedPrice !== null ? predictedPrice - lastHist.price : 0;
-  const diffPct = lastHist ? (diff / lastHist.price) * 100 : 0;
-  const isBullish = diff >= 0;
+  // Calculate prediction difference
+  const getPredictionDiff = (): { diff: number, diffPct: number } => {
+    if (!predictedData || !historicalData.length) return { diff: 0, diffPct: 0 };
+    
+    const lastHistoricalPrice = historicalData[historicalData.length - 1].price;
+    const predictedPrice = predictedData[0].price;
+    const diff = predictedPrice - lastHistoricalPrice;
+    const diffPct = (diff / lastHistoricalPrice) * 100;
+    
+    return { diff, diffPct };
+  };
+
+  const bullish = isBullish();
+  const { diff, diffPct } = getPredictionDiff();
 
   return (
     <div className="finova-card p-6 mb-6">
@@ -144,65 +152,21 @@ const PredictionSimulator: React.FC = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
           <TimeRangeSelector currentRange={timeRange} onRangeChange={setTimeRange} />
 
-          {lastHist && predictedPrice !== null && (
-            <div className={`flex items-center text-sm font-medium ${isBullish ? 'text-green-600' : 'text-red-600'}`}>
-              {diff >= 0 ? '+' : ''}{diffPct.toFixed(2)}% ({predictedPrice.toFixed(2)} USD)
+          {predictedData && predictedData.length > 0 && (
+            <div className={`flex items-center text-sm font-medium ${bullish ? 'text-green-600' : 'text-red-600'}`}>
+              {diff >= 0 ? '+' : ''}{diffPct.toFixed(2)}% ({predictedData[0].price.toFixed(2)} USD)
             </div>
           )}
         </div>
       </div>
 
-      <div className="h-80">
-        {chartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 12 }}
-                tickFormatter={date => {
-                  const d = new Date(date);
-                  return d.getDate() + '/' + (d.getMonth() + 1);
-                }}
-              />
-              <YAxis domain={['auto', 'auto']} />
-              <Tooltip
-                formatter={(value: any) => [`$${value}`, 'Price']}
-                labelFormatter={label => new Date(label).toLocaleDateString()}
-              />
-              <Legend />
-              {predictedPrice !== null && historicalData.length > 0 && (
-                <ReferenceLine
-                  x={historicalData[historicalData.length - 1].date}
-                  stroke="#888"
-                  strokeDasharray="3 3"
-                  label={{ value: 'Today', position: 'top', fill: '#888' }}
-                />
-              )}
-
-              <Line
-                type="monotone"
-                dataKey="historicalPrice"
-                name="Historical"
-                stroke="#4ADE80"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 6 }}
-                isAnimationActive={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="predictedPrice"
-                name="Forecast"
-                stroke="#888888"
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                dot={false}
-                activeDot={{ r: 6 }}
-                isAnimationActive={true}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      <div className="h-80 mb-4">
+        {historicalData.length > 0 ? (
+          <StockChart
+            data={historicalData}
+            predictedData={predictedData || undefined}
+            color="#8E9196" // Neutral gray for historical data
+          />
         ) : (
           <div className="h-full flex items-center justify-center">
             <p className="text-center text-muted-foreground">
@@ -214,7 +178,7 @@ const PredictionSimulator: React.FC = () => {
 
       {predictionResponse && (
         <div className="mt-4 px-2 py-3 bg-background/30 rounded-md">
-          <h3 className="text-sm font-semibold mb-2">AI Prediction Analysis</h3>
+          <h3 className="text-sm font-semibold mb-2 text-foreground">AI Prediction Analysis</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
             <div>
               <span className="text-muted-foreground">Sentiment:</span>{' '}
@@ -230,7 +194,7 @@ const PredictionSimulator: React.FC = () => {
             </div>
             <div>
               <span className="text-muted-foreground">Confidence:</span>{' '}
-              <span className="font-medium">
+              <span className="font-medium text-foreground">
                 {Math.round(predictionResponse.confidence * 100)}%
               </span>
             </div>
@@ -250,7 +214,7 @@ const PredictionSimulator: React.FC = () => {
               Predicting...
             </>
           ) : (
-            <>Predict</>
+            <>Generate Prediction</>
           )}
         </button>
       </div>
