@@ -1,7 +1,7 @@
 
 import { HistoricalData } from './stockService';
 
-const PREDICT_API_URL = "/predict";
+const PREDICT_API_URL = import.meta.env.VITE_PREDICT_API_URL;
 
 interface PredictionRequest {
   ticker: string;
