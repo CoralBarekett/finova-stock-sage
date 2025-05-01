@@ -1,4 +1,4 @@
-
+// src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +17,7 @@ import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
 import Settings from "./components/settings/Settings";
 import AppLayout from "./components/layouts/AppLayout";
+import PredictionSimulator from "@/components/simulation/PredictionSimulator";
 
 const queryClient = new QueryClient();
 
@@ -31,55 +32,91 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Navigate to="/auth" replace />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Dashboard />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Settings open={true} onClose={() => {}} />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/stocks" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Stocks />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/analysis" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Analysis />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/search" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Search />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/stocks/:symbol" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <StockDetail />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/ai-assistant" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <AIAssistant />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
+
+              {/* Protected pages */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Dashboard />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Settings open={true} onClose={() => {}} />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/stocks"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Stocks />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/stocks/:symbol"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <StockDetail />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analysis"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Analysis />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/search"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Search />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai-assistant"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <AIAssistant />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/simulate"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PredictionSimulator />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

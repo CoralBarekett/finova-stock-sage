@@ -1,36 +1,62 @@
 import { HistoricalData } from './stockService';
 
-const PREDICT_API_URL = "http://localhost:8000/PredictStocks";
+const PREDICT_API_URL = "/predict";
 
 interface PredictionRequest {
-  symbol: string;
-  celebrity_handle: string;
-  historical: { date: string; price: number }[];
+  ticker: string;
+  timeframe?: string;
+  include_posts?: boolean;
+}
+
+export interface SentimentAnalysis {
+  sentiment: string;
+  impact: string;
+  confidence: string;
+  key_factors: string[];
+}
+
+export interface PredictionResponse {
+  ticker: string;
+  prediction_time: string;
+  timeframe: string;
+  prediction: {
+    direction: string;
+    expected_impact: string;
+    technical_trend: string;
+    sentiment: string;
+  };
+  technical_signals: {
+    trend: string;
+    latest_price: number;
+    price_change: number;
+    price_change_percent: number;
+  };
+  sentiment_analysis: SentimentAnalysis;
+  confidence: number;
+  supporting_data: {
+    post_count: number;
+    influencer_post_count: number;
+  };
 }
 
 /**
- * Calls the external API to get stock predictions with social sentiment.
+ * Calls the AI-powered prediction endpoint and returns a prediction response.
  */
-export const fetchPredictionsFromAPI = async (
+export const fetchPrediction = async (
   symbol: string,
-  celebrityHandle: string,
-  historicalData: HistoricalData[]
-): Promise<HistoricalData[]> => {
+  timeframe: string = "1d"
+): Promise<PredictionResponse> => {
   try {
-    const requestBody: PredictionRequest = {
-      symbol,
-      celebrity_handle: celebrityHandle,
-      historical: historicalData.map(d => ({
-        date: d.date,
-        price: d.price
-      })),
+    const requestBody: PredictionRequest = { 
+      ticker: symbol,
+      timeframe,
+      include_posts: false
     };
+    console.log("Sending AI prediction request:", requestBody);
 
     const response = await fetch(PREDICT_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
     });
 
@@ -38,10 +64,43 @@ export const fetchPredictionsFromAPI = async (
       throw new Error(`Prediction API request failed with status ${response.status}`);
     }
 
-    const data = await response.json();
-    return data as HistoricalData[];
+    const predictionResponse = await response.json() as PredictionResponse;
+    console.log("Received AI prediction:", predictionResponse);
+    return predictionResponse;
   } catch (error) {
-    console.error('Error fetching predictions:', error);
+    console.error('Error fetching AI prediction:', error);
     throw error;
   }
+};
+
+/**
+ * Calculate predicted price based on current price and prediction direction.
+ */
+export const calculatePredictedPrice = (
+  currentPrice: number, 
+  prediction: PredictionResponse
+): number => {
+  // Extract the prediction direction and confidence
+  const { direction } = prediction.prediction;
+  const { confidence } = prediction;
+  
+  // Define multipliers based on prediction direction
+  const directionMultipliers: {[key: string]: number} = {
+    'strong_buy': 0.05,
+    'buy': 0.02,
+    'hold': 0.0,
+    'sell': -0.02,
+    'strong_sell': -0.05
+  };
+  
+  // Get the base multiplier for the direction
+  const baseMultiplier = directionMultipliers[direction] || 0;
+  
+  // Apply confidence to scale the effect
+  const adjustedMultiplier = baseMultiplier * confidence;
+  
+  // Calculate the predicted price
+  const predictedPrice = currentPrice * (1 + adjustedMultiplier);
+  
+  return Math.round(predictedPrice * 100) / 100; // Round to 2 decimal places
 };
