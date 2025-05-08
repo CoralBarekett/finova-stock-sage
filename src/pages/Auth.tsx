@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -17,7 +18,7 @@ const Auth: React.FC = () => {
 
   useEffect(() => {
     // Redirect to dashboard or previous page if user is already authenticated
-    if (!isLoading && user && user.id && user.email) {
+    if (!isLoading && user) {
       console.log("Auth page: User already authenticated, redirecting to", from);
       navigate(from, { replace: true });
     }
@@ -40,7 +41,7 @@ const Auth: React.FC = () => {
   }
 
   // If user is authenticated, don't render the auth page content
-  if (user && user.id) {
+  if (user) {
     return null;
   }
 
