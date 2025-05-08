@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTheme } from '@/context/ThemeContext';
 
 const paymentFormSchema = z.object({
   cardNumber: z.string().min(16, "Card number must be at least 16 digits").max(19, "Card number is too long"),
@@ -31,6 +32,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   onCancel, 
   isProcessing
 }) => {
+  const { theme } = useTheme();
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
     defaultValues: {
@@ -70,12 +72,36 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     form.setValue('cardNumber', value);
   };
 
+  // Credit card frame styling classes
+  const frameClasses = theme === 'dark' 
+    ? 'bg-sidebar/80 backdrop-blur-md shadow-lg border border-sidebar-border rounded-xl py-6 px-4' 
+    : 'bg-white/90 backdrop-blur-sm shadow-md border border-gray-100 rounded-xl py-6 px-4';
+    
+  // Input field styling
+  const inputContainerClasses = theme === 'dark'
+    ? 'bg-sidebar-accent/50 border-sidebar-border hover:border-primary focus-within:border-primary transition-colors'
+    : 'bg-background border-border hover:border-primary focus-within:border-primary transition-colors';
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className={`space-y-5 ${frameClasses}`}>
+        {/* Card header with secure payment indication */}
         <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold">Pro Plan Subscription</h3>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="h-2 w-2 rounded-full bg-green-500"></div>
+            <p className="text-xs text-muted-foreground">Secure Payment</p>
+          </div>
+          <h3 className="text-lg font-semibold">Finova Pro Subscription</h3>
           <p className="text-sm text-muted-foreground">$9.99/month</p>
+        </div>
+        
+        {/* Credit card image at the top */}
+        <div className="flex justify-center mb-2">
+          <div className="flex gap-2">
+            <div className="h-6 w-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-md shadow-sm"></div>
+            <div className="h-6 w-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-md shadow-sm"></div>
+            <div className="h-6 w-10 bg-gradient-to-br from-red-400 to-red-600 rounded-md shadow-sm"></div>
+          </div>
         </div>
         
         <FormField
@@ -83,21 +109,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           name="cardNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Card Number</FormLabel>
+              <FormLabel className="text-xs font-medium">Card Number</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <div className="flex items-center border rounded-md px-2 bg-background">
-                    <CreditCard className="w-4 h-4 mr-2 text-muted-foreground" />
+                  <div className={`flex items-center border rounded-md px-2 ${inputContainerClasses}`}>
+                    <CreditCard className="w-4 h-4 mr-2 text-primary" />
                     <Input
                       {...field}
                       placeholder="1234 5678 9012 3456"
-                      className="border-0 focus-visible:ring-0"
+                      className="border-0 focus-visible:ring-0 text-sm"
                       onChange={handleCardNumberChange}
                     />
                   </div>
                 </FormControl>
               </div>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -107,20 +133,20 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           name="cardHolder"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cardholder Name</FormLabel>
+              <FormLabel className="text-xs font-medium">Cardholder Name</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <div className="flex items-center border rounded-md px-2 bg-background">
-                    <User className="w-4 h-4 mr-2 text-muted-foreground" />
+                  <div className={`flex items-center border rounded-md px-2 ${inputContainerClasses}`}>
+                    <User className="w-4 h-4 mr-2 text-primary" />
                     <Input
                       {...field}
                       placeholder="John Doe"
-                      className="border-0 focus-visible:ring-0"
+                      className="border-0 focus-visible:ring-0 text-sm"
                     />
                   </div>
                 </FormControl>
               </div>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -131,21 +157,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             name="expiry"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Expiry Date</FormLabel>
+                <FormLabel className="text-xs font-medium">Expiry Date</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <div className="flex items-center border rounded-md px-2 bg-background">
-                      <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
+                    <div className={`flex items-center border rounded-md px-2 ${inputContainerClasses}`}>
+                      <Calendar className="w-4 h-4 mr-2 text-primary" />
                       <Input
                         {...field}
                         placeholder="MM/YY"
-                        className="border-0 focus-visible:ring-0"
+                        className="border-0 focus-visible:ring-0 text-sm"
                         onChange={handleExpiryChange}
                       />
                     </div>
                   </FormControl>
                 </div>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -155,49 +181,56 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             name="cvv"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>CVV</FormLabel>
+                <FormLabel className="text-xs font-medium">CVV</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <div className="flex items-center border rounded-md px-2 bg-background">
-                      <Lock className="w-4 h-4 mr-2 text-muted-foreground" />
+                    <div className={`flex items-center border rounded-md px-2 ${inputContainerClasses}`}>
+                      <Lock className="w-4 h-4 mr-2 text-primary" />
                       <Input
                         {...field}
                         type="password"
                         placeholder="123"
                         maxLength={4}
-                        className="border-0 focus-visible:ring-0"
+                        className="border-0 focus-visible:ring-0 text-sm"
                       />
                     </div>
                   </FormControl>
                 </div>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 pt-1">
           <Checkbox
             id="saveCard"
             checked={form.watch('saveCard')}
             onCheckedChange={(checked) => 
               form.setValue('saveCard', checked as boolean)
             }
+            className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
           <label
             htmlFor="saveCard"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Save card for future payments
           </label>
         </div>
         
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
+        {/* Secure payment indicator at bottom */}
+        <div className="flex items-center justify-center text-xs text-muted-foreground gap-1 pt-1">
+          <Lock className="w-3 h-3" />
+          <span>Payments are secure and encrypted</span>
+        </div>
+        
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-2">
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="mt-2 sm:mt-0 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
+              className="mt-2 sm:mt-0 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm"
               disabled={isProcessing}
             >
               Cancel
@@ -205,7 +238,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           )}
           <button
             type="submit"
-            className="finova-button px-4 py-2 rounded-md"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors px-4 py-2 rounded-md text-sm font-medium"
             disabled={isProcessing}
           >
             {isProcessing ? "Processing..." : "Pay $9.99"}
