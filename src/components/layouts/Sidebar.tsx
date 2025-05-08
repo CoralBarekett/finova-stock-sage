@@ -7,11 +7,14 @@ import {
   MessageSquare, 
   Search, 
   Settings,
-  Home
+  Home,
+  Star
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { user } = useAuth();
   
   return (
     <div className="w-16 md:w-64 h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
@@ -52,6 +55,15 @@ const Sidebar: React.FC = () => {
             label="Search" 
             active={location.pathname === '/search'} 
           />
+          {user?.pro && (
+            <SidebarItem 
+              to="/simulate" 
+              icon={<Star className="w-5 h-5 text-yellow-500" />} 
+              label="Simulation" 
+              active={location.pathname === '/simulate'} 
+              isPro
+            />
+          )}
         </ul>
       </nav>
       
@@ -72,9 +84,10 @@ interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  isPro?: boolean;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, label, active }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, label, active, isPro }) => {
   return (
     <li>
       <Link
@@ -87,7 +100,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, label, active }) =>
         }
       >
         <span className="mr-3">{icon}</span>
-        <span className="hidden md:block">{label}</span>
+        <span className="hidden md:block">
+          {label} 
+          {isPro && <span className="ml-1 text-xs text-yellow-500">(Pro)</span>}
+        </span>
       </Link>
     </li>
   );
