@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { CreditCard, Calendar, User, Lock } from 'lucide-react';
+import React from 'react';
+import { CreditCard, Calendar, User, Lock, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -72,102 +71,73 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     form.setValue('cardNumber', value);
   };
 
-  // ChatGPT styled frame class
-  const frameClasses = theme === 'dark' 
-    ? 'bg-sidebar/90 backdrop-blur-md shadow-lg border border-sidebar-border rounded-xl py-6 px-6' 
-    : 'bg-white/95 backdrop-blur-md shadow-md border border-gray-200 rounded-xl py-6 px-6';
+  // Modern payment container with subtle glass effect and improved responsiveness
+  const containerClasses = theme === 'dark' 
+    ? 'bg-zinc-900/80 backdrop-blur-lg border border-zinc-800 shadow-xl rounded-2xl p-4 sm:p-5 md:p-6' 
+    : 'bg-white/95 backdrop-blur-lg border border-gray-100 shadow-lg rounded-2xl p-4 sm:p-5 md:p-6';
     
-  // Input field styling more like ChatGPT
-  const inputContainerClasses = theme === 'dark'
-    ? 'bg-sidebar-accent/30 border-sidebar-border/70 hover:border-primary/70 focus-within:border-primary/90 transition-colors'
-    : 'bg-background/80 border-gray-300 hover:border-primary/70 focus-within:border-primary/90 transition-colors';
+  // Input styling with minimal focus effects - removing hover border
+  const inputBaseClasses = theme === 'dark'
+    ? 'bg-zinc-800/50 border-zinc-700 focus-within:ring-0 transition-all'
+    : 'bg-gray-50/80 border-gray-200 focus-within:ring-0 transition-all';
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={`space-y-5 ${frameClasses}`}>
-        {/* Card header with secure payment indication */}
+      <form 
+        onSubmit={form.handleSubmit(handleSubmit)} 
+        className={`w-full max-h-[calc(100vh-4rem)] overflow-auto mx-auto ${containerClasses}`}
+        style={{ maxWidth: "min(100%, 28rem)" }}
+      >
+        {/* Compact header with subscription details */}
         <div className="text-center mb-4">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <div className="h-2 w-2 rounded-full bg-green-500"></div>
-            <p className="text-xs text-muted-foreground">Secure Connection</p>
+          <div className="flex items-center justify-center mb-2">
+            <div className="flex -space-x-2">
+              {/* Smaller credit card icons */}
+              <div className="h-6 w-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-md shadow-md transform rotate-6"></div>
+              <div className="h-6 w-10 bg-gradient-to-br from-indigo-500 to-violet-700 rounded-md shadow-md"></div>
+              <div className="h-6 w-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md shadow-md transform -rotate-6"></div>
+            </div>
           </div>
-          <h3 className="text-lg font-semibold">Finova Pro Subscription</h3>
-          <p className="text-sm text-muted-foreground">$20.00/month</p>
+          
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></div>
+            <p className="text-xs font-medium text-green-500">Secure Connection</p>
+          </div>
+          
+          <div className={`${theme === 'dark' ? 'bg-zinc-800/70' : 'bg-gray-100'} rounded-xl py-2 px-3 mb-2`}>
+            <h3 className="text-base font-bold">Finova Pro Subscription</h3>
+            <p className="text-xs text-muted-foreground">Unlock premium features for your financial journey</p>
+            <div className="mt-1 flex items-center justify-center">
+              <span className="text-lg font-bold mr-1">$20.00</span>
+              <span className="text-xs text-muted-foreground">/month</span>
+            </div>
+          </div>
         </div>
         
-        {/* Credit card image at the top styled like ChatGPT/Cloud */}
-        <div className="flex justify-center mb-3">
-          <div className="flex gap-2">
-            <div className="h-6 w-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-md shadow-sm"></div>
-            <div className="h-6 w-10 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-md shadow-sm"></div>
-            <div className="h-6 w-10 bg-gradient-to-br from-red-500 to-red-700 rounded-md shadow-sm"></div>
-          </div>
-        </div>
-        
-        <FormField
-          control={form.control}
-          name="cardNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs font-medium">Card Number</FormLabel>
-              <div className="relative">
-                <FormControl>
-                  <div className={`flex items-center border rounded-md px-3 ${inputContainerClasses}`}>
-                    <CreditCard className="w-4 h-4 mr-2 text-primary/80" />
-                    <Input
-                      {...field}
-                      placeholder="1234 5678 9012 3456"
-                      className="border-0 focus-visible:ring-0 text-sm bg-transparent"
-                      onChange={handleCardNumberChange}
-                    />
-                  </div>
-                </FormControl>
-              </div>
-              <FormMessage className="text-xs" />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="cardHolder"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs font-medium">Cardholder Name</FormLabel>
-              <div className="relative">
-                <FormControl>
-                  <div className={`flex items-center border rounded-md px-3 ${inputContainerClasses}`}>
-                    <User className="w-4 h-4 mr-2 text-primary/80" />
-                    <Input
-                      {...field}
-                      placeholder="John Doe"
-                      className="border-0 focus-visible:ring-0 text-sm bg-transparent"
-                    />
-                  </div>
-                </FormControl>
-              </div>
-              <FormMessage className="text-xs" />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-2 gap-4">
+        {/* Card information fields with improved styling */}
+        <div className="space-y-3">
           <FormField
             control={form.control}
-            name="expiry"
+            name="cardNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs font-medium">Expiry Date</FormLabel>
+                <FormLabel className="text-xs font-semibold flex items-center gap-1">
+                  <CreditCard className="w-3 h-3" />
+                  Card Number
+                </FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <div className={`flex items-center border rounded-md px-3 ${inputContainerClasses}`}>
-                      <Calendar className="w-4 h-4 mr-2 text-primary/80" />
+                    <div className={`flex items-center border rounded-lg px-3 ${inputBaseClasses}`}>
                       <Input
                         {...field}
-                        placeholder="MM/YY"
-                        className="border-0 focus-visible:ring-0 text-sm bg-transparent"
-                        onChange={handleExpiryChange}
+                        placeholder="1234 5678 9012 3456"
+                        className="border-0 focus-visible:ring-0 focus-visible:outline-none text-sm bg-transparent py-4"
+                        onChange={handleCardNumberChange}
                       />
+                      <div className="flex items-center space-x-1">
+                        <div className="w-5 h-3 bg-blue-600 rounded opacity-80"></div>
+                        <div className="w-5 h-3 bg-yellow-500 rounded opacity-80"></div>
+                      </div>
                     </div>
                   </FormControl>
                 </div>
@@ -178,20 +148,20 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           
           <FormField
             control={form.control}
-            name="cvv"
+            name="cardHolder"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs font-medium">CVV</FormLabel>
+                <FormLabel className="text-xs font-semibold flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  Cardholder Name
+                </FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <div className={`flex items-center border rounded-md px-3 ${inputContainerClasses}`}>
-                      <Lock className="w-4 h-4 mr-2 text-primary/80" />
+                    <div className={`flex items-center border rounded-lg px-3 ${inputBaseClasses}`}>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder="123"
-                        maxLength={4}
-                        className="border-0 focus-visible:ring-0 text-sm bg-transparent"
+                        placeholder="John Doe"
+                        className="border-0 focus-visible:ring-0 focus-visible:outline-none text-sm bg-transparent py-4"
                       />
                     </div>
                   </FormControl>
@@ -200,49 +170,130 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               </FormItem>
             )}
           />
+          
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              control={form.control}
+              name="expiry"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    Expiry Date
+                  </FormLabel>
+                  <div className="relative">
+                    <FormControl>
+                      <div className={`flex items-center border rounded-lg px-3 ${inputBaseClasses}`}>
+                        <Input
+                          {...field}
+                          placeholder="MM/YY"
+                          className="border-0 focus-visible:ring-0 focus-visible:outline-none text-sm bg-transparent py-4"
+                          onChange={handleExpiryChange}
+                        />
+                      </div>
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="cvv"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold flex items-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    CVV
+                  </FormLabel>
+                  <div className="relative">
+                    <FormControl>
+                      <div className={`flex items-center border rounded-lg px-3 ${inputBaseClasses}`}>
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder="•••"
+                          maxLength={4}
+                          className="border-0 focus-visible:ring-0 focus-visible:outline-none text-sm bg-transparent py-4"
+                        />
+                      </div>
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
         
-        <div className="flex items-center space-x-2 pt-1">
-          <Checkbox
-            id="saveCard"
-            checked={form.watch('saveCard')}
-            onCheckedChange={(checked) => 
-              form.setValue('saveCard', checked as boolean)
-            }
-            className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-          />
-          <label
-            htmlFor="saveCard"
-            className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Save card for future payments
-          </label>
+        {/* Save card option with better styling */}
+        <div className="mt-3 mb-2">
+          <div className={`${theme === 'dark' ? 'bg-zinc-800/50' : 'bg-gray-50'} rounded-lg p-2.5`}>
+            <div className="flex items-start space-x-2.5">
+              <Checkbox
+                id="saveCard"
+                checked={form.watch('saveCard')}
+                onCheckedChange={(checked) => 
+                  form.setValue('saveCard', checked as boolean)
+                }
+                className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+              />
+              <div>
+                <label
+                  htmlFor="saveCard"
+                  className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Save card for future payments
+                </label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your payment information will be stored securely
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
         
-        {/* Secure payment indicator at bottom */}
-        <div className="flex items-center justify-center text-xs text-muted-foreground gap-1 pt-1">
+        {/* Security indicators */}
+        <div className="flex items-center justify-center text-xs text-muted-foreground gap-1 py-1.5 mb-3">
           <Lock className="w-3 h-3" />
-          <span>Payments are secure and encrypted</span>
+          <span>128-bit SSL encrypted payment</span>
         </div>
         
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-2">
+        {/* Action buttons */}
+        <div className="space-y-2">
+          <button
+            type="submit"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <>Processing<span className="animate-pulse">...</span></>
+            ) : (
+              <>Pay $20.00<CheckCircle2 className="w-4 h-4 ml-1" /></>
+            )}
+          </button>
+          
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="mt-2 sm:mt-0 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm"
+              className="w-full mt-2 py-2 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground rounded-lg text-sm transition-colors"
               disabled={isProcessing}
             >
               Cancel
             </button>
           )}
-          <button
-            type="submit"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors px-4 py-2 rounded-md text-sm font-medium"
-            disabled={isProcessing}
-          >
-            {isProcessing ? "Processing..." : "Pay $20.00"}
-          </button>
+        </div>
+        
+        {/* Payment processing badges - made smaller */}
+        <div className="mt-3 flex items-center justify-center gap-1.5">
+          <div className="flex items-center gap-2 opacity-70">
+            <div className="w-8 h-5 bg-blue-600 rounded"></div>
+            <div className="w-8 h-5 bg-yellow-500 rounded"></div>
+            <div className="w-8 h-5 bg-red-500 rounded"></div>
+            <div className="w-8 h-5 bg-green-500 rounded"></div>
+          </div>
         </div>
       </form>
     </Form>
