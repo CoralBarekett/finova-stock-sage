@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -17,10 +17,17 @@ import PaymentForm from "@/components/payment/PaymentForm";
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [tab, setTab] = useState<"theme" | "notifications" | "account" | "pro">("theme");
   const { mode, setMode } = useTheme();
-  const { user, logout, updateUserPlan } = useAuth();
+  const { user, logout, updateUserPlan, refreshUser, isLoading } = useAuth();
   const navigate = useNavigate();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+
+  // Effect to refresh user data when settings dialog opens
+  useEffect(() => {
+    if (open) {
+      refreshUser();
+    }
+  }, [open, refreshUser]);
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
@@ -188,7 +195,11 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             <div>
               <h3 className="text-xl font-bold mb-4 text-foreground">Account</h3>
               <div className="space-y-4">
-                {user ? (
+                {isLoading ? (
+                  <div className="py-6 flex justify-center">
+                    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                  </div>
+                ) : user ? (
                   <>
                     <div className="p-4 border border-border rounded-md">
                       <div className="flex items-center space-x-3">
@@ -238,7 +249,11 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                 <Star className="text-yellow-500" /> Pro Plan
               </h3>
               <div className="space-y-4">
-                {user ? (
+                {isLoading ? (
+                  <div className="py-6 flex justify-center">
+                    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                  </div>
+                ) : user ? (
                   <>
                     <div className="p-4 border border-border rounded-md bg-background shadow-sm">
                       <div className="font-medium mb-2">Your current plan:</div>

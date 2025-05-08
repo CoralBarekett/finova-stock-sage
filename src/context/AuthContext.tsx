@@ -23,6 +23,7 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   updateUserPlan: (isPro: boolean) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,19 +33,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FrontendUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchUserData = async (token: string): Promise<FrontendUser | null> => {
+    try {
+      const response = await axios.get<BackendUser>(`${BACKEND_API_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return mapBackendUserToFrontendUser(response.data);
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+      // If there's an error, clear the token as it may be invalid
+      localStorage.removeItem('finovaToken');
+      return null;
+    }
+  };
+
+  const refreshUser = async (): Promise<void> => {
+    const token = localStorage.getItem('finovaToken');
+    if (token) {
+      setIsLoading(true);
+      const userData = await fetchUserData(token);
+      setUser(userData);
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const checkUser = async () => {
       const token = localStorage.getItem('finovaToken');
       if (token) {
-        try {
-          const response = await axios.get<BackendUser>(`${BACKEND_API_URL}/users/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUser(mapBackendUserToFrontendUser(response.data));
-        } catch (error) {
-          console.error('Failed to fetch user', error);
-          logout();
-        }
+        const userData = await fetchUserData(token);
+        setUser(userData);
       }
       setIsLoading(false);
     };
@@ -52,12 +70,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await axios.post<{ token: string; user: BackendUser }>(
-      `${BACKEND_API_URL}/users/SignIn`,
-      { email, password }
-    );
-    localStorage.setItem('finovaToken', response.data.token);
-    setUser(mapBackendUserToFrontendUser(response.data.user));
+    try {
+      const response = await axios.post<{ token: string; user: BackendUser }>(
+        `${BACKEND_API_URL}/users/SignIn`,
+        { email, password }
+      );
+      localStorage.setItem('finovaToken', response.data.token);
+      setUser(mapBackendUserToFrontendUser(response.data.user));
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error; // Re-throw to handle in the login form
+    }
   };
 
   const register = async (name: string, email: string, password: string, isPro: boolean = false) => {
@@ -73,7 +96,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('finovaToken');
     if (token && user) {
       try {
-        // Fixed API endpoint URL - adding missing slash
         const response = await axios.put<BackendUser>(
           `${BACKEND_API_URL}/users/UpdateUserByEmail/${user.email}`,
           { pro: isPro },
@@ -82,6 +104,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(mapBackendUserToFrontendUser(response.data));
       } catch (error) {
         console.error('Failed to update user plan', error);
+        if (error && typeof error === 'object' && 'response' in error) {
+          // Handle specific API errors
+          throw error;
+        }
       }
     }
   };
@@ -92,7 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading, updateUserPlan }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading, updateUserPlan, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
