@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -50,10 +49,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const refreshUser = async (): Promise<void> => {
     const token = localStorage.getItem('finovaToken');
     if (token) {
-      setIsLoading(true);
-      const userData = await fetchUserData(token);
-      setUser(userData);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const userData = await fetchUserData(token);
+        setUser(userData);
+      } catch (error) {
+        console.error('Error refreshing user:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
