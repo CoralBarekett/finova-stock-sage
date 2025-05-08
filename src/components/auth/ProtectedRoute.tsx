@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -8,14 +9,17 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const location = useLocation();
 
   useEffect(() => {
-    // If not loading and no user, redirect to auth
+    // Only redirect if we've finished checking authentication and there's no user
     if (!isLoading && !user) {
       console.log("Protected route: No authenticated user, redirecting to auth");
-      navigate('/auth', { replace: true });
+      navigate('/auth', { 
+        replace: true,
+        state: { from: location.pathname } // Store the attempted URL for potential redirect back after login
+      });
     } else if (!isLoading && user) {
       console.log("Protected route: User authenticated", user);
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, location]);
 
   // Show loading state while checking authentication
   if (isLoading) {
