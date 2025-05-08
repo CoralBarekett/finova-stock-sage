@@ -73,9 +73,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('finovaToken');
     if (token && user) {
       try {
-        // Updated to use the new backend route
+        // Fixed API endpoint URL - adding missing slash
         const response = await axios.put<BackendUser>(
-          `${BACKEND_API_URL}users/UpdateUserByEmail/${user.email}`,
+          `${BACKEND_API_URL}/users/UpdateUserByEmail/${user.email}`,
           { pro: isPro },
           { headers: { Authorization: `Bearer ${token}` } }
         );

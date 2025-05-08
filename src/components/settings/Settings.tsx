@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
@@ -53,12 +52,15 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
       setShowPaymentDialog(true);
       return;
     } else {
-      // Handle downgrade directly
+      // Handle downgrade - use the updateUserPlan function directly
       try {
-        await updateUserPlan(isPro);
+        setIsProcessingPayment(true);
+        await updateUserPlan(false); // Set pro field to false
         toast.success("Downgraded to Free Plan");
+        setIsProcessingPayment(false);
       } catch (error) {
         toast.error("Failed to update plan. Please try again.");
+        setIsProcessingPayment(false);
       }
     }
   };
@@ -260,8 +262,9 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                           <button 
                             onClick={() => handleProPlanChange(false)}
                             className="w-full py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
+                            disabled={isProcessingPayment}
                           >
-                            Downgrade
+                            {isProcessingPayment ? "Processing..." : "Downgrade"}
                           </button>
                         ) : (
                           <button 
@@ -295,8 +298,9 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                               <button 
                                 onClick={() => handleProPlanChange(true)}
                                 className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                                disabled={isProcessingPayment}
                               >
-                                Upgrade to Pro Plan
+                                {isProcessingPayment ? "Processing..." : "Upgrade to Pro Plan"}
                               </button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="sm:max-w-[425px]">
