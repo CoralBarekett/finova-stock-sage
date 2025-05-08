@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
@@ -8,15 +7,12 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import PaymentForm from "@/components/payment/PaymentForm";
 
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [tab, setTab] = useState<"theme" | "notifications" | "account" | "pro">("theme");
@@ -24,6 +20,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   const { user, logout, updateUserPlan } = useAuth();
   const navigate = useNavigate();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
@@ -52,8 +49,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
 
   const handleProPlanChange = async (isPro: boolean) => {
     if (isPro) {
-      // Show payment dialog for pro upgrade
-      // Payment handling will be done in the dialog
+      setShowPaymentDialog(true);
       return;
     } else {
       // Handle downgrade directly
@@ -72,20 +68,11 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
       await updateUserPlan(true);
       toast.success("Upgraded to Pro Plan!");
       setIsProcessingPayment(false);
+      setShowPaymentDialog(false);
     } catch (error) {
       toast.error("Failed to update your account. Please contact support.");
       setIsProcessingPayment(false);
     }
-  };
-
-  const handlePaymentSimulation = async () => {
-    // Simulate a payment process
-    setIsProcessingPayment(true);
-    
-    // Simulate payment processing delay
-    setTimeout(async () => {
-      await handlePaymentSuccess();
-    }, 2000);
   };
 
   if (!open) return null;
@@ -302,7 +289,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                             Current Plan
                           </button>
                         ) : (
-                          <AlertDialog>
+                          <AlertDialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
                             <AlertDialogTrigger asChild>
                               <button 
                                 className="w-full py-2 finova-button rounded-md"
@@ -311,19 +298,15 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                                 {isProcessingPayment ? "Processing..." : "Upgrade"}
                               </button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className="sm:max-w-[425px]">
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Upgrade to Pro Plan</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  You will be charged $9.99 per month for the Pro Plan. Would you like to proceed with the payment?
-                                </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handlePaymentSimulation}>
-                                  Pay Now
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
+                              <PaymentForm
+                                onPaymentSubmit={handlePaymentSuccess}
+                                onCancel={() => setShowPaymentDialog(false)}
+                                isProcessing={isProcessingPayment}
+                              />
                             </AlertDialogContent>
                           </AlertDialog>
                         )}
