@@ -17,11 +17,9 @@ export interface HistoricalData {
   price: number;
 }
 
-const LIVE_STOCKS_API_KEY = 'cpna92pr01qtggbavitgcpna92pr01qtggbaviu0';
-const HISTORY_STOCKS_API_KEY = '9BVIQ3O8J627J1RT';
-const LIVE_STOCKS_BASE_URL = 'https://finnhub.io/api/v1';
-const HISTORY_STOCKS_BASE_URL = 'https://www.alphavantage.co/query';
-const BACKEND_API_URL = 'http://localhost:3000';
+const LIVE_STOCKS_API_KEY = import.meta.env.VITE_LIVE_API_KEY;
+const LIVE_STOCKS_BASE_URL = import.meta.env.VITE_LIVE_API_URL;
+const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
 // Stock symbol to company name mapping
 const companyNames: Record<string, string> = {
