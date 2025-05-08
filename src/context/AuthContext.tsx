@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 
 interface BackendUser {
   _id: string;
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (error) {
           console.error('Failed to fetch user session', error);
           // Only clear token if there's an actual API failure
-          if (axios.isAxiosError(error) && error.response?.status === 401) {
+          if (isAxiosError(error) && error.response?.status === 401) {
             localStorage.removeItem('finovaToken');
             setUser(null);
           }
