@@ -26,6 +26,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FrontendUser | null>(null);
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const token = localStorage.getItem('finovaToken');
       if (token) {
         try {
-          const response = await axios.get<BackendUser>('http://localhost:3000/users/me', {
+          const response = await axios.get<BackendUser>(`${BACKEND_API_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUser(mapBackendUserToFrontendUser(response.data));
@@ -52,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const response = await axios.post<{ token: string; user: BackendUser }>(
-      'http://localhost:3000/users/SignIn',
+      `${BACKEND_API_URL}/users/SignIn`,
       { email, password }
     );
     localStorage.setItem('finovaToken', response.data.token);
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const register = async (name: string, email: string, password: string, isPro: boolean = false) => {
     const response = await axios.post<{ token: string; user: BackendUser }>(
-      'http://localhost:3000/users/SignUp',
+      `${BACKEND_API_URL}/users/SignUp`,
       { name, email, password, pro: isPro }
     );
     localStorage.setItem('finovaToken', response.data.token);
@@ -74,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         // Updated to use the new backend route
         const response = await axios.put<BackendUser>(
-          `http://localhost:3000/users/UpdateUserByEmail/${user.email}`,
+          `${BACKEND_API_URL}users/UpdateUserByEmail/${user.email}`,
           { pro: isPro },
           { headers: { Authorization: `Bearer ${token}` } }
         );
