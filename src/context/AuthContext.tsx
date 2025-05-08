@@ -44,16 +44,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             headers: { Authorization: `Bearer ${token}` },
           });
           
-          // Successfully retrieved user data
-          const userData = mapBackendUserToFrontendUser(response.data);
-          console.log('Session restored for user:', userData);
-          setUser(userData);
+          // Only set user if we got valid data back
+          if (response.data && response.data._id) {
+            const userData = mapBackendUserToFrontendUser(response.data);
+            console.log('Session restored for user:', userData);
+            setUser(userData);
+          } else {
+            console.error('Invalid user data received from API');
+            localStorage.removeItem('finovaToken');
+            setUser(null);
+          }
         } catch (error) {
           console.error('Failed to fetch user session', error);
           // Clear invalid token and user data
           localStorage.removeItem('finovaToken');
           setUser(null);
         }
+      } else {
+        console.log('No authentication token found');
       }
       
       setIsLoading(false);
@@ -151,9 +159,17 @@ export const useAuth = () => {
 };
 
 // Helper function to standardize mapping from backend to frontend user model
-const mapBackendUserToFrontendUser = (backendUser: BackendUser): FrontendUser => ({
-  id: backendUser._id,
-  email: backendUser.email,
-  name: backendUser.name,
-  pro: backendUser.pro || false,
-});
+const mapBackendUserToFrontendUser = (backendUser: BackendUser): FrontendUser => {
+  // Ensure we have valid values for each field
+  if (!backendUser || !backendUser._id || !backendUser.email || !backendUser.name) {
+    console.error('Invalid backend user data:', backendUser);
+    throw new Error('Invalid user data from backend');
+  }
+  
+  return {
+    id: backendUser._id,
+    email: backendUser.email,
+    name: backendUser.name,
+    pro: backendUser.pro || false,
+  };
+};
