@@ -72,8 +72,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('finovaToken');
     if (token && user) {
       try {
+        // Updated to use the new backend route
         const response = await axios.put<BackendUser>(
-          'http://localhost:3000/users/updatePlan',
+          `http://localhost:3000/users/UpdateUserByEmail/${user.email}`,
           { pro: isPro },
           { headers: { Authorization: `Bearer ${token}` } }
         );
