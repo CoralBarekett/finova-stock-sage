@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
@@ -293,15 +292,15 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                           <AlertDialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
                             <AlertDialogTrigger asChild>
                               <button 
-                                onClick={() => handleProPlanChange(true)}
-                                className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                                className="w-full py-2 finova-button rounded-md"
+                                disabled={isProcessingPayment}
                               >
-                                Upgrade to Pro Plan
+                                {isProcessingPayment ? "Processing..." : "Upgrade"}
                               </button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="sm:max-w-[425px]">
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Complete Pro Plan Subscription</AlertDialogTitle>
+                                <AlertDialogTitle>Upgrade to Pro Plan</AlertDialogTitle>
                               </AlertDialogHeader>
                               <PaymentForm
                                 onPaymentSubmit={handlePaymentSuccess}

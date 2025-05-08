@@ -31,88 +31,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FrontendUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // This effect runs when the app initializes to check for existing user session
   useEffect(() => {
     const checkUser = async () => {
-      setIsLoading(true);
       const token = localStorage.getItem('finovaToken');
-      
       if (token) {
         try {
-          // Configure axios with the token for this request
           const response = await axios.get<BackendUser>('http://localhost:3000/users/me', {
             headers: { Authorization: `Bearer ${token}` },
           });
-          
-          // Map the user data, even with partial information
-          try {
-            const userData = mapBackendUserToFrontendUser(response.data);
-            console.log('Session restored for user:', userData);
-            setUser(userData);
-          } catch (error) {
-            console.error('Could not map user data:', error);
-            // Don't remove token here, just log the error
-          }
+          setUser(mapBackendUserToFrontendUser(response.data));
         } catch (error) {
-          console.error('Failed to fetch user session', error);
-          // Only clear token if there's an actual API failure
-          if (error && 'response' in error && error.response?.status === 401) {
-            localStorage.removeItem('finovaToken');
-            setUser(null);
-          }
+          console.error('Failed to fetch user', error);
+          logout();
         }
-      } else {
-        console.log('No authentication token found');
       }
-      
       setIsLoading(false);
     };
-    
     checkUser();
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await axios.post<{ token: string; user: BackendUser }>(
-        'http://localhost:3000/users/SignIn',
-        { email, password }
-      );
-      
-      // Store token in localStorage for session persistence
-      localStorage.setItem('finovaToken', response.data.token);
-      
-      // Update user state with mapped user data
-      const userData = mapBackendUserToFrontendUser(response.data.user);
-      console.log('User logged in:', userData);
-      setUser(userData);
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Login failed:', error);
-      return Promise.reject(error);
-    }
+    const response = await axios.post<{ token: string; user: BackendUser }>(
+      'http://localhost:3000/users/SignIn',
+      { email, password }
+    );
+    localStorage.setItem('finovaToken', response.data.token);
+    setUser(mapBackendUserToFrontendUser(response.data.user));
   };
 
   const register = async (name: string, email: string, password: string, isPro: boolean = false) => {
-    try {
-      const response = await axios.post<{ token: string; user: BackendUser }>(
-        'http://localhost:3000/users/SignUp',
-        { name, email, password, pro: isPro }
-      );
-      
-      // Store token in localStorage for session persistence
-      localStorage.setItem('finovaToken', response.data.token);
-      
-      // Update user state with mapped user data
-      const userData = mapBackendUserToFrontendUser(response.data.user);
-      console.log('User registered:', userData);
-      setUser(userData);
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Registration failed:', error);
-      return Promise.reject(error);
-    }
+    const response = await axios.post<{ token: string; user: BackendUser }>(
+      'http://localhost:3000/users/SignUp',
+      { name, email, password, pro: isPro }
+    );
+    localStorage.setItem('finovaToken', response.data.token);
+    setUser(mapBackendUserToFrontendUser(response.data.user));
   };
 
   const updateUserPlan = async (isPro: boolean) => {
@@ -125,15 +78,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           { pro: isPro },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
-        const updatedUser = mapBackendUserToFrontendUser(response.data);
-        console.log('User plan updated:', updatedUser);
-        setUser(updatedUser);
-        
-        return Promise.resolve();
+        setUser(mapBackendUserToFrontendUser(response.data));
       } catch (error) {
         console.error('Failed to update user plan', error);
-        return Promise.reject(error);
       }
     }
   };
@@ -141,7 +88,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('finovaToken');
     setUser(null);
-    console.log('User logged out');
   };
 
   return (
@@ -159,18 +105,9 @@ export const useAuth = () => {
   return context;
 };
 
-// Helper function to standardize mapping from backend to frontend user model
-const mapBackendUserToFrontendUser = (backendUser: BackendUser): FrontendUser => {
-  // Less strict validation to prevent session loss
-  if (!backendUser) {
-    console.warn('Empty user data received from backend');
-    throw new Error('Empty user data from backend');
-  }
-  
-  return {
-    id: backendUser._id || '',
-    email: backendUser.email || '',
-    name: backendUser.name || '',
-    pro: backendUser.pro || false,
-  };
-};
+const mapBackendUserToFrontendUser = (backendUser: BackendUser): FrontendUser => ({
+  id: backendUser._id,
+  email: backendUser.email,
+  name: backendUser.name,
+  pro: backendUser.pro || false,
+});
