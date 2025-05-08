@@ -17,7 +17,16 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         state: { from: location.pathname } // Store the attempted URL for potential redirect back after login
       });
     } else if (!isLoading && user) {
-      console.log("Protected route: User authenticated", user);
+      // Validate that we have a complete user object
+      if (user.id && user.email && user.name) {
+        console.log("Protected route: User authenticated", user);
+      } else {
+        console.error("Protected route: Invalid user object", user);
+        navigate('/auth', { 
+          replace: true,
+          state: { from: location.pathname }
+        });
+      }
     }
   }, [user, isLoading, navigate, location]);
 
@@ -33,7 +42,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   // Don't render children if not authenticated
-  if (!user) {
+  if (!user || !user.id) {
     return null;
   }
 
