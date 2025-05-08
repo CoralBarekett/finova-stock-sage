@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
@@ -5,12 +6,24 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [tab, setTab] = useState<"theme" | "notifications" | "account" | "pro">("theme");
   const { mode, setMode } = useTheme();
   const { user, logout, updateUserPlan } = useAuth();
   const navigate = useNavigate();
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
@@ -38,12 +51,41 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   };
 
   const handleProPlanChange = async (isPro: boolean) => {
-    try {
-      await updateUserPlan(isPro);
-      toast.success(isPro ? "Upgraded to Pro Plan!" : "Downgraded to Free Plan");
-    } catch (error) {
-      toast.error("Failed to update plan. Please try again.");
+    if (isPro) {
+      // Show payment dialog for pro upgrade
+      // Payment handling will be done in the dialog
+      return;
+    } else {
+      // Handle downgrade directly
+      try {
+        await updateUserPlan(isPro);
+        toast.success("Downgraded to Free Plan");
+      } catch (error) {
+        toast.error("Failed to update plan. Please try again.");
+      }
     }
+  };
+
+  const handlePaymentSuccess = async () => {
+    try {
+      setIsProcessingPayment(true);
+      await updateUserPlan(true);
+      toast.success("Upgraded to Pro Plan!");
+      setIsProcessingPayment(false);
+    } catch (error) {
+      toast.error("Failed to update your account. Please contact support.");
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const handlePaymentSimulation = async () => {
+    // Simulate a payment process
+    setIsProcessingPayment(true);
+    
+    // Simulate payment processing delay
+    setTimeout(async () => {
+      await handlePaymentSuccess();
+    }, 2000);
   };
 
   if (!open) return null;
@@ -260,12 +302,30 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                             Current Plan
                           </button>
                         ) : (
-                          <button 
-                            onClick={() => handleProPlanChange(true)}
-                            className="w-full py-2 finova-button rounded-md"
-                          >
-                            Upgrade
-                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button 
+                                className="w-full py-2 finova-button rounded-md"
+                                disabled={isProcessingPayment}
+                              >
+                                {isProcessingPayment ? "Processing..." : "Upgrade"}
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Upgrade to Pro Plan</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  You will be charged $9.99 per month for the Pro Plan. Would you like to proceed with the payment?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handlePaymentSimulation}>
+                                  Pay Now
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
                       </div>
                     </div>
