@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (error) {
           console.error('Failed to fetch user session', error);
           // Only clear token if there's an actual API failure
-          if (error && axios.isAxiosError && axios.isAxiosError(error) && error.response?.status === 401) {
+          if (error && 'response' in error && error.response?.status === 401) {
             localStorage.removeItem('finovaToken');
             setUser(null);
           }
