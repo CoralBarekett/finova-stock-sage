@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import LoginForm from '@/components/auth/LoginForm';
@@ -11,18 +10,14 @@ const Auth: React.FC = () => {
   const { user, isLoading } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Get the redirect path from location state, or default to dashboard
-  const from = location.state?.from || '/dashboard';
 
   useEffect(() => {
-    // Redirect to dashboard or previous page if user is already authenticated
+    // Redirect to dashboard if user is already authenticated
     if (!isLoading && user) {
-      console.log("Auth page: User already authenticated, redirecting to", from);
-      navigate(from, { replace: true });
+      console.log("Auth page: User already authenticated, redirecting to dashboard");
+      navigate('/dashboard', { replace: true });
     }
-  }, [user, isLoading, navigate, from]);
+  }, [user, isLoading, navigate]);
 
   if (isLoading) {
     return (
