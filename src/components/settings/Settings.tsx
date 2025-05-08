@@ -289,26 +289,27 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                             Current Plan
                           </button>
                         ) : (
-                          <AlertDialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-                            <AlertDialogTrigger asChild>
-                              <button 
-                                className="w-full py-2 finova-button rounded-md"
-                                disabled={isProcessingPayment}
-                              >
-                                {isProcessingPayment ? "Processing..." : "Upgrade"}
-                              </button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="sm:max-w-[425px]">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Upgrade to Pro Plan</AlertDialogTitle>
-                              </AlertDialogHeader>
-                              <PaymentForm
+                          
+                          
+                            
+                              
+                                Upgrade
+                              
+                            
+                            
+                              
+                                Upgrade to Pro Plan
+                              
+                            
+                            
+                              
+                                
                                 onPaymentSubmit={handlePaymentSuccess}
                                 onCancel={() => setShowPaymentDialog(false)}
                                 isProcessing={isProcessingPayment}
-                              />
-                            </AlertDialogContent>
-                          </AlertDialog>
+                              
+                            
+                          
                         )}
                       </div>
                     </div>
