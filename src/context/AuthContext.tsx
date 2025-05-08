@@ -6,20 +6,23 @@ interface BackendUser {
   _id: string;
   email: string;
   name: string;
+  pro?: boolean;
 }
 
 interface FrontendUser {
   id: string;
   email: string;
   name: string;
+  pro: boolean;
 }
 
 interface AuthContextType {
   user: FrontendUser | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, isPro?: boolean) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  updateUserPlan: (isPro: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,13 +59,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(mapBackendUserToFrontendUser(response.data.user));
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, isPro: boolean = false) => {
     const response = await axios.post<{ token: string; user: BackendUser }>(
       'http://localhost:3000/users/SignUp',
-      { name, email, password }
+      { name, email, password, pro: isPro }
     );
     localStorage.setItem('finovaToken', response.data.token);
     setUser(mapBackendUserToFrontendUser(response.data.user));
+  };
+
+  const updateUserPlan = async (isPro: boolean) => {
+    const token = localStorage.getItem('finovaToken');
+    if (token && user) {
+      try {
+        const response = await axios.put<BackendUser>(
+          'http://localhost:3000/users/updatePlan',
+          { pro: isPro },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setUser(mapBackendUserToFrontendUser(response.data));
+      } catch (error) {
+        console.error('Failed to update user plan', error);
+      }
+    }
   };
 
   const logout = () => {
@@ -71,7 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading, updateUserPlan }}>
       {children}
     </AuthContext.Provider>
   );
@@ -89,4 +108,5 @@ const mapBackendUserToFrontendUser = (backendUser: BackendUser): FrontendUser =>
   id: backendUser._id,
   email: backendUser.email,
   name: backendUser.name,
+  pro: backendUser.pro || false,
 });

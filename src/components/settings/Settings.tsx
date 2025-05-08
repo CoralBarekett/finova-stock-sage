@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X } from "lucide-react";
+import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const [tab, setTab] = useState<"theme" | "notifications" | "account">("theme");
+  const [tab, setTab] = useState<"theme" | "notifications" | "account" | "pro">("theme");
   const { mode, setMode } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserPlan } = useAuth();
   const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState(() => {
@@ -23,11 +24,9 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   };
 
   const handleClose = () => {
-    // אם זה בראוטר, חזור אחורה
     if (window.location.pathname === '/settings') {
       navigate(-1);
     } else {
-      // אחרת הפעל את פונקציית הסגירה שהועברה כפרופ
       onClose();
     }
   };
@@ -36,6 +35,15 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
     logout();
     handleClose();
     navigate('/auth', { replace: true });
+  };
+
+  const handleProPlanChange = async (isPro: boolean) => {
+    try {
+      await updateUserPlan(isPro);
+      toast.success(isPro ? "Upgraded to Pro Plan!" : "Downgraded to Free Plan");
+    } catch (error) {
+      toast.error("Failed to update plan. Please try again.");
+    }
   };
 
   if (!open) return null;
@@ -75,6 +83,14 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
             onClick={() => setTab("account")}
           >
             Account
+          </button>
+          <button
+            className={`flex-1 p-3 font-medium ${
+              tab === "pro" ? "border-b-2 border-primary text-primary" : "text-foreground/70"
+            }`}
+            onClick={() => setTab("pro")}
+          >
+            Pro
           </button>
         </div>
 
@@ -180,6 +196,91 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                       Register
                     </Link>
                   </>
+                )}
+              </div>
+            </div>
+          )}
+          {tab === "pro" && (
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
+                <Star className="text-yellow-500" /> Pro Plan
+              </h3>
+              <div className="space-y-4">
+                {user ? (
+                  <>
+                    <div className="p-4 border border-border rounded-md bg-background shadow-sm">
+                      <div className="font-medium mb-2">Your current plan:</div>
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-lg ${user.pro ? "text-yellow-500 font-bold" : "text-muted-foreground"}`}>
+                          {user.pro ? "Pro" : "Free"}
+                        </span>
+                        {user.pro && <Star className="text-yellow-500 h-4 w-4" />}
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <div className={`flex-1 p-4 border ${!user.pro ? "border-primary" : "border-border"} rounded-md`}>
+                        <h4 className="font-medium mb-2">Free Plan</h4>
+                        <ul className="text-sm space-y-1 mb-4 text-foreground/80">
+                          <li>• Basic features</li>
+                          <li>• Limited analysis</li>
+                          <li>• Standard support</li>
+                        </ul>
+                        {user.pro ? (
+                          <button 
+                            onClick={() => handleProPlanChange(false)}
+                            className="w-full py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
+                          >
+                            Downgrade
+                          </button>
+                        ) : (
+                          <button 
+                            className="w-full py-2 bg-primary/20 text-primary rounded-md cursor-not-allowed"
+                            disabled
+                          >
+                            Current Plan
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className={`flex-1 p-4 border ${user.pro ? "border-primary" : "border-border"} rounded-md`}>
+                        <h4 className="font-medium mb-2 flex items-center gap-1">
+                          Pro <Star className="text-yellow-500 h-4 w-4" />
+                        </h4>
+                        <ul className="text-sm space-y-1 mb-4 text-foreground/80">
+                          <li>• Advanced features</li>
+                          <li>• Stock simulation</li>
+                          <li>• Premium support</li>
+                        </ul>
+                        {user.pro ? (
+                          <button 
+                            className="w-full py-2 bg-primary/20 text-primary rounded-md cursor-not-allowed"
+                            disabled
+                          >
+                            Current Plan
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleProPlanChange(true)}
+                            className="w-full py-2 finova-button rounded-md"
+                          >
+                            Upgrade
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center p-6">
+                    <p className="mb-4">Please sign in to manage your subscription</p>
+                    <Link 
+                      to="/auth"
+                      className="finova-button py-2 px-4 rounded-md inline-block"
+                      onClick={handleClose}
+                    >
+                      Sign In
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>

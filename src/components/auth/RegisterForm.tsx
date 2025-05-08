@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Mail, Key, Facebook, Chrome, User } from "lucide-react";
+import { Mail, Key, Facebook, Chrome, User, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,7 +10,13 @@ const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const RegisterForm: React.FC = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ 
+    name: "", 
+    email: "", 
+    password: "", 
+    confirm: "",
+    pro: false 
+  });
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; confirm?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -60,7 +66,7 @@ const RegisterForm: React.FC = () => {
     if (valid) {
       setIsSubmitting(true);
       try {
-        await register(form.name, form.email, form.password);
+        await register(form.name, form.email, form.password, form.pro);
         
         // Show success toast
         toast({
@@ -92,6 +98,10 @@ const RegisterForm: React.FC = () => {
         setIsSubmitting(false);
       }
     }
+  };
+
+  const togglePro = () => {
+    setForm(prev => ({ ...prev, pro: !prev.pro }));
   };
 
   return (
@@ -164,6 +174,20 @@ const RegisterForm: React.FC = () => {
           />
         </div>
         {errors.confirm && <div className="text-xs text-red-500 mt-1">{errors.confirm}</div>}
+      </div>
+      
+      <div className="flex items-center gap-2 p-2 border rounded-md bg-white/90">
+        <input
+          type="checkbox"
+          id="pro-plan"
+          checked={form.pro}
+          onChange={togglePro}
+          className="rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+        />
+        <label htmlFor="pro-plan" className="flex items-center gap-1 select-none cursor-pointer">
+          <Star className={`w-4 h-4 ${form.pro ? "text-yellow-500" : "text-gray-400"}`} />
+          <span>Subscribe to Pro plan</span>
+        </label>
       </div>
       
       <button 
