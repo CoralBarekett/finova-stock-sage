@@ -21,13 +21,21 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   const navigate = useNavigate();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [hasRefreshedUser, setHasRefreshedUser] = useState(false);
 
-  // Effect to refresh user data when settings dialog opens
+  // Effect to refresh user data when settings dialog opens, but only once
   useEffect(() => {
-    if (open) {
-      refreshUser();
+    if (open && !hasRefreshedUser) {
+      refreshUser().then(() => {
+        setHasRefreshedUser(true);
+      });
     }
-  }, [open, refreshUser]);
+    
+    // Reset the flag when the dialog closes
+    if (!open) {
+      setHasRefreshedUser(false);
+    }
+  }, [open, hasRefreshedUser, refreshUser]);
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
@@ -86,7 +94,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   };
 
   if (!open) return null;
-
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-background w-full max-w-md rounded-xl shadow-xl relative">
