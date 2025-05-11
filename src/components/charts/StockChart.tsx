@@ -171,6 +171,7 @@ const StockChart: React.FC<StockChartProps> = ({
               const index = props.index || 0;
               return index % 5 === 0 || index === 0 || index === (formattedData.length - 1) ? (
                 <circle 
+                  key={`dot-${index}`}
                   cx={props.cx} 
                   cy={props.cy} 
                   r={3} 
