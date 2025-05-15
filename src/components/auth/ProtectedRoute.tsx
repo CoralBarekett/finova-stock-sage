@@ -1,21 +1,10 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    // If not loading and no user, redirect to auth
-    if (!isLoading && !user) {
-      console.log("Protected route: No authenticated user, redirecting to auth");
-      navigate('/auth', { replace: true });
-    } else if (!isLoading && user) {
-      console.log("Protected route: User authenticated", user);
-    }
-  }, [user, isLoading, navigate]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -28,9 +17,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
 
-  // Don't render children if not authenticated
+  // If not authenticated, redirect to auth page
   if (!user) {
-    return null;
+    return <Navigate to="/auth" replace />;
   }
 
   // User is authenticated, render children
