@@ -31,7 +31,6 @@ const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FrontendUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -44,14 +43,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(mapBackendUserToFrontendUser(response.data));
         } catch (error) {
           console.error('Failed to fetch user', error);
-          localStorage.removeItem('finovaToken');
-          setUser(null);
+          logout();
         }
-      } else {
-        setUser(null);
       }
       setIsLoading(false);
-      setAuthChecked(true);
     };
     checkUser();
   }, []);
@@ -98,7 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, isLoading, updateUserPlan }}>
-      {authChecked ? children : null}
+      {children}
     </AuthContext.Provider>
   );
 };
