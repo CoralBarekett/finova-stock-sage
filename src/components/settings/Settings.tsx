@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star } from "lucide-react";
+import { Sun, Moon, Clock, Bell, User, LogIn, LogOut, X, Star, AlertTriangle } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -11,6 +11,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import PaymentForm from "@/components/payment/PaymentForm";
 
@@ -21,6 +25,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   const navigate = useNavigate();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showDowngradeDialog, setShowDowngradeDialog] = useState(false);
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('finovaNotifications');
@@ -52,16 +57,20 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
       setShowPaymentDialog(true);
       return;
     } else {
-      // Handle downgrade - use the updateUserPlan function directly
-      try {
-        setIsProcessingPayment(true);
-        await updateUserPlan(false); // Set pro field to false
-        toast.success("Downgraded to Free Plan");
-        setIsProcessingPayment(false);
-      } catch (error) {
-        toast.error("Failed to update plan. Please try again.");
-        setIsProcessingPayment(false);
-      }
+      setShowDowngradeDialog(true);
+    }
+  };
+
+  const confirmDowngrade = async () => {
+    try {
+      setIsProcessingPayment(true);
+      await updateUserPlan(false); // Set pro field to false
+      toast.success("Downgraded to Free Plan");
+      setIsProcessingPayment(false);
+      setShowDowngradeDialog(false);
+    } catch (error) {
+      toast.error("Failed to update plan. Please try again.");
+      setIsProcessingPayment(false);
     }
   };
 
@@ -76,6 +85,11 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
       toast.error("Failed to update your account. Please contact support.");
       setIsProcessingPayment(false);
     }
+  };
+
+  const navigateToUserProfile = () => {
+    handleClose();
+    navigate('/account/profile');
   };
 
   if (!open) return null;
@@ -200,6 +214,15 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                           <div className="text-sm text-muted-foreground">{user.email}</div>
                         </div>
                       </div>
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <button
+                          onClick={navigateToUserProfile}
+                          className="text-sm text-primary hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <User className="w-4 h-4" />
+                          Manage Account Information
+                        </button>
+                      </div>
                     </div>
                     <button 
                       onClick={handleLogout}
@@ -259,13 +282,9 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                           <li>• Standard support</li>
                         </ul>
                         {user.pro ? (
-                          <button 
-                            onClick={() => handleProPlanChange(false)}
-                            className="w-full py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
-                            disabled={isProcessingPayment}
-                          >
-                            {isProcessingPayment ? "Processing..." : "Downgrade"}
-                          </button>
+                          <p className="text-xs text-muted-foreground text-center mt-2">
+                            Currently using Pro Plan
+                          </p>
                         ) : (
                           <button 
                             className="w-full py-2 bg-primary/20 text-primary rounded-md cursor-not-allowed"
@@ -276,7 +295,8 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                         )}
                       </div>
                       
-                      <div className={`flex-1 p-4 border ${user.pro ? "border-primary" : "border-border"} rounded-md`}>
+                      <div className={`flex-1 p-4 border ${user.pro ? "border-primary" : "border-border"} rounded-md relative`}>
+                        {!user.pro && <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">Recommended</div>}
                         <h4 className="font-medium mb-2 flex items-center gap-1">
                           Pro <Star className="text-yellow-500 h-4 w-4" />
                         </h4>
@@ -284,6 +304,8 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                           <li>• Advanced features</li>
                           <li>• Stock simulation</li>
                           <li>• Premium support</li>
+                          <li>• Priority updates</li>
+                          <li>• Unlimited portfolios</li>
                         </ul>
                         {user.pro ? (
                           <button 
@@ -300,7 +322,7 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                                 className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                                 disabled={isProcessingPayment}
                               >
-                                {isProcessingPayment ? "Processing..." : "Upgrade to Pro Plan"}
+                                {isProcessingPayment ? "Processing..." : "Upgrade"}
                               </button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="sm:max-w-[425px]">
@@ -317,6 +339,60 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
                         )}
                       </div>
                     </div>
+                    
+                    {/* Downgrade section moved to bottom */}
+                    {user.pro && (
+                      <div className="mt-6 pt-4 border-t border-border">
+                        <div className="flex items-center justify-between">
+                          <button 
+                            onClick={navigateToUserProfile}
+                            className="text-xs text-primary hover:underline transition-colors"
+                          >
+                            Account Management
+                          </button>
+                          <AlertDialog open={showDowngradeDialog} onOpenChange={setShowDowngradeDialog}>
+                            <AlertDialogTrigger asChild>
+                              <button 
+                                className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                              >
+                                Manage subscription
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-destructive flex items-center gap-2">
+                                  <AlertTriangle className="h-5 w-5" />
+                                  Are you sure you want to downgrade?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Downgrading to the Free plan will immediately remove access to:
+                                  <ul className="mt-2 space-y-1">
+                                    <li>• Advanced stock analysis tools</li>
+                                    <li>• Stock market simulations</li>
+                                    <li>• Premium support services</li>
+                                    <li>• Multiple portfolio management</li>
+                                    <li>• Advanced market insights</li>
+                                  </ul>
+                                  <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-md text-sm">
+                                    <strong>Special offer:</strong> Stay on Pro and get 25% off your next month! Contact support to claim this offer.
+                                  </div>
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Keep Pro Benefits</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={confirmDowngrade}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  disabled={isProcessingPayment}
+                                >
+                                  {isProcessingPayment ? "Processing..." : "Downgrade Anyway"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="text-center p-6">
@@ -335,6 +411,41 @@ const Settings: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           )}
         </div>
       </div>
+      
+      {/* Downgrade confirmation dialog */}
+      <AlertDialog open={showDowngradeDialog} onOpenChange={setShowDowngradeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Are you sure you want to downgrade?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Downgrading to the Free plan will immediately remove access to:
+              <ul className="mt-2 space-y-1">
+                <li>• Advanced stock analysis tools</li>
+                <li>• Stock market simulations</li>
+                <li>• Premium support services</li>
+                <li>• Multiple portfolio management</li>
+                <li>• Advanced market insights</li>
+              </ul>
+              <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-md text-sm">
+                <strong>Special offer:</strong> Stay on Pro and get 25% off your next month! Contact support to claim this offer.
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Pro Benefits</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDowngrade}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isProcessingPayment}
+            >
+              {isProcessingPayment ? "Processing..." : "Downgrade Anyway"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

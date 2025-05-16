@@ -160,7 +160,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                     <div className={`flex items-center border rounded-lg px-3 ${inputBaseClasses}`}>
                       <Input
                         {...field}
-                        placeholder="John Doe"
+                        placeholder=""
                         className="border-0 focus-visible:ring-0 focus-visible:outline-none text-sm bg-transparent py-4"
                       />
                     </div>
