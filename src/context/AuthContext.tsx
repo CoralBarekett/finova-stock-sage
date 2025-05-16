@@ -23,6 +23,8 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   updateUserPlan: (isPro: boolean) => Promise<void>;
+  updateUserProfile?: (name: string) => Promise<void>;
+  updateUserPassword?: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -86,13 +88,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Added for future functionality - not implemented in backend yet
+  const updateUserProfile = async (name: string) => {
+    const token = localStorage.getItem('finovaToken');
+    if (token && user) {
+      try {
+        // This would connect to a real API endpoint in production
+        console.log(`Updating user profile: ${name}`);
+        // Simulate successful update by updating local state
+        setUser(prev => prev ? {...prev, name} : null);
+        return Promise.resolve();
+      } catch (error) {
+        console.error('Failed to update user profile', error);
+        return Promise.reject(error);
+      }
+    }
+    return Promise.reject(new Error('User not authenticated'));
+  };
+
+  // Added for future functionality - not implemented in backend yet
+  const updateUserPassword = async (currentPassword: string, newPassword: string) => {
+    const token = localStorage.getItem('finovaToken');
+    if (token && user) {
+      try {
+        // This would connect to a real API endpoint in production
+        console.log(`Updating user password`);
+        return Promise.resolve();
+      } catch (error) {
+        console.error('Failed to update user password', error);
+        return Promise.reject(error);
+      }
+    }
+    return Promise.reject(new Error('User not authenticated'));
+  };
+
   const logout = () => {
     localStorage.removeItem('finovaToken');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading, updateUserPlan }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      register, 
+      logout, 
+      isLoading, 
+      updateUserPlan,
+      updateUserProfile,
+      updateUserPassword 
+    }}>
       {children}
     </AuthContext.Provider>
   );
