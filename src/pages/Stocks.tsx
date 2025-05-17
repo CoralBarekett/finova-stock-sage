@@ -11,6 +11,7 @@ const Stocks: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('popular');
   const [watchlist, setWatchlist] = useState<StockData[]>([]);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const navigate = useNavigate();
   const { theme } = useTheme();
 
@@ -37,15 +38,47 @@ const Stocks: React.FC = () => {
       }
     }
 
+    // Load search history from localStorage
+    const savedSearchHistory = localStorage.getItem('stockSearchHistory');
+    if (savedSearchHistory) {
+      try {
+        setSearchHistory(JSON.parse(savedSearchHistory));
+      } catch (e) {
+        console.error('Failed to load search history:', e);
+      }
+    }
+
     fetchStocks();
   }, []);
 
   const handleSearch = async (query: string) => {
+    // Save search to history
+    const updatedHistory = [query, ...searchHistory.filter(item => item !== query)].slice(0, 10);
+    setSearchHistory(updatedHistory);
+    localStorage.setItem('stockSearchHistory', JSON.stringify(updatedHistory));
+    
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const handleCardClick = (symbol: string) => {
     navigate(`/stocks/${symbol}`);
+  };
+
+  // We'll still keep these functions but modify our approach for adding to watchlist
+  // This will be used when we implement a custom add to watchlist button
+  const addToWatchlist = (stock: StockData) => {
+    // Check if stock is already in watchlist
+    if (!watchlist.some(item => item.symbol === stock.symbol)) {
+      const updatedWatchlist = [...watchlist, stock];
+      setWatchlist(updatedWatchlist);
+      localStorage.setItem('watchlist', JSON.stringify(updatedWatchlist));
+    }
+  };
+
+  const removeFromWatchlist = (symbol: string) => {
+    const updatedWatchlist = watchlist.filter(stock => stock.symbol !== symbol);
+    setWatchlist(updatedWatchlist);
+    localStorage.setItem('watchlist', JSON.stringify(updatedWatchlist));
   };
 
   const displayStocks = activeTab === 'popular' ? stocks : watchlist;
@@ -58,6 +91,28 @@ const Stocks: React.FC = () => {
       </div>
 
       <StockSearchBar onSearch={handleSearch} />
+
+      {/* Search History Section */}
+      {searchHistory.length > 0 && (
+        <div className="mt-4">
+          <h3 className={`text-sm font-medium mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-white/80'}`}>Recent Searches</h3>
+          <div className="flex flex-wrap gap-2">
+            {searchHistory.map((query, index) => (
+              <button
+                key={index}
+                onClick={() => handleSearch(query)}
+                className={`px-3 py-1 rounded-full text-xs ${
+                  theme === 'light'
+                    ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                    : 'bg-white/10 text-white/90 hover:bg-white/20'
+                }`}
+              >
+                {query}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6">
         <Tabs defaultValue="popular" value={activeTab} onValueChange={setActiveTab} className="w-full">
