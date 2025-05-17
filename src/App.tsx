@@ -20,7 +20,7 @@ import Settings from "./components/settings/Settings";
 import AppLayout from "./components/layouts/AppLayout";
 import PredictionSimulator from "@/components/simulation/PredictionSimulator";
 import UserProfile from "./pages/UserProfile";
-import EditUserProfile from "./pages/EditUserProfile";
+
 
 const queryClient = new QueryClient();
 
@@ -107,6 +107,7 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="/account/profile"
                 element={
@@ -117,22 +118,25 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/account/edit"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <EditUserProfile />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
+
               <Route
                 path="/simulate"
                 element={
                   <ProtectedRoute>
                     <AppLayout>
                       <PredictionSimulator />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Added new routes for user profile */}
+              <Route
+                path="/account/profile"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <UserProfile />
                     </AppLayout>
                   </ProtectedRoute>
                 }

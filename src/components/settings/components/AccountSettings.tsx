@@ -1,4 +1,3 @@
-
 import React from "react";
 import { User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,7 +11,7 @@ interface AccountSettingsProps {
 const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const navigateToUserProfile = () => {
     onClose();
     navigate('/account/profile');
@@ -24,9 +23,14 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout
       <div className="space-y-4">
         {user ? (
           <>
-            <div className="p-4 border border-border rounded-md">
+            {/* Make the entire user info box clickable */}
+            <div 
+              onClick={navigateToUserProfile}
+              className="p-4 border border-border rounded-md cursor-pointer hover:bg-muted transition-colors"
+            >
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
+                {/* Purple user avatar circle */}
+                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white">
                   <User className="w-6 h-6" />
                 </div>
                 <div>
@@ -34,19 +38,12 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout
                   <div className="text-sm text-muted-foreground">{user.email}</div>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-border">
-                <button
-                  onClick={navigateToUserProfile}
-                  className="text-sm text-primary hover:underline transition-colors flex items-center gap-1"
-                >
-                  <User className="w-4 h-4" />
-                  Manage Account Information
-                </button>
-              </div>
             </div>
-            <button 
+            
+            {/* Logout button */}
+            <button
               onClick={handleLogout}
-              className="finova-button-destructive w-full flex items-center justify-center gap-2 py-2 rounded-md"
+              className="w-full flex items-center justify-center gap-2 py-2 text-foreground border border-border rounded-md hover:bg-muted transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -54,7 +51,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout
           </>
         ) : (
           <>
-            <Link 
+            <Link
               to="/auth"
               className="finova-button w-full flex items-center justify-center gap-2 py-2"
               onClick={onClose}

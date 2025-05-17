@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Star, AlertTriangle, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -156,12 +155,6 @@ const ProPlanSettings: React.FC<ProPlanSettingsProps> = ({ onClose }) => {
             {user.pro && (
               <div className="mt-6 pt-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <button 
-                    onClick={navigateToUserProfile}
-                    className="text-xs text-primary hover:underline transition-colors"
-                  >
-                    Account Management
-                  </button>
                   <AlertDialog open={showDowngradeDialog} onOpenChange={setShowDowngradeDialog}>
                     <AlertDialogTrigger asChild>
                       <button 
