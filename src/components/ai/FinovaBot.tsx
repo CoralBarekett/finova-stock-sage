@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { queryGemini } from '@/services/geminiService';
@@ -10,6 +9,12 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   isLoading?: boolean;
+}
+
+interface ChatHistory {
+  userMessage: string;
+  botResponse: string;
+  timestamp: Date;
 }
 
 const EXAMPLES = [
@@ -41,6 +46,21 @@ const FinovaBot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Save chat to history
+  const saveChatToHistory = (userMessage: string, botResponse: string) => {
+    const chatHistory: ChatHistory[] = JSON.parse(localStorage.getItem('userChatHistory') || '[]');
+    
+    // Add the new chat
+    chatHistory.push({
+      userMessage,
+      botResponse,
+      timestamp: new Date()
+    });
+    
+    // Save back to localStorage
+    localStorage.setItem('userChatHistory', JSON.stringify(chatHistory));
+  };
+
   const handleSend = async (customInput?: string) => {
     const actualInput = typeof customInput === "string" ? customInput : input;
     if (!actualInput.trim() || isProcessing) return;
@@ -67,6 +87,10 @@ const FinovaBot: React.FC = () => {
 
     try {
       const response = await queryGemini(actualInput);
+      
+      // Save to chat history
+      saveChatToHistory(actualInput, response.text);
+      
       setMessages((prev) =>
         prev.filter(msg => !msg.isLoading).concat({
           id: (Date.now() + 2).toString(),

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import FinovaBot from '@/components/ai/FinovaBot';
 import { MessageSquare, BookOpen, Lightbulb, ChevronRight } from 'lucide-react';
@@ -9,14 +8,13 @@ import { useAuth } from '@/context/AuthContext';
 const AIAssistant: React.FC = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
-
-
+    
   return (
     <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">FinovaBot</h1>
         <p className="text-muted-foreground mt-1">Your AI-powered financial assistant</p>
-
+         
         {/* Upgrade button (only visible for free plan users) */}
         {user && !user.pro && (
           <div className="mt-4 flex justify-start">
@@ -34,16 +32,16 @@ const AIAssistant: React.FC = () => {
           </div>
         )}
       </div>
-
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <FinovaBot />
         </div>
-
+         
         <div className="lg:col-span-1">
           <div className="finova-card p-6 mb-6">
             <h2 className="text-xl font-bold mb-4">How to use FinovaBot</h2>
-
+             
             <div className="space-y-4">
               <AssistantTip
                 icon={<MessageSquare className="w-5 h-5 text-primary" />}
