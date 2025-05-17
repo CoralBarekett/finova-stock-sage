@@ -1,3 +1,4 @@
+
 // src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,6 +20,7 @@ import Settings from "./components/settings/Settings";
 import AppLayout from "./components/layouts/AppLayout";
 import PredictionSimulator from "@/components/simulation/PredictionSimulator";
 import UserProfile from "./pages/UserProfile";
+
 
 const queryClient = new QueryClient();
 
@@ -105,6 +107,18 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/account/profile"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <UserProfile />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+
               <Route
                 path="/simulate"
                 element={
