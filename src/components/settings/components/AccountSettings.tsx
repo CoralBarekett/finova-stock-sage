@@ -13,8 +13,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout
   const navigate = useNavigate();
 
   const navigateToUserProfile = () => {
-    onClose();
     navigate('/account/profile');
+    onClose();
   };
 
   return (
@@ -23,8 +23,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout
       <div className="space-y-4">
         {user ? (
           <>
-            {/* Make the entire user info box clickable */}
-            <div 
+
+            <div
               onClick={navigateToUserProfile}
               className="p-4 border border-border rounded-md cursor-pointer hover:bg-muted transition-colors"
             >
@@ -39,7 +39,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onClose, handleLogout
                 </div>
               </div>
             </div>
-            
+
             {/* Logout button */}
             <button
               onClick={handleLogout}
