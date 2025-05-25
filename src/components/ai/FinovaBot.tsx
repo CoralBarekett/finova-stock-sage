@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
-import { queryGemini } from '@/services/geminiService';
+import { queryOpenAI } from '@/services/openAIService';
 import { toast } from 'sonner';
 
 interface Message {
@@ -46,18 +46,13 @@ const FinovaBot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Save chat to history
   const saveChatToHistory = (userMessage: string, botResponse: string) => {
     const chatHistory: ChatHistory[] = JSON.parse(localStorage.getItem('userChatHistory') || '[]');
-    
-    // Add the new chat
     chatHistory.push({
       userMessage,
       botResponse,
       timestamp: new Date()
     });
-    
-    // Save back to localStorage
     localStorage.setItem('userChatHistory', JSON.stringify(chatHistory));
   };
 
@@ -72,7 +67,6 @@ const FinovaBot: React.FC = () => {
       timestamp: new Date(),
     };
 
-    // Add a loading message
     const loadingMessage: Message = {
       id: (Date.now() + 1).toString(),
       text: "Thinking...",
@@ -86,11 +80,9 @@ const FinovaBot: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      const response = await queryGemini(actualInput);
-      
-      // Save to chat history
+      const response = await queryOpenAI(actualInput);
       saveChatToHistory(actualInput, response.text);
-      
+
       setMessages((prev) =>
         prev.filter(msg => !msg.isLoading).concat({
           id: (Date.now() + 2).toString(),
@@ -99,9 +91,10 @@ const FinovaBot: React.FC = () => {
           timestamp: new Date(),
         })
       );
+
       if (response.error) {
         toast.error("There was an issue with the AI service. Using fallback response.");
-        console.error("Gemini API error:", response.error);
+        console.error("OpenAI API error:", response.error);
       }
     } catch (error) {
       console.error('Error getting response:', error);
@@ -160,7 +153,7 @@ const FinovaBot: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      
+
       <div className="p-4 border-t border-border">
         <div className="flex flex-col gap-3">
           <div className="flex items-center">
