@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
             <SidebarItem 
               to="/simulate" 
               icon={<Star className="w-5 h-5 text-yellow-500" />} 
-              label="Simulation" 
+              label="AI Stock Insights" 
               active={location.pathname === '/simulate'} 
               isPro
             />
