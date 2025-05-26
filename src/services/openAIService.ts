@@ -23,7 +23,7 @@ export async function queryOpenAI(prompt: string): Promise<OpenAIResponse> {
         'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4.1-mini',
         messages: [
           {
             role: 'system',
@@ -34,8 +34,8 @@ export async function queryOpenAI(prompt: string): Promise<OpenAIResponse> {
             content: prompt
           }
         ],
-        temperature: 0.7,
-        max_tokens: 1024
+        temperature: 0.5,
+        max_tokens: 512
       })
     });
 
