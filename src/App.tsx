@@ -18,7 +18,7 @@ import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
 import Settings from "./components/settings/Settings";
 import AppLayout from "./components/layouts/AppLayout";
-import PredictionSimulator from "@/components/simulation/PredictionSimulator";
+import PredictionSimulator from "@/pages/PredictionSimulator";
 import UserProfile from "./pages/UserProfile";
 
 

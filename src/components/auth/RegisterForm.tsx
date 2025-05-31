@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { toast as sonnerToast } from "sonner";
+import { useTheme } from "@/context/ThemeContext";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,9 @@ const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { toast } = useToast();
+  const { theme } = useTheme();
+
+  const isDark = theme === 'dark';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -131,108 +135,273 @@ const RegisterForm: React.FC = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 finova-card space-y-5">
-        <h2 className="text-2xl font-bold mb-2 text-center">Sign Up</h2>
-        
-        <div>
-          <label className="block text-sm font-semibold mb-1" htmlFor="name">Name</label>
-          <div className="flex items-center border rounded-md px-2 bg-white/90">
-            <User className="w-4 h-4 mr-2 text-finova-primary" />
-            <input
-              className="flex-1 bg-transparent outline-none py-2"
-              type="text"
-              name="name"
-              id="name"
-              value={form.name}
-              onChange={handleChange}
-              autoComplete="name"
-            />
-          </div>
-          {errors.name && <div className="text-xs text-red-500 mt-1">{errors.name}</div>}
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-200 ${
+        isDark ? 'bg-gray-900' : 'bg-gray-50'
+      }`}>
+        <div className="w-full max-w-lg mx-auto p-6">
+          <form onSubmit={handleSubmit} className={`rounded-xl p-8 space-y-6 transition-all duration-300 hover:shadow-lg ${
+            isDark 
+              ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-purple-500/50' 
+              : 'bg-gradient-to-br from-white to-gray-50 shadow-sm hover:shadow-md'
+          }`}>
+            <div className="text-center mb-8">
+              <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Sign Up
+              </h2>
+              <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Create your account to get started
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="name">
+                  Full Name
+                </label>
+                <div className={`flex items-center rounded-xl px-4 py-3 transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-700/50 border border-gray-600 focus-within:border-purple-500 focus-within:bg-gray-700/70' 
+                    : 'bg-gray-50/50 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white'
+                }`}>
+                  <User className={`w-5 h-5 mr-3 ${
+                    isDark ? 'text-purple-400' : 'text-purple-500'
+                  }`} />
+                  <input
+                    className={`flex-1 bg-transparent outline-none text-sm ${
+                      isDark ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
+                    }`}
+                    type="text"
+                    name="name"
+                    id="name"
+                    placeholder="Enter your full name"
+                    value={form.name}
+                    onChange={handleChange}
+                    autoComplete="name"
+                  />
+                </div>
+                {errors.name && <div className="text-xs text-red-400 mt-2 flex items-center">
+                  <div className="w-1 h-1 bg-red-400 rounded-full mr-2"></div>
+                  {errors.name}
+                </div>}
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="email">
+                  Email Address
+                </label>
+                <div className={`flex items-center rounded-xl px-4 py-3 transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-700/50 border border-gray-600 focus-within:border-purple-500 focus-within:bg-gray-700/70' 
+                    : 'bg-gray-50/50 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white'
+                }`}>
+                  <Mail className={`w-5 h-5 mr-3 ${
+                    isDark ? 'text-purple-400' : 'text-purple-500'
+                  }`} />
+                  <input
+                    className={`flex-1 bg-transparent outline-none text-sm ${
+                      isDark ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
+                    }`}
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    value={form.email}
+                    onChange={handleChange}
+                    autoComplete="email"
+                  />
+                </div>
+                {errors.email && <div className="text-xs text-red-400 mt-2 flex items-center">
+                  <div className="w-1 h-1 bg-red-400 rounded-full mr-2"></div>
+                  {errors.email}
+                </div>}
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="password">
+                  Password
+                </label>
+                <div className={`flex items-center rounded-xl px-4 py-3 transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-700/50 border border-gray-600 focus-within:border-purple-500 focus-within:bg-gray-700/70' 
+                    : 'bg-gray-50/50 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white'
+                }`}>
+                  <Key className={`w-5 h-5 mr-3 ${
+                    isDark ? 'text-purple-400' : 'text-purple-500'
+                  }`} />
+                  <input
+                    className={`flex-1 bg-transparent outline-none text-sm ${
+                      isDark ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
+                    }`}
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Create a strong password"
+                    value={form.password}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                  />
+                </div>
+                {errors.password && <div className="text-xs text-red-400 mt-2 flex items-center">
+                  <div className="w-1 h-1 bg-red-400 rounded-full mr-2"></div>
+                  {errors.password}
+                </div>}
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="confirm">
+                  Confirm Password
+                </label>
+                <div className={`flex items-center rounded-xl px-4 py-3 transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-700/50 border border-gray-600 focus-within:border-purple-500 focus-within:bg-gray-700/70' 
+                    : 'bg-gray-50/50 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white'
+                }`}>
+                  <Key className={`w-5 h-5 mr-3 ${
+                    isDark ? 'text-purple-400' : 'text-purple-500'
+                  }`} />
+                  <input
+                    className={`flex-1 bg-transparent outline-none text-sm ${
+                      isDark ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
+                    }`}
+                    type="password"
+                    name="confirm"
+                    id="confirm"
+                    placeholder="Confirm your password"
+                    value={form.confirm}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                  />
+                </div>
+                {errors.confirm && <div className="text-xs text-red-400 mt-2 flex items-center">
+                  <div className="w-1 h-1 bg-red-400 rounded-full mr-2"></div>
+                  {errors.confirm}
+                </div>}
+              </div>
+              
+              <div className={`rounded-xl p-4 transition-all duration-200 ${
+                form.pro 
+                  ? isDark 
+                    ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' 
+                    : 'bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200'
+                  : isDark 
+                    ? 'bg-gray-700/30 border border-gray-600' 
+                    : 'bg-gray-50/50 border border-gray-200'
+              }`}>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="pro-plan"
+                    checked={form.pro}
+                    onChange={togglePro}
+                    className="w-5 h-5 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500 focus:ring-2"
+                  />
+                  <label htmlFor="pro-plan" className="flex items-center space-x-2 select-none cursor-pointer flex-1">
+                    <div className={`p-2 rounded-lg ${
+                      form.pro 
+                        ? 'bg-yellow-500/20 text-yellow-500' 
+                        : isDark ? 'bg-gray-600 text-gray-400' : 'bg-gray-200 text-gray-500'
+                    }`}>
+                      <Star className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className={`font-semibold ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        Subscribe to Pro Plan
+                      </span>
+                      <p className={`text-xs ${
+                        isDark ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
+                        Get advanced features and priority support
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              className={`
+                w-full py-4 rounded-xl font-semibold text-white
+                transition-all duration-300 transform hover:scale-[1.02]
+                ${isSubmitting 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : form.pro
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg hover:shadow-yellow-500/25'
+                    : isDark
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg hover:shadow-purple-500/25'
+                      : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25'
+                }
+              `}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Creating Account...</span>
+                </div>
+              ) : form.pro ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <Star className="w-4 h-4" />
+                  <span>Continue to Pro Payment</span>
+                </div>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+
+            <div className="relative my-6">
+              <div className={`absolute inset-0 flex items-center ${
+                isDark ? 'border-gray-600' : 'border-gray-200'
+              }`}>
+                <div className={`w-full border-t ${
+                  isDark ? 'border-gray-600' : 'border-gray-200'
+                }`}></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className={`px-4 text-sm font-medium ${
+                  isDark ? 'bg-gray-800 text-gray-400' : 'bg-white text-gray-500'
+                }`}>
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button 
+                type="button" 
+                className={`
+                  w-full flex items-center justify-center space-x-3 py-3 rounded-xl font-medium
+                  transition-all duration-200 hover:scale-[1.01]
+                  ${isDark
+                    ? 'bg-gray-700/50 hover:bg-gray-700 text-gray-300 border border-gray-600 hover:border-gray-500'
+                    : 'bg-gray-50 hover:bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                  }
+                `}
+              >
+                <Chrome className="w-5 h-5 text-blue-500" />
+                <span>Continue with Google</span>
+              </button>
+              
+              <button 
+                type="button" 
+                className={`
+                  w-full flex items-center justify-center space-x-3 py-3 rounded-xl font-medium
+                  transition-all duration-200 hover:scale-[1.01]
+                  ${isDark
+                    ? 'bg-gray-700/50 hover:bg-gray-700 text-gray-300 border border-gray-600 hover:border-gray-500'
+                    : 'bg-gray-50 hover:bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                  }
+                `}
+              >
+                <Facebook className="w-5 h-5 text-blue-600" />
+                <span>Continue with Facebook</span>
+              </button>
+            </div>
+          </form>
         </div>
-        
-        <div>
-          <label className="block text-sm font-semibold mb-1" htmlFor="email">Email</label>
-          <div className="flex items-center border rounded-md px-2 bg-white/90">
-            <Mail className="w-4 h-4 mr-2 text-finova-primary" />
-            <input
-              className="flex-1 bg-transparent outline-none py-2"
-              type="email"
-              name="email"
-              id="email"
-              value={form.email}
-              onChange={handleChange}
-              autoComplete="email"
-            />
-          </div>
-          {errors.email && <div className="text-xs text-red-500 mt-1">{errors.email}</div>}
-        </div>
-        
-        <div>
-          <label className="block text-sm font-semibold mb-1" htmlFor="password">Password</label>
-          <div className="flex items-center border rounded-md px-2 bg-white/90">
-            <Key className="w-4 h-4 mr-2 text-finova-primary" />
-            <input
-              className="flex-1 bg-transparent outline-none py-2"
-              type="password"
-              name="password"
-              id="password"
-              value={form.password}
-              onChange={handleChange}
-              autoComplete="new-password"
-            />
-          </div>
-          {errors.password && <div className="text-xs text-red-500 mt-1">{errors.password}</div>}
-        </div>
-        
-        <div>
-          <label className="block text-sm font-semibold mb-1" htmlFor="confirm">Confirm Password</label>
-          <div className="flex items-center border rounded-md px-2 bg-white/90">
-            <Key className="w-4 h-4 mr-2 text-finova-primary" />
-            <input
-              className="flex-1 bg-transparent outline-none py-2"
-              type="password"
-              name="confirm"
-              id="confirm"
-              value={form.confirm}
-              onChange={handleChange}
-              autoComplete="new-password"
-            />
-          </div>
-          {errors.confirm && <div className="text-xs text-red-500 mt-1">{errors.confirm}</div>}
-        </div>
-        
-        <div className="flex items-center gap-2 p-2 border rounded-md bg-white/90">
-          <input
-            type="checkbox"
-            id="pro-plan"
-            checked={form.pro}
-            onChange={togglePro}
-            className="rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
-          />
-          <label htmlFor="pro-plan" className="flex items-center gap-1 select-none cursor-pointer">
-            <Star className={`w-4 h-4 ${form.pro ? "text-yellow-500" : "text-gray-400"}`} />
-            <span>Subscribe to Pro plan</span>
-          </label>
-        </div>
-        
-        <button 
-          type="submit" 
-          className="finova-button w-full rounded-md py-2 font-bold"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Processing..." : "SignUp"}
-        </button>
-        
-        <div className="flex flex-col gap-2 mt-2">
-          <button type="button" className="flex items-center justify-center gap-2 border py-2 rounded-md bg-white text-gray-700 hover:bg-gray-100 transition">
-            <Chrome className="w-4 h-4 text-blue-500" /> Continue with Google
-          </button>
-          <button type="button" className="flex items-center justify-center gap-2 border py-2 rounded-md bg-white text-gray-700 hover:bg-gray-100 transition">
-            <Facebook className="w-4 h-4 text-blue-600" /> Continue with Facebook
-          </button>
-        </div>
-      </form>
+      </div>
 
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -247,7 +416,7 @@ const RegisterForm: React.FC = () => {
         </DialogContent>
       </Dialog>
     </>
-  );
-};
-
-export default RegisterForm;
+    );
+  };
+  
+  export default RegisterForm;
