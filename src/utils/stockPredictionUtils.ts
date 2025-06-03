@@ -1,4 +1,3 @@
-// utils/stockPredictionUtils.ts
 import { calculatePredictedPrice } from '@/services/stockPredictionService';
 import type { HistoricalData } from '@/services/stockService';
 import type { PredictionResponse } from '@/services/stockPredictionService';
