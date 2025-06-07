@@ -1,4 +1,3 @@
-
 // src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -20,7 +19,7 @@ import Settings from "./components/settings/Settings";
 import AppLayout from "./components/layouts/AppLayout";
 import PredictionSimulator from "@/pages/PredictionSimulator";
 import UserProfile from "./pages/UserProfile";
-
+import AIChartPrediction from "./pages/AIChartPrediction";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +108,17 @@ const App = () => (
               />
 
               <Route
+                path="/ai-chart-prediction"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <AIChartPrediction />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
                 path="/account/profile"
                 element={
                   <ProtectedRoute>
@@ -129,7 +139,7 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              
+
               {/* Added new routes for user profile */}
               <Route
                 path="/account/profile"
