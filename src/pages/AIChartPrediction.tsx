@@ -34,6 +34,41 @@ declare global {
 // Get backend API URL from environment variables
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
+// Add ChartDateRange enum
+export enum ChartDateRange {
+  ONE_DAY = "1D",
+  FIVE_DAYS = "5D",
+  TEN_DAYS = "10D",
+  ONE_MONTH = "1M",
+  SIX_MONTHS = "6M",
+  ONE_YEAR = "1Y",
+  FIVE_YEARS = "5Y",
+  ALL_TIME = "ALL",
+}
+
+const getTradingViewInterval = (dateRange: ChartDateRange): string => {
+  switch (dateRange) {
+    case ChartDateRange.ONE_DAY:
+      return "15"; // 15-minute intervals
+    case ChartDateRange.FIVE_DAYS:
+      return "15"; // 15-minute intervals
+    case ChartDateRange.TEN_DAYS:
+      return "30"; // 30-minute intervals
+    case ChartDateRange.ONE_MONTH:
+      return "60"; // 1-hour intervals
+    case ChartDateRange.SIX_MONTHS:
+      return "D"; // Daily intervals
+    case ChartDateRange.ONE_YEAR:
+      return "W"; // Weekly intervals
+    case ChartDateRange.FIVE_YEARS:
+      return "M"; // Monthly intervals
+    case ChartDateRange.ALL_TIME:
+      return "M"; // Monthly intervals
+    default:
+      return "D"; // Default to daily
+  }
+};
+
 interface Gap {
   type: "UP" | "DOWN";
   startPrice: string;
@@ -76,21 +111,31 @@ interface AIAnalysisResult {
   model: string;
 }
 
-const TradingViewWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
+const TradingViewWidget: React.FC<{
+  symbol: string;
+  dateRange: ChartDateRange;
+}> = ({ symbol, dateRange }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const widgetRef = useRef<any>(null);
 
   useEffect(() => {
     if (!symbol || !containerRef.current) return;
+
+    // Clean up previous widget if it exists
+    if (widgetRef.current) {
+      widgetRef.current.remove();
+      widgetRef.current = null;
+    }
 
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/tv.js";
     script.async = true;
     script.onload = () => {
       if (typeof window.TradingView !== "undefined") {
-        new window.TradingView.widget({
+        const widget = new window.TradingView.widget({
           container_id: containerRef.current.id,
           symbol: symbol,
-          interval: "D",
+          interval: getTradingViewInterval(dateRange),
           timezone: "Etc/UTC",
           theme: "dark",
           style: "1",
@@ -107,15 +152,39 @@ const TradingViewWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
             "BB@tv-basicstudies",
             "MASimple@tv-basicstudies",
           ],
+          range: dateRange,
+          autosize: true,
+          time_frames: [
+            { text: "1D", resolution: "15", description: "1 Day" },
+            { text: "5D", resolution: "15", description: "5 Days" },
+            { text: "10D", resolution: "30", description: "10 Days" },
+            { text: "1M", resolution: "60", description: "1 Month" },
+            { text: "6M", resolution: "D", description: "6 Months" },
+            { text: "1Y", resolution: "W", description: "1 Year" },
+            { text: "5Y", resolution: "M", description: "5 Years" },
+            { text: "ALL", resolution: "M", description: "All" },
+          ],
+          overrides: {
+            "mainSeriesProperties.candleStyle.upColor": "#26a69a",
+            "mainSeriesProperties.candleStyle.downColor": "#ef5350",
+            "mainSeriesProperties.candleStyle.wickUpColor": "#26a69a",
+            "mainSeriesProperties.candleStyle.wickDownColor": "#ef5350",
+          },
         });
+
+        widgetRef.current = widget;
       }
     };
     document.head.appendChild(script);
 
     return () => {
+      if (widgetRef.current) {
+        widgetRef.current.remove();
+        widgetRef.current = null;
+      }
       document.head.removeChild(script);
     };
-  }, [symbol]);
+  }, [symbol, dateRange]);
 
   return (
     <div
@@ -361,6 +430,9 @@ const AIChartPrediction: React.FC = () => {
   const isDark = theme === "dark";
   const [showDetails, setShowDetails] = useState(false);
   const [selectedStock, setSelectedStock] = useState<string>("");
+  const [selectedDateRange, setSelectedDateRange] = useState<ChartDateRange>(
+    ChartDateRange.ONE_MONTH
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(
@@ -388,7 +460,7 @@ const AIChartPrediction: React.FC = () => {
     setError(null);
     try {
       const response = await fetch(
-        `${BACKEND_API_URL}/charts/${selectedStock}`,
+        `${BACKEND_API_URL}/charts/${selectedStock}?dateRange=${selectedDateRange}`,
         {
           method: "GET",
           headers: {
@@ -589,18 +661,37 @@ const AIChartPrediction: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Stock Chart</CardTitle>
-            <Select value={selectedStock} onValueChange={setSelectedStock}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a stock" />
-              </SelectTrigger>
-              <SelectContent>
-                {popularStocks.map((stock) => (
-                  <SelectItem key={stock} value={stock}>
-                    {stock}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center space-x-4">
+              <Select
+                value={selectedDateRange}
+                onValueChange={(value) =>
+                  setSelectedDateRange(value as ChartDateRange)
+                }
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Time Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(ChartDateRange).map(([key, value]) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedStock} onValueChange={setSelectedStock}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a stock" />
+                </SelectTrigger>
+                <SelectContent>
+                  {popularStocks.map((stock) => (
+                    <SelectItem key={stock} value={stock}>
+                      {stock}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -612,7 +703,10 @@ const AIChartPrediction: React.FC = () => {
               </div>
             </div>
           ) : selectedStock ? (
-            <TradingViewWidget symbol={selectedStock} />
+            <TradingViewWidget
+              symbol={selectedStock}
+              dateRange={selectedDateRange}
+            />
           ) : (
             <div className="h-[700px] flex items-center justify-center">
               <p className="text-muted-foreground">
