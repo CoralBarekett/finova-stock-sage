@@ -386,15 +386,6 @@ const StockChart: React.FC<StockChartProps> = ({
               </div>
             </div>
 
-            {analysisResult.url && (
-              <div className="mt-4">
-                <img
-                  src={analysisResult.url}
-                  alt="Technical Analysis Chart"
-                  className="w-full rounded-lg shadow-lg"
-                />
-              </div>
-            )}
           </div>
         </div>
       )}
