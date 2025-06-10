@@ -332,12 +332,9 @@ const StockChart: React.FC<StockChartProps> = ({
                 <div className="space-y-1">
                   {analysisResult.summary.supportResistance.support.map(
                     (level, index) => (
-                      <ReactMarkdown
-                        key={index}
-                        className="text-muted-foreground"
-                      >
-                        {level}
-                      </ReactMarkdown>
+                      <div key={index} className="text-muted-foreground">
+                        <ReactMarkdown>{level}</ReactMarkdown>
+                      </div>
                     )
                   )}
                 </div>
@@ -348,12 +345,9 @@ const StockChart: React.FC<StockChartProps> = ({
                 <div className="space-y-1">
                   {analysisResult.summary.supportResistance.resistance.map(
                     (level, index) => (
-                      <ReactMarkdown
-                        key={index}
-                        className="text-muted-foreground"
-                      >
-                        {level}
-                      </ReactMarkdown>
+                      <div key={index} className="text-muted-foreground">
+                        <ReactMarkdown>{level}</ReactMarkdown>
+                      </div>
                     )
                   )}
                 </div>
@@ -363,15 +357,21 @@ const StockChart: React.FC<StockChartProps> = ({
             <div className="space-y-2">
               <h4 className="font-medium">Technical Indicators</h4>
               <div className="space-y-2">
-                <ReactMarkdown className="text-muted-foreground">
-                  {analysisResult.summary.indicators.rsi}
-                </ReactMarkdown>
-                <ReactMarkdown className="text-muted-foreground">
-                  {analysisResult.summary.indicators.macd}
-                </ReactMarkdown>
-                <ReactMarkdown className="text-muted-foreground">
-                  {analysisResult.summary.indicators.bollingerBands}
-                </ReactMarkdown>
+                <div className="text-muted-foreground">
+                  <ReactMarkdown>
+                    {analysisResult.summary.indicators.rsi}
+                  </ReactMarkdown>
+                </div>
+                <div className="text-muted-foreground">
+                  <ReactMarkdown>
+                    {analysisResult.summary.indicators.macd}
+                  </ReactMarkdown>
+                </div>
+                <div className="text-muted-foreground">
+                  <ReactMarkdown>
+                    {analysisResult.summary.indicators.bollingerBands}
+                  </ReactMarkdown>
+                </div>
               </div>
             </div>
 
@@ -379,9 +379,9 @@ const StockChart: React.FC<StockChartProps> = ({
               <h4 className="font-medium">Recommendations</h4>
               <div className="space-y-2">
                 {analysisResult.summary.recommendations.map((rec, index) => (
-                  <ReactMarkdown key={index} className="text-muted-foreground">
-                    {rec}
-                  </ReactMarkdown>
+                  <div key={index} className="text-muted-foreground">
+                    <ReactMarkdown>{rec}</ReactMarkdown>
+                  </div>
                 ))}
               </div>
             </div>

@@ -1,14 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  BarChart3,
-  LineChart,
-  MessageSquare,
-  Search,
-  Settings,
   Home,
+  TrendingUp,
+  BarChart3,
+  Bot,
+  Sparkles,
+  Search,
   Star,
-  LineChartIcon,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -37,7 +37,7 @@ const Sidebar: React.FC = () => {
           />
           <SidebarItem
             to="/stocks"
-            icon={<BarChart3 className="w-5 h-5" />}
+            icon={<TrendingUp className="w-5 h-5" />}
             label="Stocks"
             active={
               location.pathname === "/stocks" ||
@@ -46,27 +46,21 @@ const Sidebar: React.FC = () => {
           />
           <SidebarItem
             to="/analysis"
-            icon={<LineChart className="w-5 h-5" />}
+            icon={<BarChart3 className="w-5 h-5" />}
             label="Analysis"
             active={location.pathname === "/analysis"}
           />
           <SidebarItem
-            to="/ai-assistant"
-            icon={<MessageSquare className="w-5 h-5" />}
-            label="AI Assistant"
-            active={location.pathname === "/ai-assistant"}
-          />
-          <SidebarItem
             to="/ai-chart-prediction"
-            icon={<LineChartIcon className="w-5 h-5" />}
+            icon={<Sparkles className="w-5 h-5" />}
             label="AI Chart Prediction"
             active={location.pathname === "/ai-chart-prediction"}
           />
           <SidebarItem
-            to="/search"
-            icon={<Search className="w-5 h-5" />}
-            label="Search"
-            active={location.pathname === "/search"}
+            to="/ai-assistant"
+            icon={<Bot className="w-5 h-5" />}
+            label="AI Assistant"
+            active={location.pathname === "/ai-assistant"}
           />
           {user?.pro && (
             <SidebarItem
@@ -77,6 +71,12 @@ const Sidebar: React.FC = () => {
               isPro
             />
           )}
+          <SidebarItem
+            to="/search"
+            icon={<Search className="w-5 h-5" />}
+            label="Search"
+            active={location.pathname === "/search"}
+          />
         </ul>
       </nav>
 
