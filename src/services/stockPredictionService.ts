@@ -3,8 +3,8 @@ import { HistoricalData } from './stockService';
 // Use your existing environment variable for the FastAPI server
 const PREDICT_API_URL = import.meta.env.VITE_PREDICT_API_URL || 'http://localhost:8000/predict';
 
-// Timeout for prediction requests (3 minutes)
-const PREDICTION_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
+// Timeout for prediction requests (8 minutes)
+const PREDICTION_TIMEOUT = 8 * 60 * 1000; // 8 minutes in milliseconds
 
 interface PredictionRequest {
   ticker: string;
@@ -55,7 +55,7 @@ export interface PredictionResponse {
     influencer_fetch_time: number;
     total_time: number;
   };
-  // Legacy fields for compatibility
+  // Legacy fields for compatibility - NOW OPTIONAL
   technical_signals?: {
     trend: string;
     latest_price: number;
@@ -91,15 +91,15 @@ export const fetchPrediction = async (
 ): Promise<PredictionResponse> => {
   console.log(`[DEBUG] === STARTING PREDICTION REQUEST FOR ${symbol.toUpperCase()} ===`);
   const requestStartTime = Date.now();
-  
+
   try {
-    const requestBody: PredictionRequest = { 
+    const requestBody: PredictionRequest = {
       ticker: symbol.toUpperCase(),
       timeframe,
       include_reddit: true,
       include_posts: true // Keep posts enabled as requested
     };
-    
+
     console.log("[DEBUG] Prediction request parameters:", requestBody);
     console.log("[DEBUG] API URL:", PREDICT_API_URL);
     console.log(`[DEBUG] Request timeout set to: 180 seconds`);
@@ -107,7 +107,7 @@ export const fetchPrediction = async (
     // Create fetch promise with timeout
     const fetchPromise = fetch(PREDICT_API_URL, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
@@ -129,13 +129,13 @@ export const fetchPrediction = async (
       } catch {
         errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
       }
-      
+
       console.error(`[DEBUG] Prediction request failed in ${requestTime}ms:`, {
         status: response.status,
         statusText: response.statusText,
         error: errorData
       });
-      
+
       // If it's a server error (500), try to extract useful info
       if (response.status === 500) {
         // Return a fallback response instead of throwing
@@ -155,16 +155,16 @@ export const fetchPrediction = async (
             error: `Server error: ${response.status}`
           }
         };
-        
+
         console.log("[DEBUG] Returning fallback response due to server error");
         return mapToCompatibleFormat(fallbackResponse);
       }
-      
+
       throw new Error(`Prediction API request failed: ${response.status} ${response.statusText}`);
     }
 
     const predictionResponse = await response.json() as PredictionResponse;
-    
+
     console.log(`[DEBUG] === PREDICTION COMPLETED FOR ${symbol.toUpperCase()} ===`);
     console.log(`[DEBUG] Client request time: ${requestTime}ms`);
     console.log(`[DEBUG] Server processing time: ${predictionResponse.processing_time || predictionResponse.prediction_time_seconds || 'N/A'}s`);
@@ -173,26 +173,26 @@ export const fetchPrediction = async (
     console.log(`[DEBUG] Direction: ${predictionResponse.prediction?.direction}`);
     console.log(`[DEBUG] Confidence: ${predictionResponse.prediction?.confidence}`);
     console.log(`[DEBUG] Status: ${predictionResponse.status || 'success'}`);
-    
+
     if (predictionResponse.performance_metrics) {
       console.log(`[DEBUG] Performance breakdown:`, predictionResponse.performance_metrics);
     }
-    
+
     if (predictionResponse.analysis?.error) {
       console.warn(`[DEBUG] Analysis warning:`, predictionResponse.analysis.error);
     }
-    
+
     // Ensure compatibility with existing code by mapping new response format to old format
     const compatibleResponse = mapToCompatibleFormat(predictionResponse);
-    
+
     console.log("[DEBUG] Mapped response for compatibility:", compatibleResponse);
-    
+
     return compatibleResponse;
   } catch (error) {
     const requestTime = Date.now() - requestStartTime;
     console.error(`[DEBUG] === PREDICTION FAILED FOR ${symbol.toUpperCase()} AFTER ${requestTime}ms ===`);
     console.error('[DEBUG] Error details:', error);
-    
+
     // Check if it's a timeout error
     if (error instanceof Error && error.message.includes('timeout')) {
       // Return a timeout fallback response
@@ -212,11 +212,11 @@ export const fetchPrediction = async (
           error: 'Request timeout'
         }
       };
-      
+
       console.log("[DEBUG] Returning timeout fallback response");
       return mapToCompatibleFormat(timeoutResponse);
     }
-    
+
     throw error;
   }
 };
@@ -251,30 +251,30 @@ const mapToCompatibleFormat = (response: PredictionResponse): PredictionResponse
  * Calculate predicted price based on current price and prediction direction.
  */
 export const calculatePredictedPrice = (
-  currentPrice: number, 
+  currentPrice: number,
   prediction: PredictionResponse
 ): number => {
   console.log(`[DEBUG] Calculating predicted price from current: $${currentPrice}`);
-  
+
   // If we already have a predicted price, use it
   if (prediction.predicted_price) {
     console.log(`[DEBUG] Using provided predicted price: $${prediction.predicted_price}`);
     return prediction.predicted_price;
   }
-  
+
   if (prediction.prediction?.price_target) {
     console.log(`[DEBUG] Using price target: $${prediction.prediction.price_target}`);
     return prediction.prediction.price_target;
   }
-  
+
   // Extract the prediction direction and confidence
   const direction = prediction.prediction?.direction || 'hold';
   const confidence = prediction.prediction?.confidence || prediction.confidence || 0.5;
-  
+
   console.log(`[DEBUG] Direction: ${direction}, Confidence: ${confidence}`);
-  
+
   // Define multipliers based on prediction direction
-  const directionMultipliers: {[key: string]: number} = {
+  const directionMultipliers: { [key: string]: number } = {
     'up': 0.03,
     'down': -0.03,
     'strong_buy': 0.05,
@@ -286,19 +286,19 @@ export const calculatePredictedPrice = (
     'bearish': -0.03,
     'neutral': 0.0
   };
-  
+
   // Get the base multiplier for the direction
   const baseMultiplier = directionMultipliers[direction.toLowerCase()] || 0;
-  
+
   // Apply confidence to scale the effect
   const adjustedMultiplier = baseMultiplier * confidence;
-  
+
   console.log(`[DEBUG] Base multiplier: ${baseMultiplier}, Adjusted: ${adjustedMultiplier}`);
-  
+
   // Calculate the predicted price
   const predictedPrice = currentPrice * (1 + adjustedMultiplier);
   const finalPrice = Math.round(predictedPrice * 100) / 100; // Round to 2 decimal places
-  
+
   console.log(`[DEBUG] Calculated predicted price: $${finalPrice}`);
   return finalPrice;
 };
@@ -312,37 +312,37 @@ export const fetchPredictionsFromAPI = async (
   historicalData: HistoricalData[]
 ): Promise<HistoricalData[]> => {
   console.log(`[DEBUG] Fetching prediction data points for ${symbol}`);
-  
+
   // This is a mockup function that would normally call the real API
   const lastPrice = historicalData[historicalData.length - 1]?.price || 0;
-  
+
   try {
     // Call the prediction API
     const prediction = await fetchPrediction(symbol, "1d");
-    
+
     // Use the predicted price from the API response or calculate it
-    const predictedPrice = prediction.predicted_price || 
+    const predictedPrice = prediction.predicted_price ||
       calculatePredictedPrice(lastPrice, prediction);
-    
+
     console.log(`[DEBUG] Using predicted price for chart: $${predictedPrice}`);
-    
+
     // Create the predicted data point
     const lastDate = new Date(historicalData[historicalData.length - 1].date);
     const nextDate = new Date(lastDate);
     nextDate.setDate(lastDate.getDate() + 1);
-    
+
     // Skip weekends
     while ([0, 6].includes(nextDate.getDay())) {
       nextDate.setDate(nextDate.getDate() + 1);
     }
-    
+
     const predictionPoint = {
       date: nextDate.toISOString().split('T')[0],
       price: predictedPrice
     };
-    
+
     console.log(`[DEBUG] Generated prediction point:`, predictionPoint);
-    
+
     return [predictionPoint];
   } catch (error) {
     console.error("[DEBUG] Error in prediction API call:", error);
@@ -355,11 +355,11 @@ export const fetchPredictionsFromAPI = async (
  */
 export const testPredictionConnection = async (): Promise<boolean> => {
   console.log("[DEBUG] Testing connection to FastAPI prediction service...");
-  
+
   try {
     // Try to reach the health endpoint first
     const healthUrl = PREDICT_API_URL.replace('/predict', '/health');
-    
+
     const healthResponse = await Promise.race([
       fetch(healthUrl, {
         method: 'GET',
@@ -367,18 +367,18 @@ export const testPredictionConnection = async (): Promise<boolean> => {
       }),
       createTimeoutPromise(5000) // 5 second timeout for health check
     ]);
-    
+
     if (healthResponse.ok) {
       console.log("[DEBUG] ✅ FastAPI health check successful");
       return true;
     } else {
       console.log("[DEBUG] Health endpoint returned non-OK status, testing prediction endpoint...");
-      
+
       // Fallback: test prediction endpoint with minimal request
       const testResponse = await Promise.race([
         fetch(PREDICT_API_URL, {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
@@ -391,7 +391,7 @@ export const testPredictionConnection = async (): Promise<boolean> => {
         }),
         createTimeoutPromise(5000) // 5 second timeout for test
       ]);
-      
+
       const isConnected = testResponse.status !== 404; // Any response except 404 means service is running
       console.log(`[DEBUG] ${isConnected ? '✅' : '❌'} FastAPI prediction endpoint test: ${testResponse.status}`);
       return isConnected;
