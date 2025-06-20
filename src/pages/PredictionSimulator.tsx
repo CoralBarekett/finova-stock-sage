@@ -14,7 +14,7 @@ import { prepareChartData, calculateStats, validatePredictionData } from '@/util
 const StockPredictionSimulator: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  
+
   // Chart display controls
   const [showPredictions, setShowPredictions] = useState(true);
   const [showActual, setShowActual] = useState(true);
@@ -37,7 +37,7 @@ const StockPredictionSimulator: React.FC = () => {
   } = useStockPrediction();
 
   // Prepare chart data from historical and prediction data
-  const chartData = useMemo(() => 
+  const chartData = useMemo(() =>
     prepareChartData(historicalData, predictionData, timeframe),
     [historicalData, predictionData, timeframe]
   );
@@ -48,26 +48,32 @@ const StockPredictionSimulator: React.FC = () => {
     [historicalData, predictionData]
   );
 
+  const summary = predictionData?.prediction && {
+    currentStatus: predictionData.prediction?.direction ?? "",
+    recommendation: predictionData.prediction?.sentiment?.toUpperCase() ?? "NEUTRAL",
+    confidence: Math.round((predictionData.prediction?.confidence ?? 0) * 100),
+    shortExplanation: predictionData.prediction?.reasoning ?? "",
+  };
+
   // Check if we have valid prediction data
   const hasPrediction = validatePredictionData(predictionData);
 
   return (
-    <div className={`min-h-screen transition-all duration-500 ${
-      isDark 
-        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
+    <div className={`min-h-screen transition-all duration-500 ${isDark
+        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
         : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-    }`}>
+      }`}>
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        
+
         {/* Main Content Card */}
         <div className={`
           rounded-3xl shadow-2xl backdrop-blur-lg transition-all duration-300 overflow-hidden
-          ${isDark 
-            ? 'bg-gray-800/90 border border-gray-700/50' 
+          ${isDark
+            ? 'bg-gray-800/90 border border-gray-700/50'
             : 'bg-white/90 border border-gray-200/50'
           }
         `}>
-          
+
           {/* Header Section */}
           <div className="p-8 pb-6">
             <PredictionHeader
@@ -88,8 +94,8 @@ const StockPredictionSimulator: React.FC = () => {
             <div className="px-8 pb-6">
               <div className={`
                 p-4 rounded-2xl border flex items-center space-x-3 transition-all duration-300
-                ${isDark 
-                  ? 'bg-red-900/20 border-red-800/50 text-red-300' 
+                ${isDark
+                  ? 'bg-red-900/20 border-red-800/50 text-red-300'
                   : 'bg-red-50 border-red-200 text-red-800'
                 }
               `}>
@@ -97,11 +103,10 @@ const StockPredictionSimulator: React.FC = () => {
                 <span className="font-medium">{error}</span>
                 <button
                   onClick={refreshData}
-                  className={`ml-auto px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    isDark 
-                      ? 'bg-red-800 hover:bg-red-700 text-red-200' 
+                  className={`ml-auto px-3 py-1 rounded-lg text-sm font-medium transition-colors ${isDark
+                      ? 'bg-red-800 hover:bg-red-700 text-red-200'
                       : 'bg-red-100 hover:bg-red-200 text-red-800'
-                  }`}
+                    }`}
                 >
                   Retry
                 </button>
@@ -143,9 +148,9 @@ const StockPredictionSimulator: React.FC = () => {
           )}
 
           {/* AI Analysis Summary */}
-          {stats && hasPrediction && !isLoading && (
+          {summary && hasPrediction && !isLoading && (
             <div className="px-8 pb-6">
-              <AnalysisSummary isDark={isDark} stats={stats} />
+              <AnalysisSummary isDark={isDark} summary={summary} />
             </div>
           )}
 
@@ -165,7 +170,7 @@ const StockPredictionSimulator: React.FC = () => {
               <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Chart Display
               </h3>
-              
+
               <label className="flex items-center space-x-3 cursor-pointer group">
                 <input
                   type="checkbox"
@@ -180,7 +185,7 @@ const StockPredictionSimulator: React.FC = () => {
                   </span>
                 </div>
               </label>
-              
+
               <label className="flex items-center space-x-3 cursor-pointer group">
                 <input
                   type="checkbox"
@@ -189,8 +194,8 @@ const StockPredictionSimulator: React.FC = () => {
                   className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 transition-all"
                 />
                 <div className="flex items-center space-x-2">
-                  <div className="w-6 h-1 bg-purple-500 rounded group-hover:w-8 transition-all" 
-                       style={{backgroundImage: 'repeating-linear-gradient(to right, #8B5CF6 0, #8B5CF6 4px, transparent 4px, transparent 8px)'}}></div>
+                  <div className="w-6 h-1 bg-purple-500 rounded group-hover:w-8 transition-all"
+                    style={{ backgroundImage: 'repeating-linear-gradient(to right, #8B5CF6 0, #8B5CF6 4px, transparent 4px, transparent 8px)' }}></div>
                   <span className="text-purple-600 font-medium group-hover:text-purple-700 transition-colors">
                     AI Predictions
                   </span>
@@ -204,8 +209,8 @@ const StockPredictionSimulator: React.FC = () => {
             {chartData.length > 0 && !isLoading ? (
               <div className={`
                 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg
-                ${isDark 
-                  ? 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600' 
+                ${isDark
+                  ? 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'
                   : 'bg-white/50 border-gray-200 hover:border-gray-300'
                 }
               `}>
@@ -213,7 +218,7 @@ const StockPredictionSimulator: React.FC = () => {
                   <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     Price Chart & AI Predictions
                   </h3>
-                  
+
                   {hasPrediction && (
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -223,7 +228,7 @@ const StockPredictionSimulator: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <PredictionChart
                   isDark={isDark}
                   chartData={chartData}
@@ -236,8 +241,8 @@ const StockPredictionSimulator: React.FC = () => {
               /* No Data State */
               <div className={`
                 h-96 flex items-center justify-center rounded-2xl border transition-all duration-300
-                ${isDark 
-                  ? 'bg-gray-800/20 border-gray-700/50 hover:border-gray-600' 
+                ${isDark
+                  ? 'bg-gray-800/20 border-gray-700/50 hover:border-gray-600'
                   : 'bg-gray-50/50 border-gray-200 hover:border-gray-300'
                 }
               `}>
@@ -246,24 +251,21 @@ const StockPredictionSimulator: React.FC = () => {
                     w-24 h-24 mx-auto mb-6 rounded-3xl flex items-center justify-center
                     ${isDark ? 'bg-gray-700/50' : 'bg-gray-100'}
                   `}>
-                    <TrendingUp className={`w-12 h-12 ${
-                      isDark ? 'text-gray-500' : 'text-gray-400'
-                    }`} />
+                    <TrendingUp className={`w-12 h-12 ${isDark ? 'text-gray-500' : 'text-gray-400'
+                      }`} />
                   </div>
-                  
-                  <h3 className={`text-xl font-bold mb-3 ${
-                    isDark ? 'text-gray-300' : 'text-gray-600'
-                  }`}>
+
+                  <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
                     No Market Data Available
                   </h3>
-                  
-                  <p className={`text-sm leading-relaxed mb-4 ${
-                    isDark ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    Select a stock symbol and timeframe to begin AI-powered market analysis. 
+
+                  <p className={`text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
+                    Select a stock symbol and timeframe to begin AI-powered market analysis.
                     Our system will analyze social sentiment and technical indicators.
                   </p>
-                  
+
                   <button
                     onClick={refreshData}
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
@@ -284,15 +286,15 @@ const StockPredictionSimulator: React.FC = () => {
               Historical Market Data
             </span>
           </div>
-          
+
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-2 bg-purple-500 rounded-full opacity-75" 
-                 style={{backgroundImage: 'repeating-linear-gradient(to right, #8B5CF6 0, #8B5CF6 4px, transparent 4px, transparent 8px)'}}></div>
+            <div className="w-8 h-2 bg-purple-500 rounded-full opacity-75"
+              style={{ backgroundImage: 'repeating-linear-gradient(to right, #8B5CF6 0, #8B5CF6 4px, transparent 4px, transparent 8px)' }}></div>
             <span className={`font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               AI-Powered Predictions
             </span>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <span className={`font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

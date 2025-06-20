@@ -1,7 +1,7 @@
 import { HistoricalData } from './stockService';
 
 // Use your existing environment variable for the FastAPI server
-const PREDICT_API_URL = import.meta.env.VITE_PREDICT_API_URL || 'http://localhost:8000/predict';
+const PREDICT_API_URL = import.meta.env.VITE_PREDICT_API_URL || 'http://localhost:8787/predict';
 
 // Timeout for prediction requests (8 minutes)
 const PREDICTION_TIMEOUT = 8 * 60 * 1000; // 8 minutes in milliseconds
