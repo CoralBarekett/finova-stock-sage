@@ -20,10 +20,15 @@ interface AnalysisSummaryProps {
   summary: SummaryData;
 }
 
-const AnalysisSummary: React.FC<AnalysisSummaryProps> = ({
-  isDark,
-  summary,
-}) => {
+const AnalysisSummary: React.FC<AnalysisSummaryProps> = ({ isDark, summary }) => {
+  if (!summary) {
+    return (
+      <div className={`p-6 rounded-2xl border ${isDark ? "text-white" : "text-gray-800"}`}>
+        No analysis summary available.
+      </div>
+    );
+  }
+  
   const analysisItems = [
     {
       title: "Current Status",
