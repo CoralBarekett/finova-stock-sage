@@ -41,7 +41,7 @@ const RegisterForm: React.FC = () => {
 
   const validateForm = () => {
     let valid = true;
-    let err: { name?: string; email?: string; password?: string; confirm?: string } = {};
+    const err: { name?: string; email?: string; password?: string; confirm?: string } = {};
 
     if (!form.name) {
       err.name = "Name is required.";

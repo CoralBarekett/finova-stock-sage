@@ -28,7 +28,7 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let valid = true;
-    let err: { email?: string; password?: string } = {};
+    const err: { email?: string; password?: string } = {};
     
     if (!form.email) {
       err.email = "Email is required.";

@@ -9,6 +9,7 @@ import type {
 
 /**
  * Prepare chart data by combining historical and prediction data
+ * Historical data shows exactly one month, predictions extend from current date
  */
 export const prepareChartData = (
   historicalData: HistoricalData[],
@@ -22,7 +23,7 @@ export const prepareChartData = (
 
   const combined: ChartDataPoint[] = [];
 
-  // Add historical data points
+  // Add historical data points (always shows one month of data)
   historicalData.forEach((item, index) => {
     combined.push({
       date: item.date,
@@ -40,62 +41,63 @@ export const prepareChartData = (
     }
   });
 
-  // Add prediction point if available
+  // Add prediction points if available
   if (predictionData && historicalData.length > 0) {
     console.log("[DEBUG] Adding prediction data points...");
 
-    const lastHistoricalDate = historicalData[historicalData.length - 1]?.date;
+    // Use current date as the starting point for predictions
+    const currentDate = new Date();
+    const lastPrice = historicalData[historicalData.length - 1].price;
+    console.log(
+      `[DEBUG] Current date: ${currentDate.toISOString().split("T")[0]}`
+    );
+    console.log(`[DEBUG] Last historical price: $${lastPrice}`);
 
-    if (lastHistoricalDate) {
-      const predictionDate = new Date(lastHistoricalDate);
+    // Try multiple ways to get predicted price for compatibility with different response formats
+    let predictedPrice = 0;
 
-      // Calculate prediction date based on timeframe
-      switch (timeframe) {
-        case "1d":
-          predictionDate.setDate(predictionDate.getDate() + 1);
-          break;
-        case "1w":
-          predictionDate.setDate(predictionDate.getDate() + 7);
-          break;
-        case "1m":
-          predictionDate.setDate(predictionDate.getDate() + 30);
-          break;
-      }
-
-      // Skip weekends for more realistic display
-      while ([0, 6].includes(predictionDate.getDay())) {
-        predictionDate.setDate(predictionDate.getDate() + 1);
-      }
-
-      const lastPrice = historicalData[historicalData.length - 1].price;
-      console.log(`[DEBUG] Last historical price: $${lastPrice}`);
-
-      // Try multiple ways to get predicted price for compatibility with different response formats
-      let predictedPrice = 0;
-
-      if (predictionData.predicted_price) {
-        predictedPrice = predictionData.predicted_price;
-        console.log(`[DEBUG] Using predicted_price: $${predictedPrice}`);
-      } else if (predictionData.prediction?.price_target) {
-        predictedPrice = predictionData.prediction.price_target;
-        console.log(`[DEBUG] Using price_target: $${predictedPrice}`);
-      } else {
-        predictedPrice = calculatePredictedPrice(lastPrice, predictionData);
-        console.log(`[DEBUG] Calculated predicted price: $${predictedPrice}`);
-      }
-
-      const predictionPoint: ChartDataPoint = {
-        date: predictionDate.toISOString().split("T")[0],
-        actualPrice: null,
-        predictedPrice: predictedPrice,
-        type: "prediction",
-      };
-
-      combined.push(predictionPoint);
-      console.log(
-        `[DEBUG] Added prediction point: ${predictionPoint.date} - $${predictionPoint.predictedPrice}`
-      );
+    if (predictionData.predicted_price) {
+      predictedPrice = predictionData.predicted_price;
+      console.log(`[DEBUG] Using predicted_price: $${predictedPrice}`);
+    } else if (predictionData.prediction?.price_target) {
+      predictedPrice = predictionData.prediction.price_target;
+      console.log(`[DEBUG] Using price_target: $${predictedPrice}`);
+    } else {
+      predictedPrice = calculatePredictedPrice(lastPrice, predictionData);
+      console.log(`[DEBUG] Calculated predicted price: $${predictedPrice}`);
     }
+
+    // Calculate prediction date based on timeframe from current date
+    const predictionDate = new Date(currentDate);
+
+    switch (timeframe) {
+      case "1d":
+        predictionDate.setDate(predictionDate.getDate() + 1);
+        break;
+      case "1w":
+        predictionDate.setDate(predictionDate.getDate() + 7);
+        break;
+      case "1m":
+        predictionDate.setDate(predictionDate.getDate() + 30);
+        break;
+    }
+
+    // Skip weekends for more realistic display
+    while ([0, 6].includes(predictionDate.getDay())) {
+      predictionDate.setDate(predictionDate.getDate() + 1);
+    }
+
+    const predictionPoint: ChartDataPoint = {
+      date: predictionDate.toISOString().split("T")[0],
+      actualPrice: null,
+      predictedPrice: predictedPrice,
+      type: "prediction",
+    };
+
+    combined.push(predictionPoint);
+    console.log(
+      `[DEBUG] Added prediction point: ${predictionPoint.date} - $${predictionPoint.predictedPrice}`
+    );
   } else {
     console.log(
       "[DEBUG] No prediction data or historical data available for chart"
@@ -329,12 +331,14 @@ export const getTrendIcon = (
 
 /**
  * Calculate date range for historical data display
+ * Always returns 30 days regardless of timeframe
  */
 export const calculateDateRange = (
   currentDate: Date,
   timeframe: TimeframeType
 ) => {
-  const days = timeframe === "1d" ? 30 : timeframe === "1w" ? 60 : 90;
+  // Always use 30 days for historical data display
+  const days = 30;
   const endDate = new Date(currentDate);
   const startDate = new Date(endDate);
   startDate.setDate(endDate.getDate() - days);

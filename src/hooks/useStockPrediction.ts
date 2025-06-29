@@ -59,6 +59,13 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
     useState<PredictionResponse | null>(null);
   const [currentStock, setCurrentStock] = useState<StockData | null>(null);
 
+  // New state to track the base date for historical data (always one month ago)
+  const [historicalBaseDate, setHistoricalBaseDate] = useState<Date>(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 30);
+    return date;
+  });
+
   /**
    * Load available stocks on mount
    */
@@ -192,6 +199,7 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
 
   /**
    * Load historical data for the selected symbol
+   * Always loads exactly 30 days of historical data regardless of timeframe
    */
   const loadHistoricalData = useCallback(async () => {
     if (!selectedSymbol) return;
@@ -202,7 +210,8 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
     );
 
     try {
-      const days = timeframe === "1d" ? 30 : timeframe === "1w" ? 60 : 90;
+      // Always fetch exactly 30 days of historical data regardless of timeframe
+      const days = 30;
       const data = await getStockHistoricalData(selectedSymbol, days);
       setHistoricalData(data);
 
@@ -218,7 +227,7 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
       );
       setError("Failed to load historical data");
     }
-  }, [selectedSymbol, timeframe]);
+  }, [selectedSymbol]);
 
   /**
    * Generate AI prediction using FastAPI
@@ -240,12 +249,16 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
     setError(null);
 
     try {
-      // Load historical data first if not available
+      // Load historical data first if not available (but don't reload if already present)
       if (historicalData.length === 0) {
         console.log(
           "[DEBUG] useStockPrediction: Loading historical data first..."
         );
         await loadHistoricalData();
+      } else {
+        console.log(
+          "[DEBUG] useStockPrediction: Historical data already available, skipping reload..."
+        );
       }
 
       // Call FastAPI prediction endpoint
@@ -287,14 +300,16 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
       console.log(
         `[DEBUG] useStockPrediction: Confidence: ${prediction.prediction?.confidence}`
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       const hookTotalTime = Date.now() - hookStartTime;
       console.error(
         `[DEBUG] useStockPrediction: === PREDICTION FAILED FOR ${selectedSymbol} AFTER ${hookTotalTime}ms ===`
       );
       console.error("[DEBUG] useStockPrediction: Error details:", err);
 
-      setError(err.message || "Failed to generate prediction");
+      setError(
+        err instanceof Error ? err.message : "Failed to generate prediction"
+      );
       setPredictionData(null);
     } finally {
       setIsLoading(false);
@@ -302,7 +317,7 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
   }, [selectedSymbol, timeframe, historicalData.length, loadHistoricalData]);
 
   /**
-   * Navigate between dates
+   * Navigate between dates (for display purposes only, doesn't affect historical data)
    */
   const navigateDate = useCallback(
     (direction: "prev" | "next") => {
@@ -321,7 +336,7 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
         console.log(
           `[DEBUG] useStockPrediction: Date navigated to: ${
             newDate.toISOString().split("T")[0]
-          }`
+          } (historical data remains unchanged)`
         );
         return newDate;
       });
@@ -348,7 +363,7 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
       // Reload current stock data
       await loadCurrentStock();
 
-      // Reload historical data
+      // Reload historical data (always 30 days)
       await loadHistoricalData();
 
       // Generate new prediction if we have a selected symbol
@@ -360,7 +375,7 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
       console.log(
         `[DEBUG] useStockPrediction: Data refresh completed in ${refreshTime}ms`
       );
-    } catch (err) {
+    } catch (err: unknown) {
       const refreshTime = Date.now() - refreshStartTime;
       console.error(
         `[DEBUG] useStockPrediction: Data refresh failed in ${refreshTime}ms:`,
@@ -388,16 +403,16 @@ export const useStockPrediction = (): UseStockPredictionReturn => {
   }, [selectedSymbol, availableStocks.length, loadCurrentStock]);
 
   /**
-   * Load historical data when symbol or timeframe changes
+   * Load historical data when symbol changes (not timeframe)
    */
   useEffect(() => {
     if (selectedSymbol && availableStocks.length > 0) {
       console.log(
-        `[DEBUG] useStockPrediction: Symbol or timeframe changed, loading historical data...`
+        `[DEBUG] useStockPrediction: Symbol changed, loading historical data...`
       );
       loadHistoricalData();
     }
-  }, [selectedSymbol, timeframe, availableStocks.length, loadHistoricalData]);
+  }, [selectedSymbol, availableStocks.length, loadHistoricalData]);
 
   return {
     // State
