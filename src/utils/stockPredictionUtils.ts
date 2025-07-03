@@ -23,7 +23,7 @@ export const prepareChartData = (
 
   const combined: ChartDataPoint[] = [];
 
-  // Add historical data points (always shows one month of data)
+  // Always add historical data points (shows one month of data)
   historicalData.forEach((item, index) => {
     combined.push({
       date: item.date,
@@ -41,19 +41,23 @@ export const prepareChartData = (
     }
   });
 
-  // Add prediction points if available
+  let predictionPoint: ChartDataPoint | null = null;
+
   if (predictionData && historicalData.length > 0) {
     console.log("[DEBUG] Adding prediction data points...");
 
-    // Use current date as the starting point for predictions
-    const currentDate = new Date();
+    const lastHistoricalDate = new Date(
+      historicalData[historicalData.length - 1].date
+    );
     const lastPrice = historicalData[historicalData.length - 1].price;
+
     console.log(
-      `[DEBUG] Current date: ${currentDate.toISOString().split("T")[0]}`
+      `[DEBUG] Last historical date: ${lastHistoricalDate
+        .toISOString()
+        .split("T")[0]}`
     );
     console.log(`[DEBUG] Last historical price: $${lastPrice}`);
 
-    // Try multiple ways to get predicted price for compatibility with different response formats
     let predictedPrice = 0;
 
     if (predictionData.predicted_price) {
@@ -67,8 +71,7 @@ export const prepareChartData = (
       console.log(`[DEBUG] Calculated predicted price: $${predictedPrice}`);
     }
 
-    // Calculate prediction date based on timeframe from current date
-    const predictionDate = new Date(currentDate);
+    const predictionDate = new Date(lastHistoricalDate);
 
     switch (timeframe) {
       case "1d":
@@ -82,15 +85,14 @@ export const prepareChartData = (
         break;
     }
 
-    // Skip weekends for more realistic display
     while ([0, 6].includes(predictionDate.getDay())) {
       predictionDate.setDate(predictionDate.getDate() + 1);
     }
 
-    const predictionPoint: ChartDataPoint = {
+    predictionPoint = {
       date: predictionDate.toISOString().split("T")[0],
       actualPrice: null,
-      predictedPrice: predictedPrice,
+      predictedPrice,
       type: "prediction",
     };
 
@@ -98,13 +100,26 @@ export const prepareChartData = (
     console.log(
       `[DEBUG] Added prediction point: ${predictionPoint.date} - $${predictionPoint.predictedPrice}`
     );
-  } else {
-    console.log(
-      "[DEBUG] No prediction data or historical data available for chart"
-    );
   }
 
-  // Sort by date to ensure proper chronological order
+  // Always add current date as last point (if it's not already present)
+  const currentDate = new Date();
+  while ([0, 6].includes(currentDate.getDay())) {
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  const currentDateStr = currentDate.toISOString().split("T")[0];
+
+  const alreadyIncluded = combined.some((point) => point.date === currentDateStr);
+  if (!alreadyIncluded) {
+    combined.push({
+      date: currentDateStr,
+      actualPrice: null,
+      predictedPrice: null,
+      type: "historical",
+    });
+    console.log(`[DEBUG] Added current date point: ${currentDateStr}`);
+  }
+
   const sorted = combined.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );

@@ -254,7 +254,7 @@ const StockPredictionSimulator: React.FC = () => {
 
           {/* Chart Section */}
           <div className="px-8 pb-8">
-            {chartData.length > 0 && !isLoading ? (
+            {historicalData.length > 0 && !isLoading ? (
               <div
                 className={`
                 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg
