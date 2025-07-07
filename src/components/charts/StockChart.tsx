@@ -295,22 +295,6 @@ const StockChart: React.FC<StockChartProps> = ({
         </ResponsiveContainer>
       </div>
 
-      <div className="flex justify-center">
-        <Button
-          onClick={handleAnalyze}
-          disabled={isAnalyzing}
-          className="flex items-center gap-2"
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            "Analyze with AI"
-          )}
-        </Button>
-      </div>
 
       {error && <div className="text-red-500 text-center p-4">{error}</div>}
 

@@ -94,10 +94,22 @@ const TradingViewWidget: React.FC<{
 
     return () => {
       if (widgetRef.current) {
-        widgetRef.current.remove();
+        try {
+          // Only remove if the container still exists in the DOM
+          const container = containerRef.current;
+          if (container && container.parentNode) {
+            widgetRef.current.remove();
+          }
+        } catch (e) {
+          // Silently catch any errors to prevent app crash
+          // Optionally, log the error if needed
+          // console.error('Error removing TradingView widget:', e);
+        }
         widgetRef.current = null;
       }
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, [symbol, dateRange]);
 
