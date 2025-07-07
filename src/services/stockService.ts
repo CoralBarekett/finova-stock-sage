@@ -23,26 +23,26 @@ const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
 // Stock symbol to company name mapping
 const companyNames: Record<string, string> = {
-  'AAPL': 'Apple Inc.',
-  'TSLA': 'Tesla, Inc.',
-  'MSFT': 'Microsoft Corporation',
-  'AMZN': 'Amazon.com, Inc.',
-  'GOOGL': 'Alphabet Inc.',
-  'META': 'Meta Platforms, Inc.',
-  'NFLX': 'Netflix, Inc.',
-  'NVDA': 'NVIDIA Corporation',
-  'AMD': 'Advanced Micro Devices, Inc.',
-  'INTC': 'Intel Corporation',
-  'IBM': 'International Business Machines',
-  'CSCO': 'Cisco Systems, Inc.',
-  'ORCL': 'Oracle Corporation',
-  'CRM': 'Salesforce, Inc.',
-  'PYPL': 'PayPal Holdings, Inc.',
-  'ADBE': 'Adobe Inc.',
-  'TWTR': 'Twitter, Inc.',
-  'SNAP': 'Snap Inc.',
-  'DIS': 'The Walt Disney Company',
-  'V': 'Visa Inc.',
+  AAPL: "Apple Inc.",
+  TSLA: "Tesla, Inc.",
+  MSFT: "Microsoft Corporation",
+  AMZN: "Amazon.com, Inc.",
+  GOOGL: "Alphabet Inc.",
+  META: "Meta Platforms, Inc.",
+  NFLX: "Netflix, Inc.",
+  NVDA: "NVIDIA Corporation",
+  AMD: "Advanced Micro Devices, Inc.",
+  INTC: "Intel Corporation",
+  IBM: "International Business Machines",
+  CSCO: "Cisco Systems, Inc.",
+  ORCL: "Oracle Corporation",
+  CRM: "Salesforce, Inc.",
+  PYPL: "PayPal Holdings, Inc.",
+  ADBE: "Adobe Inc.",
+  TWTR: "Twitter, Inc.",
+  SNAP: "Snap Inc.",
+  DIS: "The Walt Disney Company",
+  V: "Visa Inc.",
 };
 
 // Helper functions for API calls
@@ -56,7 +56,9 @@ const handleApiError = (error: any, message: string) => {
 const getStockQuote = async (symbol: string): Promise<any> => {
   try {
     // const response = await fetch(`${LIVE_STOCKS_BASE_URL}/quote?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
-    const response = await fetch(`${BACKEND_API_URL}/stocks/live?symbol=${symbol}`);
+    const response = await fetch(
+      `${BACKEND_API_URL}/stocks/live?symbol=${symbol}`
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -72,7 +74,9 @@ const getStockQuote = async (symbol: string): Promise<any> => {
 const getCompanyProfile = async (symbol: string): Promise<any> => {
   try {
     // const response = await fetch(`${LIVE_STOCKS_BASE_URL}/stock/profile2?symbol=${symbol}&token=${LIVE_STOCKS_API_KEY}`);
-    const response = await fetch(`${BACKEND_API_URL}/stocks/profile?symbol=${symbol}`);
+    const response = await fetch(
+      `${BACKEND_API_URL}/stocks/profile?symbol=${symbol}`
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -87,8 +91,8 @@ const getCompanyProfile = async (symbol: string): Promise<any> => {
 // Mock popular stocks data (still needed as a fallback)
 const popularStocks: StockData[] = [
   {
-    symbol: 'AAPL',
-    name: 'Apple Inc.',
+    symbol: "AAPL",
+    name: "Apple Inc.",
     price: 182.63,
     change: 1.59,
     changePercent: 0.87,
@@ -97,8 +101,8 @@ const popularStocks: StockData[] = [
     peRatio: 30.2,
   },
   {
-    symbol: 'TSLA',
-    name: 'Tesla, Inc.',
+    symbol: "TSLA",
+    name: "Tesla, Inc.",
     price: 267.49,
     change: -3.32,
     changePercent: -1.23,
@@ -107,8 +111,8 @@ const popularStocks: StockData[] = [
     peRatio: 75.8,
   },
   {
-    symbol: 'MSFT',
-    name: 'Microsoft Corporation',
+    symbol: "MSFT",
+    name: "Microsoft Corporation",
     price: 429.85,
     change: 5.32,
     changePercent: 1.25,
@@ -117,18 +121,18 @@ const popularStocks: StockData[] = [
     peRatio: 37.4,
   },
   {
-    symbol: 'AMZN',
-    name: 'Amazon.com, Inc.',
+    symbol: "AMZN",
+    name: "Amazon.com, Inc.",
     price: 178.15,
-    change: 2.50,
+    change: 2.5,
     changePercent: 1.42,
     volume: 35621000,
     marketCap: 1860000000000,
     peRatio: 62.1,
   },
   {
-    symbol: 'GOOGL',
-    name: 'Alphabet Inc.',
+    symbol: "GOOGL",
+    name: "Alphabet Inc.",
     price: 152.12,
     change: -0.89,
     changePercent: -0.58,
@@ -137,8 +141,8 @@ const popularStocks: StockData[] = [
     peRatio: 26.8,
   },
   {
-    symbol: 'META',
-    name: 'Meta Platforms, Inc.',
+    symbol: "META",
+    name: "Meta Platforms, Inc.",
     price: 487.95,
     change: 8.24,
     changePercent: 1.72,
@@ -161,51 +165,68 @@ export const getStockHistoricalData = async (
     const response = await fetch(
       `${BACKEND_API_URL}/stocks/history?&symbol=${symbol}`
     );
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     const data = await response.json();
-    console.log('API Response:', data);
-    
+    console.log("API Response:", data);
+
     // Handle API limit reached or errors
-    if (data['Error Message'] || data['Information'] || !data['Time Series (Daily)']) {
-      console.warn('API limitation or error:', data);
+    if (
+      data["Error Message"] ||
+      data["Information"] ||
+      !data["Time Series (Daily)"]
+    ) {
+      console.warn("API limitation or error:", data);
       // Fall back to mock data
-      return generateHistoricalData(popularStocks.find(s => s.symbol === symbol)?.price || 100, days);
+      return generateHistoricalData(
+        popularStocks.find((s) => s.symbol === symbol)?.price || 100,
+        days
+      );
     }
-    
-    const timeSeries = data['Time Series (Daily)'];
-    const dates = Object.keys(timeSeries).sort().slice(0, days);
-    
-    const historicalData = dates.map(date => ({
+
+    const timeSeries = data["Time Series (Daily)"];
+    // Sort dates descending (most recent first), take the most recent N, then reverse for chronological order
+    const allDates = Object.keys(timeSeries).sort(
+      (a, b) => new Date(b).getTime() - new Date(a).getTime()
+    );
+    const recentDates = allDates.slice(0, days);
+    const chronologicalDates = recentDates.reverse();
+
+    const historicalData = chronologicalDates.map((date) => ({
       date,
-      price: parseFloat(timeSeries[date]['4. close']),
+      price: parseFloat(timeSeries[date]["4. close"]),
     }));
-    
-    console.log('Processed historical data:', historicalData);
+
+    console.log("Processed historical data:", historicalData);
     return historicalData;
   } catch (error) {
-    console.error('Error fetching historical data:', error);
+    console.error("Error fetching historical data:", error);
     // Fall back to mock data with more current dates
-    const stock = popularStocks.find(s => s.symbol.toLowerCase() === symbol.toLowerCase());
+    const stock = popularStocks.find(
+      (s) => s.symbol.toLowerCase() === symbol.toLowerCase()
+    );
     return generateHistoricalData(stock?.price || 100, days);
   }
 };
 
 // Generate mock historical data (used as fallback with current dates)
-const generateHistoricalData = (basePrice: number, days: number): HistoricalData[] => {
+const generateHistoricalData = (
+  basePrice: number,
+  days: number
+): HistoricalData[] => {
   const data: HistoricalData[] = [];
   const today = new Date();
-  
+
   for (let i = days; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    
+
     // Add some realistic price movement patterns with trends
     let trendFactor = 1.0;
-    
+
     // Create a more realistic trend pattern
     if (i < days / 2) {
       // First half of the data shows one trend
@@ -214,34 +235,34 @@ const generateHistoricalData = (basePrice: number, days: number): HistoricalData
       // Second half shows another trend
       trendFactor = 1 + (i - days / 2) * 0.0005; // Different trend
     }
-    
+
     // Add some randomness to daily changes
     const dailyChange = (Math.random() - 0.5) * 0.02; // Random between -1% and +1%
     const volatilityFactor = 1 + dailyChange;
-    
+
     // Calculate price with trend and volatility
     const price = basePrice * trendFactor * volatilityFactor;
-    
+
     data.push({
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split("T")[0],
       price: parseFloat(price.toFixed(2)),
     });
   }
-  
+
   return data;
 };
 
 // Get popular stocks with real data from Finnhub
 export const getPopularStocks = async (): Promise<StockData[]> => {
-  const symbols = ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'GOOGL', 'META'];
+  const symbols = ["AAPL", "TSLA", "MSFT", "AMZN", "GOOGL", "META"];
   const result: StockData[] = [];
-  
+
   try {
     // We'll use Promise.all to fetch data for all symbols in parallel
     await Promise.all(
       symbols.map(async (symbol) => {
         const quote = await getStockQuote(symbol);
-        
+
         if (quote) {
           result.push({
             symbol,
@@ -251,18 +272,20 @@ export const getPopularStocks = async (): Promise<StockData[]> => {
             changePercent: quote.dp || 0,
             volume: quote.v || 0,
             marketCap: 0, // Not available in basic quote
-            peRatio: 0,   // Not available in basic quote
+            peRatio: 0, // Not available in basic quote
           });
         }
       })
     );
-    
+
     // If we failed to get any real data, use mock data
     if (result.length === 0) {
-      toast.error("Could not fetch live stock data. Using sample data instead.");
+      toast.error(
+        "Could not fetch live stock data. Using sample data instead."
+      );
       return popularStocks;
     }
-    
+
     return result;
   } catch (error) {
     console.error("Error fetching popular stocks:", error);
@@ -273,40 +296,40 @@ export const getPopularStocks = async (): Promise<StockData[]> => {
 
 // Search for stocks
 export const searchStocks = async (query: string): Promise<StockData[]> => {
-  if (!query || query.trim() === '') {
+  if (!query || query.trim() === "") {
     return [];
   }
-  
+
   try {
     const response = await fetch(
       `${LIVE_STOCKS_BASE_URL}/search?q=${query}&token=${LIVE_STOCKS_API_KEY}`
     );
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     const data = await response.json();
-    
+
     if (!data.result || !Array.isArray(data.result)) {
-      console.warn('No search results or unexpected format:', data);
+      console.warn("No search results or unexpected format:", data);
       // Fall back to mock search
       const lowercaseQuery = query.toLowerCase();
       return popularStocks.filter(
-        stock => 
-          stock.symbol.toLowerCase().includes(lowercaseQuery) || 
+        (stock) =>
+          stock.symbol.toLowerCase().includes(lowercaseQuery) ||
           stock.name.toLowerCase().includes(lowercaseQuery)
       );
     }
-    
+
     // Convert the search results to our StockData format
     // We need to fetch quotes for the search results
     const topResults = data.result.slice(0, 10);
     const searchResults: StockData[] = [];
-    
+
     await Promise.all(
       topResults.map(async (item: any) => {
-        if (item.symbol && item.type === 'Common Stock') {
+        if (item.symbol && item.type === "Common Stock") {
           const quote = await getStockQuote(item.symbol);
           if (quote) {
             searchResults.push({
@@ -323,32 +346,34 @@ export const searchStocks = async (query: string): Promise<StockData[]> => {
         }
       })
     );
-    
+
     return searchResults;
   } catch (error) {
     console.error("Error searching stocks:", error);
     toast.error("Error searching for stocks. Using sample results.");
-    
+
     // Fall back to mock search
     const lowercaseQuery = query.toLowerCase();
     return popularStocks.filter(
-      stock => 
-        stock.symbol.toLowerCase().includes(lowercaseQuery) || 
+      (stock) =>
+        stock.symbol.toLowerCase().includes(lowercaseQuery) ||
         stock.name.toLowerCase().includes(lowercaseQuery)
     );
   }
 };
 
 // Get details for a specific stock
-export const getStockDetails = async (symbol: string): Promise<StockData | null> => {
+export const getStockDetails = async (
+  symbol: string
+): Promise<StockData | null> => {
   try {
     const quote = await getStockQuote(symbol);
     const profile = await getCompanyProfile(symbol);
-    
+
     if (!quote) {
       throw new Error(`Could not fetch quote for ${symbol}`);
     }
-    
+
     return {
       symbol: symbol,
       name: profile?.name || companyNames[symbol] || symbol,
@@ -361,38 +386,44 @@ export const getStockDetails = async (symbol: string): Promise<StockData | null>
     };
   } catch (error) {
     console.error(`Error fetching stock details for ${symbol}:`, error);
-    
+
     // Fall back to mock data
     const stock = popularStocks.find(
-      s => s.symbol.toLowerCase() === symbol.toLowerCase()
+      (s) => s.symbol.toLowerCase() === symbol.toLowerCase()
     );
-    
+
     if (!stock) {
       return null;
     }
-    
+
     return stock;
   }
 };
 
 // Get AI prediction for a stock - this remains mock data for now
-export const getPrediction = async (symbol: string): Promise<{
+export const getPrediction = async (
+  symbol: string
+): Promise<{
   bullish: boolean;
   confidence: number;
   prediction: string;
 }> => {
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1200));
-  
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+
   // Generate a mock prediction
   const bullish = Math.random() > 0.4; // 60% chance of bullish prediction
   const confidence = 65 + Math.floor(Math.random() * 20); // Between 65-85%
-  
+
   return {
     bullish,
     confidence,
     prediction: bullish
-      ? `Our AI model predicts a potential ${(2 + Math.random() * 3).toFixed(1)}% increase for ${symbol} in the next 7 days, with ${confidence}% confidence.`
-      : `Our AI model indicates a possible ${(1 + Math.random() * 2).toFixed(1)}% decrease for ${symbol} in the coming week, with ${confidence}% confidence.`
+      ? `Our AI model predicts a potential ${(2 + Math.random() * 3).toFixed(
+          1
+        )}% increase for ${symbol} in the next 7 days, with ${confidence}% confidence.`
+      : `Our AI model indicates a possible ${(1 + Math.random() * 2).toFixed(
+          1
+        )}% decrease for ${symbol} in the coming week, with ${confidence}% confidence.`,
   };
 };
